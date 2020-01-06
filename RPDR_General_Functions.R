@@ -3,6 +3,7 @@ require(stringr) # str_c
 require(data.table) # fread, fwrite
 require(tidyverse)
 require(logging)
+
 Medication_Mapping <- function(Medication_DF = Medications){
   loginfo("Creating medication mapping...")
   # Create Groupings
@@ -264,4 +265,62 @@ Medication_Mapping <- function(Medication_DF = Medications){
   logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
   loginfo("Mapping complete")
   return(Medication_DF)
+}
+
+Create_ACTH_Cortisol_DHEA_Output_Columns <- function(ACTH_Cortisol_DHEA_Group, Group_Header, DF_to_fill){
+  # Splitting up Output Columns step into substeps because some median date selection doesn't work well with summarise
+  OC_pregroup <- ACTH_Cortisol_DHEA_Group %>% group_by(EMPI, Reference_Units, Seq_Date, Seq_Time) %>%
+    summarise(nResults_Per_Time = n(),
+              MinResult = min(Result),
+              MaxResult = max(Result),
+              MedianResult = median(Result),
+              MeanResult = mean(Result)) %>%
+    arrange(Seq_Time) %>% group_by(EMPI, Reference_Units, Seq_Date) %>%
+    summarise(nResults_Per_Date = sum(nResults_Per_Time),
+              nTimes_Per_Date = n(),
+              FirstMin = first(MinResult),
+              FirstMax = first(MaxResult),
+              FirstMedian = first(MedianResult),
+              FirstMean = first(MeanResult),
+              FirstTime = first(Seq_Time)) %>%
+    mutate(Seq_Date_Time = ifelse(is.na(FirstTime), as.character(Seq_Date), str_c(Seq_Date, " ", FirstTime))) %>% 
+    group_by(EMPI, Reference_Units) %>%
+    rename(!!as.symbol(str_c(Group_Header, "_Reference_Units")) := Reference_Units)
+  DF_to_fill <- left_join(DF_to_fill, OC_pregroup %>% summarise(), by = "EMPI")
+  OC_pregroup <- OC_pregroup %>% group_by(EMPI) %>% arrange(Seq_Date_Time)
+  
+  Output_Columns <- OC_pregroup %>%
+    summarise(!!as.symbol(str_c(Group_Header, "_nTotalDates")) := n(),
+              !!as.symbol(str_c(Group_Header, "_nTotalDatesTimes")) := sum(nTimes_Per_Date),
+              !!as.symbol(str_c(Group_Header, "_nTotalResults")) := sum(nResults_Per_Date),
+              !!as.symbol(str_c(Group_Header, "_All_Seq_Date_Times")) := paste(Seq_Date_Time, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+  Output_Columns <- OC_pregroup %>%
+    summarise(!!as.symbol(str_c(Group_Header, "_Overall_Min_Result")) := min(FirstMin),
+              !!as.symbol(str_c(Group_Header, "_Overall_Min_Result_Date_First")) := Seq_Date_Time[first(which(FirstMin == min(FirstMin)))],
+              !!as.symbol(str_c(Group_Header, "_Overall_Min_Result_Date_Last")) := Seq_Date_Time[last(which(FirstMin == min(FirstMin)))],
+              !!as.symbol(str_c(Group_Header, "_All_Min_Results")) := paste(FirstMin, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+  Output_Columns <- OC_pregroup %>%
+    summarise(!!as.symbol(str_c(Group_Header, "_Overall_Max_Result")) := max(FirstMax),
+              !!as.symbol(str_c(Group_Header, "_Overall_Max_Result_Date_First")) := Seq_Date_Time[first(which(FirstMax == max(FirstMax)))],
+              !!as.symbol(str_c(Group_Header, "_Overall_Max_Result_Date_Last")) := Seq_Date_Time[last(which(FirstMax == max(FirstMax)))],
+              !!as.symbol(str_c(Group_Header, "_All_Max_Results")) := paste(FirstMax, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+  Output_Columns <- OC_pregroup %>% filter(abs(median(FirstMedian) - FirstMedian) == median(FirstMedian) - FirstMedian) %>%
+    arrange(EMPI, FirstMedian) %>%
+    summarise(!!as.symbol(str_c(Group_Header, "_Overall_Median_Result")) := max(FirstMedian),
+              !!as.symbol(str_c(Group_Header, "_Overall_Median_Result_Date_First_or_closest_below")) := Seq_Date_Time[first(which(FirstMedian == max(FirstMedian)))],
+              !!as.symbol(str_c(Group_Header, "_Overall_Median_Result_Date_Last_or_closest_below")) := Seq_Date_Time[last(which(FirstMedian == max(FirstMedian)))])
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+  # All Median is done separately because the previous computation dumps rows that we don't want dumped for the paste
+  Output_Columns <- OC_pregroup %>%
+    summarise(!!as.symbol(str_c(Group_Header, "_All_Median_Results")) := paste(FirstMedian, collapse = ";"),
+              !!as.symbol(str_c(Group_Header, "_Overall_Mean_Result")) := mean(FirstMean),
+              !!as.symbol(str_c(Group_Header, "_All_Mean_Results")) := paste(FirstMean, collapse = ";"))
+  
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+  loginfo(str_c(nrow(Output_Columns), " subjects have a ", Group_Header, " test performed with useful information"))
+  rm(OC_pregroup, Output_Columns)
+  return(DF_to_fill)
 }
