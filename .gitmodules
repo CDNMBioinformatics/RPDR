@@ -4,3 +4,6 @@
 [submodule "RPDR_Priya"]
 	path = RPDR_Priya
 	url = git@changit.bwh.harvard.edu:resta/RPDR_Priya.git
+[submodule "GWAS"]
+	path = GWAS
+	url = git@changit.bwh.harvard.edu:resta/GWAS.git
