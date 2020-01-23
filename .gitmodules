@@ -1,0 +1,3 @@
+[submodule "RPDR_Pegasus"]
+	path = RPDR_Pegasus
+	url = git@changit.bwh.harvard.edu:resta/RPDR_Pegasus.git
