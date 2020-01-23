@@ -2,7 +2,7 @@
 	path = Pegasus
 	url = git@changit.bwh.harvard.edu:resta/RPDR_Pegasus.git
 [submodule "RPDR_Priya"]
-	path = RPDR_Priya
+	path = ProjectForPriya
 	url = git@changit.bwh.harvard.edu:resta/RPDR_Priya.git
 [submodule "GWAS"]
 	path = GWAS
