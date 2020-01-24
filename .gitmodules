@@ -1,9 +1,9 @@
 [submodule "RPDR_Pegasus"]
-	path = Pegasus
+	path = RPDR_Pegasus
 	url = git@changit.bwh.harvard.edu:resta/RPDR_Pegasus.git
 [submodule "RPDR_Priya"]
-	path = ProjectForPriya
+	path = RPDR_Priya
 	url = git@changit.bwh.harvard.edu:resta/RPDR_Priya.git
 [submodule "GWAS"]
-	path = GWAS
-	url = git@changit.bwh.harvard.edu:resta/GWAS.git
+	path = RPDR_GWAS
+	url = git@changit.bwh.harvard.edu:resta/RPDR_GWAS.git
