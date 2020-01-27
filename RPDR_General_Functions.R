@@ -9,19 +9,31 @@ require(zeallot) # %<-% (multiple variable assignment)
 ####################################################################################################
 ######################################## General functions  ########################################
 ####################################################################################################
-process_demographics <- function(DF_to_fill = All_merged,
+process1_biobankIDs <- function(input_file_header = config$rpdr_file_header,
+                               input_file_ending = config$rpdr_file_ending){
+  loginfo("Processing biobank ids file... ")
+  BiobankIDs <- data.table(fread(str_c(input_file_header, "Bib", input_file_ending)))
+  BiobankIDs <- BiobankIDs %>% select(Subject_Id, EMPI) %>% rename(Biobank_Subject_ID = Subject_Id)
+  loginfo(str_c(nrow(BiobankIDs), " subjects processed"))
+  return(BiobankIDs)
+}
+
+process2_demographics <- function(DF_to_fill = All_merged,
                                  input_file_header = config$rpdr_file_header,
                                  input_file_ending = config$rpdr_file_ending){
   loginfo("Processing demographics file...")
   Demographics <- data.table(fread(str_c(input_file_header, "Dem", input_file_ending)))
   Demographics <- Demographics %>% select(EMPI, Gender, Date_of_Birth, Age, Date_Of_Death, Race)
-  DF_to_fill <- merge(DF_to_fill, Demographics, by = "EMPI") # now has 7 columns (5 new columns)
+  DF_to_fill <- merge(DF_to_fill, Demographics, by = "EMPI")
   loginfo("Gender, date of birth, age, date of death, and race information have been added")
   rm(Demographics)
   return(DF_to_fill)
 }
 
-process_deidentified <- function(DF_to_fill = All_merged,
+####################################################################################################
+#################################### Deidentification functions ####################################
+####################################################################################################
+process3_deidentified <- function(DF_to_fill = All_merged,
                                  input_file_name = config$biobank_file_name){
   loginfo("Processing biobank file...")
   Deidentified <- read_csv(input_file_name)
@@ -42,7 +54,7 @@ process_deidentified <- function(DF_to_fill = All_merged,
 ####################################################################################################
 ####################################### Diagnosis functions  #######################################
 ####################################################################################################
-process_diagnoses <- function(DF_to_fill = All_merged,
+process4_diagnoses <- function(DF_to_fill = All_merged,
                               input_file_header = config$rpdr_file_header,
                               input_file_ending = config$rpdr_file_ending,
                               path_dia_abn = str_c(config$data_dir, "Diagnoses_abnormalities/"),
@@ -55,7 +67,8 @@ process_diagnoses <- function(DF_to_fill = All_merged,
     return(DF_to_fill)
   }
   loginfo("Processing diagnoses file...")
-  Diagnoses <- data.table(fread(str_c(input_file_header, "Dia", input_file_ending))) %>% arrange(EMPI, Date)
+  Diagnoses <- data.table(fread(str_c(input_file_header, "Dia", input_file_ending))) %>% 
+    arrange(EMPI, Date)
   if (!dir.exists(path_dia_abn)) {dir.create(path_dia_abn)}
   
   # Get the "Any exist" first to lower the search group/increase speed later
@@ -381,7 +394,7 @@ Medication_Mapping <- function(Medication_DF = Medications){
   return(Medication_DF)
 }
 
-process_medications <- function(DF_to_fill = All_merged,
+process5_medications <- function(DF_to_fill = All_merged,
                                 input_file_header = config$rpdr_file_header,
                                 input_file_ending = config$rpdr_file_ending,
                                 path_med_abn = str_c(config$data_dir, "Medication_abnormalities/"),
@@ -394,11 +407,15 @@ process_medications <- function(DF_to_fill = All_merged,
     return(DF_to_fill)
   }
   loginfo("Processing medications file...")
-  Medications <- data.table(fread(str_c(input_file_header, "Med", input_file_ending))) %>%
-    mutate(Medication_Date = mdy(Medication_Date)) %>% arrange(EMPI, Medication_Date)
-  if (!("Medication_Name" %in% colnames(Medications) & "Medication_Group" %in% colnames(Medications))){
+  if (str_c(config$rpdr_file_header, "Med_updated", config$rpdr_file_ending) %in% str_c(config$data_dir, list.files(config$data_dir))){
+    loginfo("Using previously mapped file...")
+    Medications <- fread(str_c(input_file_header, "Med_updated", input_file_ending))
+  } else {
+    Medications <- fread(str_c(input_file_header, "Med", input_file_ending))
     Medications <- Medication_Mapping(Medications)
+    fwrite(Medications, str_c(input_file_header, "Med_updated", input_file_ending), sep = "|")
   }
+  Medications <- Medications %>% mutate(Medication_Date = mdy(Medication_Date)) %>% arrange(EMPI, Medication_Date)
   if (!dir.exists(path_med_abn)) {dir.create(path_med_abn)}
   
   # Get the "Any exist" first to lower the search group/increase speed later
@@ -604,7 +621,7 @@ Create_ACTH_Cortisol_DHEA_Output_Columns <- function(ACTH_Cortisol_DHEA_Group,
   return(DF_to_fill)
 }
 
-process_ACTH_labs <- function(DF_to_fill = All_merged,
+process6_ACTH_labs <- function(DF_to_fill = All_merged,
                               input_file_header = config$rpdr_file_header,
                               input_file_ending = config$rpdr_file_ending,
                               path_lab_abn = str_c(config$data_dir, "Lab_abnormalities/"),
