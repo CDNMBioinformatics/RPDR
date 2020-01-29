@@ -60,7 +60,7 @@ process4_diagnoses <- function(DF_to_fill = All_merged,
                               path_dia_abn = str_c(config$data_dir, "Diagnoses_abnormalities/"),
                               Diagnoses_Of_Interest,
                               write_files = config$create_intermediates,
-                              output_file_header = config$select_files_dir,
+                              output_file_header = config$intermediate_files_dir,
                               output_file_ending = config$general_file_ending){
   if (missing(Diagnoses_Of_Interest)){
     logerror("No list of Diagnoses were specified. Process stopped.")
@@ -400,7 +400,7 @@ process5_medications <- function(DF_to_fill = All_merged,
                                 path_med_abn = str_c(config$data_dir, "Medication_abnormalities/"),
                                 Medications_Of_Interest,
                                 write_files = config$create_intermediates,
-                                output_file_header = config$select_files_dir,
+                                output_file_header = config$intermediate_files_dir,
                                 output_file_ending = config$general_file_ending){
   if (missing(Medications_Of_Interest)){
     logerror("No list of Medications were specified. Process stopped.")
@@ -629,7 +629,7 @@ process6_ACTH_labs <- function(DF_to_fill = All_merged,
                               strict = config$ACTH_params$strict,
                               create_cortisol_group = config$ACTH_params$create_cortisol_group,
                               write_files = config$create_intermediates,
-                              output_file_header = config$select_files_dir,
+                              output_file_header = config$intermediate_files_dir,
                               output_file_ending = config$general_file_ending){
   loginfo("Processing labs file...")
   Labs <- data.table(fread(str_c(input_file_header, "Lab", input_file_ending))) %>% arrange(EMPI, Seq_Date_Time)
