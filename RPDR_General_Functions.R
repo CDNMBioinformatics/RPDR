@@ -34,9 +34,9 @@ process2_demographics <- function(DF_to_fill = All_merged,
 #################################### Deidentification functions ####################################
 ####################################################################################################
 process3_deidentified <- function(DF_to_fill = All_merged,
-                                 input_file_name = config$biobank_file_name){
+                                  input_file_name = config$biobank_file_name){
   loginfo("Processing biobank file...")
-  Deidentified <- read_csv(input_file_name)
+  Deidentified <- fread(input_file_name)
   Deidentified <- Deidentified %>% select(`Biobank Subject ID`, contains("Asthma"))
   names(Deidentified) <- gsub("(.*)_$", "\\1",
                               gsub("_+", "_",
@@ -51,6 +51,69 @@ process3_deidentified <- function(DF_to_fill = All_merged,
   return(DF_to_fill)
 }
 
+process3_deidentified_asthma_copd <- function(DF_to_fill = All_merged,
+                                              input_file_name = config$biobank_file_name){
+  loginfo("Processing biobank file...")
+  Deidentified <- fread(input_file_name)
+  Deidentified <- Deidentified %>% select(`Biobank Subject ID`, contains("Asthma"), contains("COPD"))
+  names(Deidentified) <- gsub("(.*)_current_.*", "\\1",
+                              gsub("(.*)_no_history_.*", "Non\\1",
+                                   gsub("_+", "_",
+                                        gsub("( |\\(|\\)|-|/|\\[|\\])", "_",
+                                             gsub("(.* )(\\[.*)", "\\1",
+                                                  names(Deidentified))))))
+  Deidentified <- Deidentified %>%
+    mutate_at(vars(contains("Asthma"), contains("COPD")), ~ifelse(.x == "Yes", 1, 0)) %>%
+    select(Biobank_Subject_ID, Asthma, NonAsthma, COPD, NonCOPD)
+  DF_to_fill <- left_join(DF_to_fill, Deidentified, by = "Biobank_Subject_ID")
+  loginfo("Asthma and COPD identifiers have been added")
+  rm(Deidentified)
+  return(DF_to_fill)
+}
+
+
+process_BMI <- function(BMI_df = Deidentified){
+  loginfo("Processing BMI...")
+  BMI_df <- BMI_df %>% mutate_at(vars(contains("List")), ~gsub("\\[((\\d|\\.)+)\\]", "\\1", .x))
+  BMI_df <- BMI_df %>% mutate_at(vars(contains("List")), ~gsub(" ", ";", .x))
+  BMI_df <- BMI_df %>% mutate_at(vars(contains("List")), ~gsub("^$", NA, .x))
+  return(BMI_df)
+}
+
+process_dates <- function(DF = Deidentified){
+  loginfo("Processing date ranges...")
+  DF <- DF %>% mutate_at(vars(contains("Date")), ymd_hms)
+  Date_pairs <- gsub("^(.*_)Date_First$", "\\1", DF %>% select(contains("Date_First")) %>% names())
+  for (Group in Date_pairs){
+    DF <- DF %>% mutate(!!(as.symbol(str_c(Group, "Range_Years"))) := 
+                          time_length(interval(!!(as.symbol(str_c(Group, "Date_First"))),
+                                               !!(as.symbol(str_c(Group, "Date_Most_Recent")))),
+                                      unit = "year")) %>% 
+      select(Biobank_Subject_ID:matches(str_c("^", Group, "Date_Most_Recent")),
+             str_c(Group, "Range_Years"), everything())
+  }
+  return(DF)
+}
+process3_deidentified_complex <- function(DF_to_fill = All_merged,
+                                          input_file_name = config$biobank_file_name){
+  loginfo("Processing biobank file...")
+  Deidentified <- fread(input_file_name)
+  names(Deidentified) <- gsub("^(.*)_$", "\\1",
+                              gsub("_+", "_",
+                                   gsub(" |-|\\(|\\)|\\[|\\]|;|:|/|&", "_", names(Deidentified))))
+  Deidentified <- Deidentified %>%
+    rename(Asthma = Asthma_current_or_past_history_PPV_0.90_Existence_Yes_No,
+           NonAsthma = Asthma_no_history_NPV_0.99_Existence_Yes_No) %>%
+    mutate(Asthma = ifelse(Asthma == "Yes", 1, 0), NonAsthma = ifelse(NonAsthma == "Yes", 1, 0))
+  Deidentified <- Deidentified %>% select(-(Gender:Vital_Status)) %>%
+    select(-(starts_with("BMI")))
+  Deidentified <- process_BMI(Deidentified)
+  Deidentified <- process_dates(Deidentified)
+  DF_to_fill <- left_join(DF_to_fill, Deidentified, by = "Biobank_Subject_ID")
+  loginfo("Asthma and NonAsthma, BMI, and Spirometry identifiers have been added")
+  rm(Deidentified)
+  return(DF_to_fill)
+}
 ####################################################################################################
 ####################################### Diagnosis functions  #######################################
 ####################################################################################################
@@ -162,7 +225,7 @@ Medication_Mapping <- function(Medication_DF = Medications){
   IV_steroids <- c("Methylprednisolone")
   Inhaled_corticosteroids <- c("Beclomethasone dipropionate", "Budesonide", "Ciclesonide", "Dexamethasone",
                             "Flunisolide", "Fluticasone", "Mometasone", "Triamcinolone")
-  Inhaled_chromones <- c("Nedocromil", "Cromolyn")
+  Inhaled_chromones <- c("Nedrocromil", "Cromolyn")
   Inhaled_anticholinergics <- c("Umeclidinium", "Aclidinium", "Ipratropium", "Tiotropium")
   Antileukotrienes <- c("Montelukast", "Zafirlukast", "Zileuton")
   Long_acting_beta_agonists <- c("Arformoterol", "Formoterol", "Indacaterol", "Salmeterol")
@@ -390,6 +453,15 @@ Medication_Mapping <- function(Medication_DF = Medications){
            Medication_Name = ifelse(is.na(Medication_Name) & grepl("Slo |Theo|Uniphyl", Medication), "Theophylline", Medication_Name),
            Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Xanthines), "Xanthines", Medication_Group))
   logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
+  # Medications to be grouped
+  loginfo("Processing Ungrouped medications...")
+  MISC_TBA <- c("Betamethasone", "Cortisone", "Dexamethasone", "Hydrocortisone")
+  Medication_DF <- Medication_DF %>%
+    mutate(Medication_Name = ifelse(grepl("^Betamet( acet/|hasone (0.12|0.6|1mg|Acetate|Sodium|soluspan)|Celestone)", Medication), "Betamethasone", Medication_Name),
+           Medication_Name = ifelse(grepl("^Cortisone(-| (ace|lm|25|enema))", Medication), "Cortisone", Medication_Name),
+           Medication_Name = ifelse(grepl("^Decadron-oncall|Dexpak|^(Id-)*Dexamethasone *(0.5|0.75|1[^2]|2.*[^s]$|3|4|6|\\(|-|A|IVPB|liq|mouth|[Oo]ral|o.*217$|[Ss]odium|sod [Pp]hosphate(/pf| 20)|Syr|tab)|Pulmicort.*5919$", Medication), "Dexamethasone", Medication_Name),
+           Medication_Name = ifelse(grepl("((?!Neo-).)*Cortef|^Hydrocortisone +(\\(|-|1((?!(%|blist|enema|Teva)).)*$|2((?!%|cream).)*$|5((?!topical).)$|Acetate Inj|inj|IVPB 100|oral|Sod.*((?!D5w).)*|tab)|Hydrocortisone-oncall|Id-Hydrocortisone((?!%).)*$", Medication, ignore.case = TRUE, perl = TRUE), "Hydrocortisone", Medication_Name),
+           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% MISC_TBA), "TBD_GROUP_NAME", Medication_Group))
   loginfo("Mapping complete")
   return(Medication_DF)
 }
@@ -407,7 +479,7 @@ process5_medications <- function(DF_to_fill = All_merged,
     return(DF_to_fill)
   }
   loginfo("Processing medications file...")
-  if (str_c(config$rpdr_file_header, "Med_updated", config$rpdr_file_ending) %in% str_c(config$data_dir, list.files(config$data_dir))){
+  if (str_c(input_file_header, "Med_updated", input_file_ending) %in% str_c(config$data_dir, list.files(config$data_dir))){
     loginfo("Using previously mapped file...")
     Medications <- fread(str_c(input_file_header, "Med_updated", input_file_ending))
   } else {
@@ -965,6 +1037,122 @@ process6_ACTH_labs <- function(DF_to_fill = All_merged,
     
     rm(Cortisol_group, header)
   }
+  rm(Labs)
+  return(DF_to_fill)
+}
+
+process6_IGE_IGG_labs <- function(DF_to_fill = All_merged,
+                                  input_file_header = config$rpdr_file_header_july,
+                                  input_file_ending = config$rpdr_file_ending,
+                                  path_lab_abn = str_c(config$data_dir, "Lab_abnormalities/"),
+                                  output_file_ending = config$general_file_ending){
+  Labs <- data.table(fread(str_c(input_file_header, "Lab", input_file_ending))) %>% arrange(EMPI)
+  if (!dir.exists(path_lab_abn)) {dir.create(path_lab_abn)}
+  logdebug(str_c("Note: All Lab abnormalites can be found at ", path_lab_abn))
+  
+  # Clean data (1):
+  # (A): Change "Less than x" to "< x" and "Greater than x" to "> x"; Get rid of an extra spacing
+  # (B): Only include values that are digits, decimal starts, < x, > x
+  Lab_abn <- Labs %>% filter(!grepl("^ *(<|>|LESS THAN|GREATER THAN)* *(\\d|\\.)", toupper(Result)))
+  if (nrow(Lab_abn) > 0){
+    logwarn(str_c(nrow(Lab_abn), " entries out of ", nrow(Labs), " removed due to missingness or corrupt result entries"))
+    fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_1_Missingness_or_corrupt_result", output_file_ending))
+  }
+  Labs <- Labs %>%
+    mutate(Result = gsub("Less than", "<", Result, ignore.case = TRUE),
+           Result = gsub("Greater than", ">", Result, ignore.case = TRUE),
+           Result = gsub(" ", "", Result)) %>%
+    filter(grepl("^(<|>)*(\\d|\\.)", Result))
+  
+  # Clean data (2)
+  #   Change <0 to 0; Change all <x to x-min(x)/10; Change all >x to x + 0.11111
+  Labs <- Labs %>%
+    mutate(Result = gsub("<0((\\.|0)*)$", "0", Result),
+           Result = gsub("(.*(\\d|\\.)+).*", "\\1", Result),
+           LessThanX = as.numeric(ifelse(grepl("<", Result), gsub("<((\\d|\\.)+)", "\\1", Result), NA)),
+           GreaterThanX = as.numeric(ifelse(grepl(">", Result), gsub(">((\\d|\\.)+)", "\\1", Result), NA)),
+           Result = as.numeric(Result),
+           Result = ifelse(is.na(LessThanX), Result, LessThanX - min(LessThanX, na.rm = TRUE) / 10),
+           Result = ifelse(is.na(GreaterThanX), Result, GreaterThanX + 1/9)) %>%
+    select(-c(LessThanX, GreaterThanX))
+  
+  # Clean data (3)
+  #   Remove duplicates
+  Lab_abn <- Labs[(duplicated(Labs)),]
+  if (nrow(Lab_abn) > 0){
+    logwarn(str_c(nrow(Lab_abn), " completely duplicated row(s) out of ", nrow(Labs), " removed"))
+    fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_2_Duplicate_rows", output_file_ending))
+  }
+  Labs <- Labs %>% unique()
+  
+  # Clean data (4)
+  # (A): Change all reference units to upper case; IU/ML with KU/L (they are equal);
+  #      Find units listed in result text
+  # (B): Remove mismatches between units in result text and reference units
+  Labs <- Labs %>%
+    mutate(Reference_Units = toupper(Reference_Units),
+           Reference_Units = ifelse(grepl("IU/ML", Reference_Units), "KU/L", Reference_Units),
+           Result_Text = gsub("iu/ml", "KU/L", Result_Text, ignore.case = TRUE),
+           Result_Text = gsub("mg/dl", "MG/DL", Result_Text, ignore.case = TRUE),
+           Result_Text_Units = ifelse(grepl(".*(KU/L|MG/DL).*", Result_Text, ignore.case = TRUE),
+                                      gsub(".*(KU/L|MG/DL).*", "\\1", Result_Text, ignore.case = TRUE),
+                                      ""),
+           Result_Text_Units = toupper(Result_Text_Units))
+  Lab_abn <- Labs %>% filter(Result_Text_Units != "" & Result_Text_Units != Reference_Units)
+  if (nrow(Lab_abn) > 0){
+    logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Labs),
+                  " rows removed due to units listed in the Result Text varying from Reference Units"))
+    fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_3_Mismatch_units", output_file_ending))
+  }
+  Labs <- Labs %>%
+    filter(Result_Text_Units == "" | Result_Text_Units == Reference_Units) %>% select(-Result_Text_Units)
+  
+  # Clean data (5)
+  #   Remove units out of group 
+  Lab_abn <- Labs %>% filter((Group_Id == "IGE" & Reference_Units != "KU/L") | 
+                               (Group_Id == "IGG" & Reference_Units != "MG/DL"))
+  if (nrow(Lab_abn) > 0){
+    logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Labs),
+                  " rows removed due to unit differing from group"))
+    fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_4_Mismatch_units", output_file_ending))
+  }
+  Labs <- Labs %>% filter((Group_Id == "IGE" & Reference_Units == "KU/L") | 
+                            (Group_Id == "IGG" & Reference_Units == "MG/DL"))
+  
+  # Clean data (6)
+  #   Adjust date/time
+  Labs <- Labs %>% mutate(Seq_Date_Time = mdy_hm(Seq_Date_Time)) %>% arrange(EMPI, Seq_Date_Time)
+  
+  # Clean data (7)
+  #   Remove additional result from time point
+  empis_with_mult_times <- Labs %>% filter(EMPI %in% (Labs %>% group_by(EMPI, Seq_Date_Time, Group_Id) %>%
+                                                        summarise(Count = n()) %>% filter(Count > 1) %>% group_by(EMPI) %>% summarise() %>% pull())) %>%
+    arrange(EMPI, Group_Id, Seq_Date_Time)
+  relevant_info <- empis_with_mult_times %>% select(EMPI, Seq_Date_Time, Group_Id)
+  Lab_abn <- empis_with_mult_times[duplicated(relevant_info)| duplicated(relevant_info, fromLast = TRUE), ]
+  if (nrow(Lab_abn) > 0){
+    logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Labs),
+                  " rows have two similar values at the same timepoint"))
+    fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_5_Duplicate_times", output_file_ending))
+  }
+  rm(empis_with_mult_times, relevant_info)
+  rm(Lab_abn)
+  
+  Group_Id_list = c("IGE", "IGG")
+  for (ID in Group_Id_list){
+    Group <- Labs %>% filter(Group_Id == ID)
+    Output_Columns <- Group %>% group_by(EMPI, Seq_Date_Time, Reference_Units) %>%
+      summarise(mean_duplicates = mean(Result)) %>%
+      group_by(EMPI, Reference_Units) %>%
+      summarise(!!as.symbol(str_c(ID, "_nTotalValues")) := n(),
+                !!as.symbol(str_c(ID, "_Mean")) := mean(mean_duplicates),
+                !!as.symbol(str_c(ID, "_SD")) := sd(mean_duplicates),
+                !!as.symbol(str_c(ID, "_All_Seq_Date_Times")) := paste(Seq_Date_Time, collapse = ";"),
+                !!as.symbol(str_c(ID, "_All_Results")) := paste(mean_duplicates, collapse = ";")) %>%
+      rename(!!as.symbol(str_c(ID, "_Reference_Units")) := Reference_Units)
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+  }
+  
   rm(Labs)
   return(DF_to_fill)
 }
