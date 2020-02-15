@@ -1,0 +1,120 @@
+Medication Name	Medication_Biobank_Folder	Medication_GWAS_Group	Medication_Pegasus_Group	Search_Term	Ignore.case	Perl
+Aclidinium	"Bronchodilators, anticholinergic"	Inhaled Anticholinergics		Aclidinium|Tudorza	FALSE	FALSE
+Acrivastine/pseudoephedrine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Acrivastine.*[Pp]seudoephedrine|Semprex	FALSE	FALSE
+Albuterol	"Bronchodilators, sympathomimetic, inhalation"	Short Acting Beta Agonists			FALSE	TRUE
+Albuterol	"Bronchodilators, sympathomimetic, oral"	Short Acting Beta Agonists			FALSE	FALSE
+Albuterol/ipratropium	"Antiasthma, other"	Short Acting Beta Agonists and Anticholinergics	Bronchodilators	Albuterol((?!sulfate).)*[Ii]pratropium|Combivent|Duoneb|^Ipratropium.*[Aa]lbuterol((?!ml$|vial).)*$	FALSE	FALSE
+Aminophylline	"Bronchodilators, xanthine-derivative"	Xanthines	Theophylline	Aminophylline	FALSE	FALSE
+Arformoterol	"Bronchodilators, sympathomimetic, inhalation"	Long Acting Beta Agonists		Arformoterol|Brovana	FALSE	FALSE
+Astemizole	"Antihistamines, other"	Oral Antihistamines		Banophen|^Benadryl( |-)[^\\dU]|Diphenhist|^((Allergy|Sleep Aid|Unisom) \\(|Id-)*Diphenhydramine( |-|\\))((?!Acetaminophen|MGH|[Zz]inc|chemo).)*$|-Dryl	FALSE	FALSE
+Azatadine	"Antihistamines, piperidine"	Oral Antihistamines		Terfenadine|Seldane	FALSE	FALSE
+Azatadine/pseudoephedrine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Azatadine.*[Pp]seudoephedrine	FALSE	FALSE
+Azelastine	"Antihistamines, nasal"	Intranasal Antihistamines		[Aa]stelin|Azelastine.(hcl|.*([Nn]as))	FALSE	FALSE
+Azelastine/Fluticasone	"Antihistamines, nasal"	Intranasal Antihistamines		Azelastine.*[Ff]luticasone|Dymista	FALSE	FALSE
+Beclomethasone diproprionate	"Anti-inflammatories, inhalation"	Inhaled Corticosteroids	Inhaled Steroids	Beclomethasone([Dd]ipr)*((?![Nn]asal|80.*Aerosol).)*$|Beclovent|Beconase inhaler|Qvar|Vancenase inhaler|Vanceril	FALSE	FALSE
+Beclomethasone diproprionate	"Anti-inflammatories, nasal"	Intranasal Corticosteroids		Beclomethasone ([Dd]ipropionate)*.*([Nn]asal|80.*[Aa]erosol|cream)|Qnasl|(Beco|Vance)nase((?!inhaler).)*$	FALSE	TRUE
+Betamethasone	Glucocorticoids	^Betamet( acet/|hasone (0.12|0.6|1mg|Acetate|Sodium|soluspan)|Celestone)	Inhaled Steroids		FALSE	FALSE
+Bitolterol	"Bronchodilators, sympathomimetic, inhalation"	Short Acting Beta Agonists		Bitolterol	FALSE	FALSE
+Brompheniramine	"Antihistamines, alkylamine"	Oral Antihistamines		Astemizole|Hismanal	FALSE	FALSE
+Brompheniramine/phenylpropanolamine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Dimetapp	FALSE	FALSE
+Brompheniramine/pseudoephedrine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Brompheniramine.*[Pp]seudoephedrine|Bromfed	FALSE	FALSE
+Budesonide	"Anti-inflammatories, inhalation"	Inhaled Corticosteroids	Inhaled Steroids	"^Budesonide *(, M|\\(|0.5.*respule|2|3 *mg|ec|Dr|inhaler|Oral$|Rect)|Entocort|Uceris"	FALSE	FALSE
+Budesonide	"Anti-inflammatories, nasal"	Intranasal Corticosteroids		Budesonide.*[Nn]as(a)*l|Rhinocort	FALSE	FALSE
+Budesonide/formoterol	"Antiasthma, other"	Inhaled Corticosteroids and Long Acting Beta Agonists	Inhaled Steroids	[Bb]udesonide.*[Ff]ormoterol((?!6.9).)*$|Symbicort	FALSE	TRUE
+Carbinoxamine	"Antihistamines, ethanolamine"	Oral Antihistamines		Clemastine|Tavist	FALSE	FALSE
+Carbinoxamine/pseudoephedrine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Rondec	FALSE	FALSE
+Cetirizine	"Antihistamines, piperazine"	Oral Antihistamines		(l|L)evocetirizine	FALSE	FALSE
+Cetirizine/pseudoephedrine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Cetirizine.*[Pp]seudoephedrine|Zyrtec-D	FALSE	FALSE
+Chlorpheniramine	"Antihistamines, alkylamine"	Oral Antihistamines		Azatadine	FALSE	FALSE
+Chlorpheniramine/phenindamine/phenylpropanolamine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Nolamine	FALSE	FALSE
+Chlorpheniramine/phenylephrine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Chlorpheniramine.*[Pp]henylephrine|Ru-tuss|Rynatan	FALSE	FALSE
+Chlorpheniramine/phenylephrine/phenylpropanolamine/phenyltoloxamine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Naldecon	FALSE	FALSE
+Chlorpheniramine/phenylpropanolamine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Chlorpheniramine.*[Pp]henylprop|Ornade	FALSE	FALSE
+Chlorpheniramine/pseudoephedrine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Chlorpheniramine.*[Pp]seudoephed|Cpm|Deconamine|Fedahist|Pepain|[Pp]seudoephedrine.*[Cc]hlorpheniramine	FALSE	FALSE
+Ciclesonide	"Anti-inflammatories, inhalation"	Inhaled Corticosteroids	Inhaled Steroids	Ciclesonide|Alvesco 160	FALSE	FALSE
+Ciclesonide	"Anti-inflammatories, nasal"	Intranasal Corticosteroids		Ciclesonide.*[Nn]asal|Omnaris|Alvesco \\(c|Zetonna	FALSE	FALSE
+Clemastine	"Antihistamines, ethanolamine"	Oral Antihistamines		Cyproheptadine|Periactin	FALSE	FALSE
+Clemastine/phenylpropanolamine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Clemastine.*[Pp]henylpropanolamine|Tavist.[Dd]	FALSE	FALSE
+Cortisone	Glucocorticoids		Cortisone	^Cortisone(-| (ace|lm|25|enema))	FALSE	FALSE
+Cromolyn	"Antiasthma, other"	Inhaled Chormones		Cromolyn((?!%|[Nn]asal|[Oo]ral).)*$|Intal	FALSE	TRUE
+Cromolyn	"Nasal and throat, topical, other"	Intranasal Chromones		Cromolyn.*[Nn]asal|Nasalcrom	FALSE	FALSE
+Cyproheptadine	"Antihistamines, piperidine"	Oral Antihistamines		Tripelennamine|Pyribenzamine	FALSE	FALSE
+Desloratadine	"Antihistamines, other"	Oral Antihistamines		Doxylamine [Ss]uccinate|Unisom sleeptabs	FALSE	FALSE
+Desloratadine/pseudoephedrine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		[Dd]esloratadine.*[Pp]seudoephedrine|Clarinex-[Dd]	FALSE	FALSE
+Dexamethasone	"Anti-inflammatories, inhalation"	Inhaled Corticosteroids	Inhaled Steroids	^Dexamethasone sod phospha($|te 4 mg)	FALSE	FALSE
+Dexamethasone	"Anti-inflammatories, nasal"	Intranasal Corticosteroids		^Dexamethasone (12|20) mg/100ml	FALSE	FALSE
+Dexamethasone	Glucocorticoids		Oral Steroid	^Decadron-oncall|Dexpak|^(Id-)*Dexamethasone *(0.5|0.75|1[^2]|2.*[^s]$|3|4|6|\\(|-|A|IVPB|liq|mouth|[Oo]ral|o.*217$|[Ss]odium|sod [Pp]hosphate(/pf| 20)|Syr|tab)|Pulmicort.*5919$	FALSE	FALSE
+Dexbrompheniramine	"Antihistamines, alkylamine"	Oral Antihistamines		^Bromphenir	FALSE	FALSE
+Dexbrompheniramine/pseudoephedrine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Drixoral	FALSE	FALSE
+Dexchlorpheniramine	"Antihistamines, alkylamine"	Oral Antihistamines		Carbinoxamine	FALSE	FALSE
+Dexchlorpheniramine/pseudoephedrine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Dexchlorpheniramine.*[Pp]seudoephedrine	FALSE	FALSE
+Dimenhydrinate	"Antihistamines, ethanolamine"	Oral Antihistamines		Desloratadine|Clarinex( |-)[^d]	FALSE	FALSE
+Diphenhydramine	"Antihistamines, ethanolamine"	Oral Antihistamines		Dexbromphen	FALSE	FALSE
+Doxylamine	"Antihistamines, ethanolamine"	Oral Antihistamines		Dexchlorpheniramine	FALSE	FALSE
+Ephedrine	"Bronchodilators, sympathomimetic, oral"				FALSE	FALSE
+Ephedrine/phenobarbital/theophylline	"Antiasthma, other"				FALSE	FALSE
+Epinephrine	"Bronchodilators, sympathomimetic, inhalation"	Epinephrine		^Epinephrine.(1(.*inhalation| to 1)|B|oncall$)	FALSE	FALSE
+"Epinephrine, racemic"	"Bronchodilators, sympathomimetic, inhalation"	Epinephrine		"Racepinephrin"", Medication), ""Epinephrine,racemic"	FALSE	FALSE
+Fexofenadine	"Antihistamines, butyrophenone"	Oral Antihistamines		^.*Cetirizine((?![Pp]seudoephedrine).)*$|Zyrtec( |-)[^dDI]|Mycostatin|[Nn]ystatin(((?![Tt]opical).)*cream|.*(k unit|topical.*oncall))|Nystop.*Pad	FALSE	FALSE
+Fexofenadine/pseudoephedrine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		[Ff]exofenadine.*[Pp]seudoephedrine|[Aa]llegra.[Dd]	FALSE	FALSE
+Flunisolide	"Anti-inflammatories, inhalation"	Inhaled Corticosteroids	Inhaled Steroids	Flunisolide((?![Nn]asal).)*$|Aerobid	FALSE	FALSE
+Flunisolide	"Anti-inflammatories, nasal"	Intranasal Corticosteroids		Flunisolide.*[Nn]asal|Nasalide	FALSE	FALSE
+Fluticasone	"Anti-inflammatories, inhalation"	Inhaled Corticosteroids	Advair	Arnuity|Flovent|^Fluticasone((?!%|[Ss]almeterol|[Vv]ilanterol|[Nn]as(a)*l|Inhl|2243|16gm s|diskus|Top).)*$|Id-Fluticasone|Veramyst((?![Nn]asal).)*$	FALSE	FALSE
+Fluticasone	"Anti-inflammatories, nasal"	Intranasal Corticosteroids		Fluticasone (.*(Inhl|Nasl|Suspension)|propionate (0.05|16))|[Ff]lonase|Veramyst.*Suspension	FALSE	FALSE
+Fluticasone/salmeterol	"Antiasthma, other"	Inhaled Corticosteroids and Long Acting Beta Agonists		Advair|[Ff]luticasone.*[Ss]almeterol	FALSE	FALSE
+Fluticasone/vilanterol	"Antiasthma, other"	Inhaled Corticosteroids and Long Acting Beta Agonists		Breo|[Ff]luticasone.*[Vv]ilanterol	FALSE	FALSE
+Formoterol	"Bronchodilators, sympathomimetic, inhalation"	Long Acting Beta Agonists		^Formoterol|Foradil	FALSE	FALSE
+Formoterol/mometasone	"Antiasthma, other"	Inhaled Corticosteroids and Long Acting Beta Agonists		Dulera|[Mm]ometasone.*[Ff]ormoterol	FALSE	FALSE
+Guaifenesin/theophylline	"Antiasthma, other"				FALSE	FALSE
+Hydrocortisone	Glucocorticoids		Hydrocortisone	((?!Neo-).)*Cortef|^Hydrocortisone +(\\(|-|1((?!(%|blist|enema|Teva)).)*$|2((?!%|cream).)*$|5((?!topical).)$|Acetate Inj|inj|IVPB 100|oral|Sod.*((?!D5w).)*|tab)|Hydrocortisone-oncall|Id-Hydrocortisone((?!%).)*$	TRUE	TRUE
+Hydroxyzine	"Antihistamines, piperazine"	Oral Antihistamines		^.*Loratadine((?![Pp]seudoephedrine).)*$|Alavert|Claritin( |-)[^dD]|Wal-ltin|Allerclear|Id-Alisertib	FALSE	TRUE
+Indacaterol	"Bronchodilators, sympathomimetic, inhalation"	Long Acting Beta Agonists		Indacaterol	FALSE	FALSE
+Ipratropium	"Bronchodilators, anticholinergic"	Inhaled Anticholinergics		^Atrovent((?![Nn]as|Hfa Inhl|%).)*$|^[Id-]*Ipratropium[^-](albuterol.*neb |((?!albuterol|[Ss]pray|[Mm]ist|[Nn]asal|MGH|Dose).)*$)	FALSE	TRUE
+Ipratropium	"Nasal and throat, topical, other"	Intranasal Anticholinergics		Ipratropium .*([Nn]asal|[Ss]ray)|Atrovent ([Nn]as|Hfa Inhl)	FALSE	FALSE
+Ipratropium/albuterol	"Antiasthma, antileukotrienes"	Short Acting Beta Agonists and Anticholinergics		Ipratropium/albuterol 3 ml	FALSE	FALSE
+Isoetharine	"Bronchodilators, sympathomimetic, inhalation"	Short Acting Beta Agonists		Bronkometer|Isoetharine	FALSE	FALSE
+Isoproterenol	"Bronchodilators, sympathomimetic, inhalation"	Short Acting Beta Agonists		Isoproterenol hcl (-|1m)	FALSE	FALSE
+Levalbuterol	"Bronchodilators, sympathomimetic, inhalation"	Short Acting Beta Agonists		^Levalbuterol((?![Cc]o).)*$|Xopenex	FALSE	TRUE
+Levocetirizine	"Antihistamines, piperazine"	Oral Antihistamines		^.*Promethazine[^/]((?!MGH|Codeine|dm|Syr In).)*$|^.*Phenergan((?!codeine|MGH).)*$|Phenadoz|Promethegan	FALSE	FALSE
+Loratadine	"Antihistamines, other"	Oral Antihistamines		Allegra.[^d]|Fenofexidine|^Fexofenadine((?![Pp]seudoephedrine).)*$|Mucinex Allergy	FALSE	FALSE
+Loratadine/pseudoephedrine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Loratadine.*[Pp]seudoephedrine|(Claritin|Wal-ltin).[Dd]	FALSE	FALSE
+Mepolizumab	CPT medications	Mepolizumab		mepolizumab	FALSE	FALSE
+Metaproterenol	"Bronchodilators, sympathomimetic, inhalation"	Short Acting Beta Agonists			FALSE	FALSE
+Metaproterenol	"Bronchodilators, sympathomimetic, oral"	Short Acting Beta Agonists			FALSE	FALSE
+Methylprednisolone	Glucocorticoids	IV Steroids	Oral Steroid	"^(Depo.|Solu){0,1}[Mm]edrol((?!\\(MGH\\)).)*$|^(Id-)*Methylpred((?!\\(MGH\\)|oral|oint|HC).)*$|Osm_Mix Mannitol"	FALSE	TRUE
+Mometasone	"Anti-inflammatories, inhalation"	Inhaled Corticosteroids	Inhaled Steroids	Asmanex|Mometasone.*(Powder|Hfa Aerosol)	FALSE	FALSE
+Mometasone	"Anti-inflammatories, nasal"	Intranasal Corticosteroids		Mometasone.*([Nn]asal|furoate((?!%|[Oo]intment|[Pp]owder|[Cc]ream|lotion).)*$)|Nasonex	FALSE	TRUE
+Montelukast	"Antiasthma, other"	Antileukotrienes	Leukotrienes	Montelukast|Singulair	FALSE	FALSE
+Nedocromil	"Anti-inflammatories, inhalation"	Inhaled Chormones		Nedocromil sodium	FALSE	FALSE
+Olodaterol/tiotropium	"Antiasthma, other"		Leukotrienes		FALSE	FALSE
+Olopatadine	"Antihistamines, nasal"	Intranasal Antihistamines		Olopatadine.*Nas	FALSE	FALSE
+Omalizumab	CPT medications	Omalizumab		[Oo]malizumab((?!MGH).)*$	FALSE	TRUE
+Omalizumab	Immune suppressants	Omalizumab		[Oo]malizumab((?!MGH).)*$	FALSE	TRUE
+Oxtriphylline	"Bronchodilators, xanthine-derivative"	Xanthines		Choledyl|Oxtriphylline	FALSE	FALSE
+Oxymetazoline	"Decongestants, nasal"	Intranasal Decongestants		Oxymetazoline (hcl|0.05)|A(ne)*frin|Genasal	FALSE	FALSE
+Phenylephrine	"Decongestants, nasal"	Intranasal Decongestants		^Phenylephrine (.*(%.*([Nn]asal|[Ss]pray))|hcl (0|1%|2.5%.*LMR))|Neo-synephrine	FALSE	FALSE
+Phenylephrine	"Decongestants, systemic"	Oral Decongestants		Phenylephrine (- LMR|.*([Oo]ral|[Tt]ablet))	FALSE	FALSE
+Phenylephrine/promethazine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Phenylephrine.*[Pp]romethazine|[Pp]romethazine.*[Pp]henylephrine	FALSE	FALSE
+Phenylpropanolamine	"Decongestants, systemic"	Oral Decongestants		Phenylpropanolamine	FALSE	FALSE
+Pirbuterol	"Bronchodilators, sympathomimetic, inhalation"	Short Acting Beta Agonists		Maxair|Pirbuterol	FALSE	FALSE
+Prednisolone	Glucocorticoids	Oral Corticosteroids	Oral Steroid	Methotrexate.*BWH$|Orapred|Prednisolone((?![Oo][Pp][Hh][Tt]|[Ee]ye|MGH|per 5 mg|1%).)*$|Pred forte|Prelone	FALSE	TRUE
+Prednisone	Glucocorticoids	Oral Corticosteroids	Oral Steroid	Predni[Ss][Oo][Nn][Ee]((?!MGH|oOral|ir).)*$|Rayos	FALSE	TRUE
+Promethazine	"Antihistamines, phenothiazine"	Oral Antihistamines		Atarax|Hydroxyzine((?! up).)*$|Vistaril	FALSE	FALSE
+Pseudoephedrine	"Decongestants, systemic"	Oral Decongestants		^Pseudoephedrine[^/-]((?![Tt]riprolidine).)*$|Sudafed|^Nasal Decongestant	FALSE	TRUE
+Pseudoephedrine/terfenadine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Seldane.[Dd]	FALSE	FALSE
+Pseudoephedrine/triprolidine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Pseudoephedrine.*[Tt]riprolidine|[Tt]riprolidine.*[Pp]seudoephedrine|Actifed|Unifed	FALSE	FALSE
+Salmeterol	"Bronchodilators, sympathomimetic, inhalation"	Long Acting Beta Agonists		^Salmet|Serevent((?!21).)*$	FALSE	TRUE
+Terbutaline	"Bronchodilators, sympathomimetic, inhalation"	Short Acting Beta Agonists			FALSE	FALSE
+Terbutaline	"Bronchodilators, sympathomimetic, oral"	Short Acting Beta Agonists			FALSE	FALSE
+Terfenadine	"Antihistamines, butyrophenone"	Oral Antihistamines		Chlor(( |-)trimeton|pheniramine( (2|4|E|s|t|m.*LMR)|-o|\\)))	FALSE	FALSE
+Tetrahydrozoline	"Decongestants, nasal"	Intranasal Decongestants		"Tetrahydrozoline.*([Nn]asal|hcl)|Tyzine"""	FALSE	FALSE
+Theophylline	"Bronchodilators, xanthine-derivative"	Xanthines	Theophylline	Slo |Theo|Uniphyl	FALSE	FALSE
+Tiotropium	"Bronchodilators, anticholinergic"	Inhaled Anticholinergics		Spiriva|Tiotropium((?!Olodaterol).)*$	FALSE	TRUE
+Triamcinolone	"Anti-inflammatories, inhalation"	Inhaled Corticosteroids		Azmacort((?!oncall).)*$|Nasacort 55 mcg/inh|Triamcinolone( inhaler-oncall|.*adap)$	FALSE	FALSE
+Triamcinolone	"Anti-inflammatories, nasal"	Intranasal Corticosteroids		Triamcinolone ([Aa]cetonide.*([Nn]as(a)*l|762|tube)|diacetate|hexacetonide|nasal)|Nasacort.([Aa][Qq]|.*(Nasl|oncall|Aerosol)$)|Azmacort.*oncall$|Kenalog inj	FALSE	FALSE
+Triamcinolone	Glucocorticoids		Triamcinolone	^Triamcinolone *(\\(|-|1|Oral|acetonide ((?!762|Adap|Dental|Jar|Kenalog|Kit|Lotion|Nas|Top).)*$|diacetate|hexacetonide 20)	TRUE	TRUE
+Tripelennamine	"Antihistamines, ethylenediamine"	Oral Antihistamines		^Dimenhydrinate|^Dramamine	FALSE	FALSE
+Umeclidinium	"Anti-inflammatories, inhalation"	Inhaled Anticholinergics	Umeclidinium	Incruse|Umeclidinium((?!Vilanterol).)*$	FALSE	TRUE
+Umeclidinium/vilanterol	"Antiasthma, other"				FALSE	FALSE
+Zafirlukast	"Antiasthma, other"	Antileukotrienes		Accolate|Zafirlukast	FALSE	FALSE
+Zileuton	"Antiasthma, other"	Antileukotrienes		Zileuton|Zyflo	FALSE	FALSE
