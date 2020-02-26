@@ -5,6 +5,7 @@ require(tidyverse)
 require(logging)
 require(readr)
 require(zeallot) # %<-% (multiple variable assignment)
+require(sqldf)
 
 ####################################################################################################
 ######################################## General functions  ########################################
@@ -38,13 +39,14 @@ process3_deidentified <- function(DF_to_fill = All_merged,
   loginfo("Processing biobank file...")
   Deidentified <- fread(input_file_name)
   Deidentified <- Deidentified %>% select(`Biobank Subject ID`, contains("Asthma"))
-  names(Deidentified) <- gsub("(.*)_$", "\\1",
-                              gsub("_+", "_",
-                                   gsub("( |\\(|\\)|-|/|\\[|\\])", "_",
-                                        gsub("(.* )(\\[.*)", "\\1", names(Deidentified)))))
+  names(Deidentified) <- gsub("(.*)_current_.*", "\\1",
+                              gsub("(.*)_no_history_.*", "Non\\1",
+                                   gsub("_+", "_",
+                                        gsub("( |\\(|\\)|-|/|\\[|\\])", "_",
+                                             gsub("(.* )(\\[.*)", "\\1",
+                                                  names(Deidentified))))))
   Deidentified <- Deidentified %>%
-    rename(Asthma = Asthma_current_or_past_history_PPV_0.90, NonAsthma = Asthma_no_history_NPV_0.99) %>%
-    mutate(Asthma = ifelse(Asthma == "Yes", 1, 0), NonAsthma = ifelse(NonAsthma == "Yes", 1, 0))
+    mutate_at(vars(contains("Asthma")), ~ifelse(.x == "Yes", 1, 0))
   DF_to_fill <- left_join(DF_to_fill, Deidentified, by = "Biobank_Subject_ID")
   loginfo("Asthma and NonAsthma identifiers have been added")
   rm(Deidentified)
@@ -55,7 +57,8 @@ process3_deidentified_asthma_copd <- function(DF_to_fill = All_merged,
                                               input_file_name = config$biobank_file_name){
   loginfo("Processing biobank file...")
   Deidentified <- fread(input_file_name)
-  Deidentified <- Deidentified %>% select(`Biobank Subject ID`, contains("Asthma"), contains("COPD"))
+  Deidentified <- Deidentified %>% 
+    select(`Biobank Subject ID`, contains("Asthma"), contains("COPD"))
   names(Deidentified) <- gsub("(.*)_current_.*", "\\1",
                               gsub("(.*)_no_history_.*", "Non\\1",
                                    gsub("_+", "_",
@@ -153,23 +156,26 @@ process4_diagnoses <- function(DF_to_fill = All_merged,
       Subgroup <- Group %>% filter(Diagnosis_Name == Diagnosis) %>% group_by(EMPI)
       Dia_abn <- Subgroup[duplicated(Subgroup) | duplicated(Subgroup, fromLast=TRUE),]
       if (nrow(Dia_abn) > 0){
-        logwarn(str_c(nrow(Dia_abn), " completely duplicated row(s) out of ", nrow(Subgroup), " found. Duplicates removed."))
-        fwrite(Dia_abn, str_c(path_dia_abn, "Abnormality_1_Duplicate_rows_", Subgroup_Header, output_file_ending))
+        logwarn(str_c(nrow(Dia_abn), " completely duplicated row(s) out of ",
+                      nrow(Subgroup), " found. Duplicates removed."))
+        fwrite(Dia_abn, str_c(path_dia_abn, "Abnormality_1_Duplicate_rows_",
+                              Subgroup_Header, output_file_ending))
         Subgroup <- Subgroup %>% unique()
       }
       Subgroup2 <- Subgroup %>% select(EMPI, Date, Diagnosis_Name, Hospital)
       Dia_abn <- Subgroup[duplicated(Subgroup2) | duplicated(Subgroup2, fromLast=TRUE),]
       if (nrow(Dia_abn) > 0){
-        logwarn(str_c(nrow(Dia_abn), " partially duplicated row(s) out of ", nrow(Subgroup), " found. ",
-                      sum(duplicated(Subgroup2, fromLast = TRUE)), " rows removed."))
-        fwrite(Dia_abn, str_c(path_dia_abn, "Abnormality_2_Duplicate_rows_", Subgroup_Header, output_file_ending))
+        logwarn(str_c(nrow(Dia_abn), " partially duplicated row(s) out of ", nrow(Subgroup),
+                      " found. ", sum(duplicated(Subgroup2, fromLast = TRUE)), " rows removed."))
+        fwrite(Dia_abn, str_c(path_dia_abn, "Abnormality_2_Duplicate_rows_",
+                              Subgroup_Header, output_file_ending))
         Subgroup <- distinct(Subgroup, EMPI, Date, Diagnosis_Name, Hospital, .keep_all = TRUE)
       }
       rm(Subgroup2)
       
       Output_Columns <- Subgroup %>% mutate(Date = mdy(Date)) %>% arrange(Date) %>%
-        summarise(!!(as.symbol(str_c(Subgroup_Header, "_dates"))) := paste(Date, collapse = ";"),
-                  !!(as.symbol(str_c(Subgroup_Header, "_total_dates"))) := n())
+        summarise(!!(as.symbol(str_c(Subgroup_Header, "_total_dates"))) := n(),
+                  !!(as.symbol(str_c(Subgroup_Header, "_dates"))) := paste(Date, collapse = ";"))
       DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
       loginfo(str_c(nrow(Output_Columns), " subjects have a(n) ", tolower(Diagnosis), " diagnosis"))
       
@@ -194,438 +200,266 @@ process4_diagnoses <- function(DF_to_fill = All_merged,
 ####################################################################################################
 ####################################### Medication functions #######################################
 ####################################################################################################
-Medication_Mapping <- function(Medication_DF = Medications){
-  loginfo("Creating medication mapping...")
-  # Create Groupings
-  Oral_antihistamines <- c("Brompheniramine", "Chlorpheniramine","Dexbrompheniramine", "Dexchlorpheniramine",
-                           "Fexofenadine", "Terfenadine", "Carbinoxamine", "Clemastine",
-                           "Dimenhydrinate", "Diphenhydramine", "Doxylamine", "Tripelennamine",
-                           "Astemizole", "Desloratadine", "Loratadine", "Promethazine",
-                           "Cetirizine", "Hydroxyzine", "Levocetirizine", "Azatadine", "Cyproheptadine")
-  Intranasal_corticosteroids <- c("Beclomethasone diproprionate", "Budesonide", "Ciclesonide", "Dexamethasone",
-                                  "Flunisolide", "Fluticasone", "Mometasone", "Triamcinolone")
-  Intranasal_antihistamines <- c("Azelastine", "Azelastine/Fluticasone", "Olopatadine")
-  Intranasal_decongestants <- c("Oxymetazoline", "Phenylephrine", "Tetrahydrozoline")
-  Intranasal_anticholinergics <- c("Ipratropium")
-  Intranasal_chromones <- c("Cromolyn")
-  Oral_decongestants <- c("Phenylephrine", "Phenylpropanolamine", "Pseudoephedrine")
-  Oral_antihistamine_decongestant <- c("Acrivastine/pseudoephedrine", "Azatadine/pseudoephedrine",
-                                       "Brompheniramine/phenylpropanolamine", "Brompheniramine/pseudoephedrine",
-                                       "Carbinoxamine/pseudoephedrine", "Cetirizine/pseudoephedrine",
-                                       "Chlorpheniramine/phenindamine/phenylpropanolamine", "Chlorpheniramine/phenylephrine", 
-                                       "Chlorpheniramine/phenylephrine/phenylpropanolamine/phenyltoloxamine", "Chlorpheniramine/phenylpropanolamine",
-                                       "Chlorpheniramine/pseudoephedrine", "Clemastine/phenylpropanolamine",
-                                       "Desloratadine/pseudoephedrine", "Dexbrompheniramine/pseudoephedrine",
-                                       "Dexchlorpheniramine/pseudoephedrine", "Fexofenadine/pseudoephedrine",
-                                       "Loratadine/pseudoephedrine", "Phenylephrine/promethazine",
-                                       "Pseudoephedrine/terfenadine", "Pseudoephedrine/triprolidine")
-  Mepolizumab <- c("Mepolizumab")
-  Omalizumab <- c("Omalizumab")
-  Oral_corticosteroids <- c("Prednisolone", "Prednisone")
-  IV_steroids <- c("Methylprednisolone")
-  Inhaled_corticosteroids <- c("Beclomethasone dipropionate", "Budesonide", "Ciclesonide", "Dexamethasone",
-                            "Flunisolide", "Fluticasone", "Mometasone", "Triamcinolone")
-  Inhaled_chromones <- c("Nedrocromil", "Cromolyn")
-  Inhaled_anticholinergics <- c("Umeclidinium", "Aclidinium", "Ipratropium", "Tiotropium")
-  Antileukotrienes <- c("Montelukast", "Zafirlukast", "Zileuton")
-  Long_acting_beta_agonists <- c("Arformoterol", "Formoterol", "Indacaterol", "Salmeterol")
-  ICS_LABA <- c("Budesonide/formoterol", "Fluticasone/salmeterol", "Fluticasone/vilanterol", "Formoterol/mometasone")
-  Epinephrine <- c("Epinephrine", "Epinephrine,racemic")
-  Short_acting_beta_agonists <- c("Albuterol", "Bitolterol", "Isoetharine", "Isoproterenol",
-                                  "Levalbuterol", "Metaproterenol", "Pirbuterol", "Terbutaline")
-  SABA_anticholinergics <- c("Albuterol/ipratropium", "Ipratropium/albuterol")
-  Xanthines <- c("Aminophylline", "Oxtriphylline", "Theophylline")
-  ## Sort Medications
-  Medication_DF <- Medication_DF %>% mutate(Medication_Group = NA, Medication_Name = NA)
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Oral_antihistamines
-  loginfo("Processing Oral Antihistamines...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("^Bromphenir", Medication), "Brompheniramine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Chlor(( |-)trimeton|pheniramine( (2|4|E|s|t|m.*LMR)|-o|\\)))", Medication), "Chlorpheniramine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Dexbromphen", Medication), "Dexbrompheniramine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Dexchlorpheniramine", Medication), "Dexchlorpheniramine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Allegra.[^d]|Fenofexidine|^Fexofenadine((?![Pp]seudoephedrine).)*$|Mucinex Allergy", Medication, perl = TRUE), "Fexofenadine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Terfenadine|Seldane", Medication), "Terfenadine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Carbinoxamine", Medication), "Carbinoxamine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Clemastine|Tavist", Medication), "Clemastine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("^Dimenhydrinate|^Dramamine", Medication), "Dimenhydrinate", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Banophen|^Benadryl( |-)[^\\dU]|Diphenhist|^((Allergy|Sleep Aid|Unisom) \\(|Id-)*Diphenhydramine( |-|\\))((?!Acetaminophen|MGH|[Zz]inc|chemo).)*$|-Dryl", Medication, perl = TRUE), "Diphenhydramine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Doxylamine [Ss]uccinate|Unisom sleeptabs", Medication), "Doxylamine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Tripelennamine|Pyribenzamine", Medication), "Tripelennamine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Astemizole|Hismanal", Medication), "Astemizole", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Desloratadine|Clarinex( |-)[^d]", Medication), "Desloratadine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("^.*Loratadine((?![Pp]seudoephedrine).)*$|Alavert|Claritin( |-)[^dD]|Wal-ltin|Allerclear|Id-Alisertib", Medication, perl = TRUE), "Loratadine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("^.*Promethazine[^/]((?!MGH|Codeine|dm|Syr In).)*$|^.*Phenergan((?!codeine|MGH).)*$|Phenadoz|Promethegan", Medication, perl = TRUE), "Promethazine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("^.*Cetirizine((?![Pp]seudoephedrine).)*$|Zyrtec( |-)[^dDI]|Mycostatin|[Nn]ystatin(((?![Tt]opical).)*cream|.*(k unit|topical.*oncall))|Nystop.*Pad", Medication, perl = TRUE), "Cetirizine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Atarax|Hydroxyzine((?! up).)*$|Vistaril", Medication, perl = TRUE), "Hydroxyzine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("(l|L)evocetirizine", Medication), "Levocetirizine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Azatadine", Medication), "Azatadine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Cyproheptadine|Periactin", Medication), "Cyproheptadine", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Oral_antihistamines), "Oral Antihistamines", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Intranasal_corticosteroids
-  loginfo("Processing Intranasal Corticosteroids...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("Beclomethasone ([Dd]ipropionate)*.*([Nn]asal|80.*[Aa]erosol|cream)|Qnasl|(Beco|Vance)nase((?!inhaler).)*$", Medication, perl = TRUE), "Beclomethasone diproprionate", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Budesonide.*[Nn]as(a)*l|Rhinocort", Medication), "Budesonide", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Ciclesonide.*[Nn]asal|Omnaris|Alvesco \\(c|Zetonna", Medication), "Ciclesonide", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("^Dexamethasone (12|20) mg/100ml", Medication), "Dexamethasone", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Flunisolide.*[Nn]asal|Nasalide", Medication), "Flunisolide", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Fluticasone (.*(Inhl|Nasl|Suspension)|propionate (0.05|16))|[Ff]lonase|Veramyst.*Suspension", Medication), "Fluticasone", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Mometasone.*([Nn]asal|furoate((?!%|[Oo]intment|[Pp]owder|[Cc]ream|lotion).)*$)|Nasonex", Medication, perl = TRUE), "Mometasone", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Triamcinolone ([Aa]cetonide.*([Nn]as(a)*l|762|tube)|diacetate|hexacetonide|nasal)|Nasacort.([Aa][Qq]|.*(Nasl|oncall|Aerosol)$)|Azmacort.*oncall$|Kenalog inj", Medication), "Triamcinolone", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Intranasal_corticosteroids), "Intranasal Corticosteroids", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Intranasal_antihistamines
-  loginfo("Processing Intranasal Antihistamines...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("[Aa]stelin|Azelastine.(hcl|.*([Nn]as))", Medication), "Azelastine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Azelastine.*[Ff]luticasone|Dymista", Medication), "Azelastine/Fluticasone", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Olopatadine.*Nas", Medication), "Olopatadine", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Intranasal_antihistamines), "Intranasal Antihistamines", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Intranasal_decongestants
-  loginfo("Processing Intranasal Decongestants...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("Oxymetazoline (hcl|0.05)|A(ne)*frin|Genasal", Medication), "Oxymetazoline", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("^Phenylephrine (.*(%.*([Nn]asal|[Ss]pray))|hcl (0|1%|2.5%.*LMR))|Neo-synephrine", Medication), "Phenylephrine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Tetrahydrozoline.*([Nn]asal|hcl)|Tyzine", Medication), "Tetrahydrozoline", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Intranasal_decongestants), "Intranasal Decongestants", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Intranasal_anticholinergics
-  loginfo("Processing Intranasal Anticholinergics...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("Ipratropium .*([Nn]asal|[Ss]ray)|Atrovent ([Nn]as|Hfa Inhl)", Medication), "Ipratropium", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Intranasal_anticholinergics), "Intranasal Anticholinergics", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Intranasal_chromones
-  loginfo("Processing Intranasal Chromones...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("Cromolyn.*[Nn]asal|Nasalcrom", Medication), "Cromolyn", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Intranasal_chromones), "Intranasal Chromones", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Oral_decongestants
-  loginfo("Processing Oral Decongestants...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("Phenylephrine (- LMR|.*([Oo]ral|[Tt]ablet))", Medication), "Phenylephrine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Phenylpropanolamine", Medication), "Phenylpropanolamine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("^Pseudoephedrine[^/-]((?![Tt]riprolidine).)*$|Sudafed|^Nasal Decongestant", Medication, perl = TRUE), "Pseudoephedrine", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Oral_decongestants), "Oral Decongestants", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Oral_antihistamine_decongestant 
-  loginfo("Processing Oral Antihistamines and Oral Decongestants...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("Acrivastine.*[Pp]seudoephedrine|Semprex", Medication), "Acrivastine/pseudoephedrine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Azatadine.*[Pp]seudoephedrine", Medication), "Azatadine/pseudoephedrine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Dimetapp", Medication), "Brompheniramine/phenylpropanolamine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Brompheniramine.*[Pp]seudoephedrine|Bromfed", Medication), "Brompheniramine/pseudoephedrine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Rondec", Medication), "Carbinoxamine/pseudoephedrine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Cetirizine.*[Pp]seudoephedrine|Zyrtec-D", Medication), "Cetirizine/pseudoephedrine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Nolamine", Medication), "Chlorpheniramine/phenindamine/phenylpropanolamine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Chlorpheniramine.*[Pp]henylephrine|Ru-tuss|Rynatan", Medication), "Chlorpheniramine/phenylephrine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Naldecon", Medication), "Chlorpheniramine/phenylephrine/phenylpropanolamine/phenyltoloxamine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Chlorpheniramine.*[Pp]henylprop|Ornade", Medication), "Chlorpheniramine/phenylpropanolamine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Chlorpheniramine.*[Pp]seudoephed|Cpm|Deconamine|Fedahist|Pepain|[Pp]seudoephedrine.*[Cc]hlorpheniramine", Medication), "Chlorpheniramine/pseudoephedrine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Clemastine.*[Pp]henylpropanolamine|Tavist.[Dd]", Medication), "Clemastine/phenylpropanolamine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("[Dd]esloratadine.*[Pp]seudoephedrine|Clarinex-[Dd]", Medication), "Desloratadine/pseudoephedrine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Drixoral", Medication), "Dexbrompheniramine/pseudoephedrine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Dexchlorpheniramine.*[Pp]seudoephedrine", Medication), "Dexchlorpheniramine/pseudoephedrine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("[Ff]exofenadine.*[Pp]seudoephedrine|[Aa]llegra.[Dd]", Medication), "Fexofenadine/pseudoephedrine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Loratadine.*[Pp]seudoephedrine|(Claritin|Wal-ltin).[Dd]", Medication), "Loratadine/pseudoephedrine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Phenylephrine.*[Pp]romethazine|[Pp]romethazine.*[Pp]henylephrine", Medication), "Phenylephrine/promethazine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Seldane.[Dd]", Medication), "Pseudoephedrine/terfenadine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Pseudoephedrine.*[Tt]riprolidine|[Tt]riprolidine.*[Pp]seudoephedrine|Actifed|Unifed", Medication), "Pseudoephedrine/triprolidine", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Oral_antihistamine_decongestant), "Oral Antihistamine and Oral Decongestant", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Mepolizumab
-  loginfo("Processing Mepolizumab...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("mepolizumab", Medication), "Mepolizumab", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Mepolizumab), "Mepolizumab", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Omalizumab
-  loginfo("Processing Omalizumab...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("[Oo]malizumab((?!MGH).)*$", Medication, perl = TRUE), "Omalizumab", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Omalizumab), "Omalizumab", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Oral_corticosteroids
-  loginfo("Processing Oral Corticosteroids...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("Methotrexate.*BWH$|Orapred|Prednisolone((?![Oo][Pp][Hh][Tt]|[Ee]ye|MGH|per 5 mg|1%).)*$|Pred forte|Prelone", Medication, perl = TRUE), "Prednisolone", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Predni[Ss][Oo][Nn][Ee]((?!MGH|oOral|ir).)*$|Rayos", Medication, perl = TRUE), "Prednisone", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Oral_corticosteroids), "Oral Corticosteroids", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # IV_steroids
-  loginfo("Processing IV Steroids...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("^(Depo.|Solu){0,1}[Mm]edrol((?!\\(MGH\\)).)*$|^(Id-)*Methylpred((?!\\(MGH\\)|oral|oint|HC).)*$|Osm_Mix Mannitol", Medication, perl = TRUE), "Methylprednisolone", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% IV_steroids), "IV Steroids", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Inhaled_corticosteroids
-  loginfo("Processing Inhaled Corticosteroids...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("Beclomethasone([Dd]ipr)*((?![Nn]asal|80.*Aerosol).)*$|Beclovent|Beconase inhaler|Qvar|Vancenase inhaler|Vanceril", Medication, perl = TRUE), "Beclomethasone dipropionate", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Budesonide(/formoterol fumarate 80|((?![Nn]asal|respule|Rect|3mg|[Ff]ormoterol|Dr|inhaler-oncall|FDA|unit).)*$)|[Pp]ulmicort", Medication, perl = TRUE), "Budesonide", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Ciclesonide|Alvesco 160", Medication), "Ciclesonide", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("^Dexamethasone sod phospha($|te 4 mg)", Medication), "Dexamethasone", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Flunisolide((?![Nn]asal).)*$|Aerobid", Medication, perl = TRUE), "Flunisolide", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Arnuity|Flovent|^Fluticasone((?!%|[Ss]almeterol|[Vv]ilanterol|[Nn]as(a)*l|Inhl|2243|16gm s|diskus|Top).)*$|Id-Fluticasone|Veramyst((?![Nn]asal).)*$", Medication, perl = TRUE), "Fluticasone", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Asmanex|Mometasone.*(Powder|Hfa Aerosol)", Medication), "Mometasone", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Azmacort((?!oncall).)*$|Nasacort 55 mcg/inh|Triamcinolone( inhaler-oncall|.*adap)$", Medication, perl = TRUE), "Triamcinolone", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Inhaled_corticosteroids), "Inhaled Corticosteroids", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Inhaled_chromones
-  loginfo("Processing Inhaled Chromones...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("Nedocromil sodium", Medication), "Nedrocromil", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Cromolyn((?!%|[Nn]asal|[Oo]ral).)*$|Intal", Medication, perl = TRUE), "Cromolyn", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Inhaled_chromones), "Inhaled Chromones", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Inhaled_anticholinergics
-  loginfo("Processing Inhaled anticholinergics...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("Incruse|Umeclidinium((?!Vilanterol).)*$", Medication, perl = TRUE), "Umeclidinium", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Aclidinium|Tudorza", Medication), "Aclidinium", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("^Atrovent((?![Nn]as|Hfa Inhl|%).)*$|^[Id-]*Ipratropium[^-](albuterol.*neb |((?!albuterol|[Ss]pray|[Mm]ist|[Nn]asal|MGH|Dose).)*$)", Medication, perl = TRUE), "Ipratropium", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Spiriva|Tiotropium((?!Olodaterol).)*$", Medication, perl = TRUE), "Tiotropium", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Inhaled_anticholinergics), "Inhaled Anticholinergics", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Antileukotrienes
-  loginfo("Processing Antileukotrienes...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("Montelukast|Singulair", Medication), "Montelukast", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Accolate|Zafirlukast", Medication), "Zafirlukast", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Zileuton|Zyflo", Medication), "Zileuton", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Antileukotrienes), "Antileukotrienes", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Long_acting_beta_agonists
-  loginfo("Processing Long Acting Beta Agonists...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("Arformoterol|Brovana", Medication), "Arformoterol", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("^Formoterol|Foradil", Medication), "Formoterol", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Indacaterol", Medication), "Indacaterol", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("^Salmet|Serevent((?!21).)*$", Medication, perl = TRUE), "Salmeterol", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Long_acting_beta_agonists), "Long Acting Beta Agonists", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # ICS_LABA
-  loginfo("Processing Inhaled Corticosteroids and Long Acting Beta Agonists...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("[Bb]udesonide.*[Ff]ormoterol((?!6.9).)*$|Symbicort", Medication, perl = TRUE), "Budesonide/formoterol", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Advair|[Ff]luticasone.*[Ss]almeterol", Medication), "Fluticasone/salmeterol", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Breo|[Ff]luticasone.*[Vv]ilanterol", Medication), "Fluticasone/vilanterol", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Dulera|[Mm]ometasone.*[Ff]ormoterol", Medication), "Formoterol/mometasone", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% ICS_LABA), "Inhaled Corticosteroids and Long Acting Beta Agonists", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Epinephrine
-  loginfo("Processing Epinephrine...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("^Epinephrine.(1(.*inhalation| to 1)|B|oncall$)", Medication), "Epinephrine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Racepinephrin", Medication), "Epinephrine,racemic", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Epinephrine), "Epinephrine", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Short_acting_beta_agonists
-  loginfo("Processing Short Acting Beta Agonists...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("^(Id-)*Albuterol[^,]((?!MGH|LMR (25|3846)|[Ii]pra|neb$|17gm can|extend|oncall|non-com|%ML).)*$|Proair|Proventil|Ventolin", Medication, perl = TRUE), "Albuterol", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Bitolterol", Medication), "Bitolterol", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Bronkometer|Isoetharine", Medication), "Isoetharine", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Isoproterenol hcl (-|1m)", Medication), "Isoproterenol", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("^Levalbuterol((?![Cc]o).)*$|Xopenex", Medication, perl = TRUE), "Levalbuterol", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Alupent|Metaproterenol", Medication), "Metaproterenol", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Maxair|Pirbuterol", Medication), "Pirbuterol", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Brethine|^Terbutaline((?!Sub|MGH|sulfate 1 *mg).)*$", Medication, perl = TRUE), "Terbutaline", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Short_acting_beta_agonists), "Short Acting Beta Agonists", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # SABA_anticholinergics
-  loginfo("Processing Short Acting Beta Agonists and Anticholinergics...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("Albuterol((?!sulfate).)*[Ii]pratropium|Combivent|Duoneb|^Ipratropium.*[Aa]lbuterol((?!ml$|vial).)*$", Medication, perl = TRUE), "Albuterol/ipratropium", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Ipratropium/albuterol 3 ml", Medication), "Ipratropium/albuterol", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% SABA_anticholinergics), "Short Acting Beta Agonists and Anticholinergics", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Xanthines
-  loginfo("Processing Xanthines...")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(is.na(Medication_Name) & grepl("Aminophylline", Medication), "Aminophylline", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Choledyl|Oxtriphylline", Medication), "Oxtriphylline", Medication_Name),
-           Medication_Name = ifelse(is.na(Medication_Name) & grepl("Slo |Theo|Uniphyl", Medication), "Theophylline", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% Xanthines), "Xanthines", Medication_Group))
-  logdebug(str_c(Medication_DF %>% filter(!is.na(Medication_Name)) %>% nrow(), " out of ", nrow(Medication_DF), " filled"))
-  # Medications to be grouped
-  loginfo("Processing Ungrouped medications...")
-  MISC_TBA <- c("Betamethasone", "Cortisone", "Dexamethasone", "Hydrocortisone")
-  Medication_DF <- Medication_DF %>%
-    mutate(Medication_Name = ifelse(grepl("^Betamet( acet/|hasone (0.12|0.6|1mg|Acetate|Sodium|soluspan)|Celestone)", Medication), "Betamethasone", Medication_Name),
-           Medication_Name = ifelse(grepl("^Cortisone(-| (ace|lm|25|enema))", Medication), "Cortisone", Medication_Name),
-           Medication_Name = ifelse(grepl("^Decadron-oncall|Dexpak|^(Id-)*Dexamethasone *(0.5|0.75|1[^2]|2.*[^s]$|3|4|6|\\(|-|A|IVPB|liq|mouth|[Oo]ral|o.*217$|[Ss]odium|sod [Pp]hosphate(/pf| 20)|Syr|tab)|Pulmicort.*5919$", Medication), "Dexamethasone", Medication_Name),
-           Medication_Name = ifelse(grepl("((?!Neo-).)*Cortef|^Hydrocortisone +(\\(|-|1((?!(%|blist|enema|Teva)).)*$|2((?!%|cream).)*$|5((?!topical).)$|Acetate Inj|inj|IVPB 100|oral|Sod.*((?!D5w).)*|tab)|Hydrocortisone-oncall|Id-Hydrocortisone((?!%).)*$", Medication, ignore.case = TRUE, perl = TRUE), "Hydrocortisone", Medication_Name),
-           Medication_Group = ifelse(is.na(Medication_Group) & (Medication_Name %in% MISC_TBA), "TBD_GROUP_NAME", Medication_Group))
-  loginfo("Mapping complete")
-  return(Medication_DF)
-}
 
 process5_medications <- function(DF_to_fill = All_merged,
-                                input_file_header = config$rpdr_file_header,
-                                input_file_ending = config$rpdr_file_ending,
-                                path_med_abn = str_c(config$data_dir, "Medication_abnormalities/"),
-                                Medications_Of_Interest,
-                                write_files = config$create_intermediates,
-                                output_file_header = config$intermediate_files_dir,
-                                output_file_ending = config$general_file_ending){
+                                 input_file_header = config$rpdr_file_header,
+                                 input_file_ending = config$rpdr_file_ending,
+                                 path_med_abn = str_c(config$data_dir, "Medication_abnormalities/"),
+                                 Medications_Of_Interest,
+                                 Group_Column = config$medication_group,
+                                 Individual_Info = TRUE,
+                                 Group_Info = TRUE,
+                                 Daily_Dose_Info = FALSE,
+                                 write_files = config$create_intermediates,
+                                 output_file_header = config$intermediate_files_dir,
+                                 output_file_ending = config$general_file_ending,
+                                 merged_group_name){
   if (missing(Medications_Of_Interest)){
     logerror("No list of Medications were specified. Process stopped.")
     return(DF_to_fill)
   }
   loginfo("Processing medications file...")
-  if (str_c(input_file_header, "Med_updated", input_file_ending) %in% str_c(config$data_dir, list.files(config$data_dir))){
-    loginfo("Using previously mapped file...")
-    Medications <- fread(str_c(input_file_header, "Med_updated", input_file_ending))
-  } else {
-    Medications <- fread(str_c(input_file_header, "Med", input_file_ending))
-    Medications <- Medication_Mapping(Medications)
-    fwrite(Medications, str_c(input_file_header, "Med_updated", input_file_ending), sep = "|")
-  }
+  Medications <- fread(str_c(input_file_header, "Med", input_file_ending))
   Medications <- Medications %>% mutate(Medication_Date = mdy(Medication_Date)) %>% arrange(EMPI, Medication_Date)
+  # Clean up Additional_Info and generate Daily Dosage and Notes
+  # - Get MCG units (if ML: get MG from medication; if MG: convert to MCG) or PUFF count
+  # - Get FREQ
+  # - Note PRN
+  # - Calculate Daily Dosages
+  # - write Notes
+  Medications <- Medications %>% mutate(Additional_Info = gsub("PUFFS", "PUFF", Additional_Info, ignore.case = TRUE),
+                                        Additional_Info = gsub("mcg", "MCG", Additional_Info, ignore.case = TRUE),
+                                        Additional_Info = gsub("ml", "ML", Additional_Info, ignore.case = TRUE),
+                                        Additional_Info = gsub(" of fluti", "", Additional_Info),
+                                        Additional_Info = gsub("Inhl", "INH", Additional_Info, ignore.case = TRUE),
+                                        Additional_Info = gsub("Nebu", "NEB", Additional_Info, ignore.case = TRUE),
+                                        DOSE_MCG = as.numeric(gsub("^.*DOSE=((\\d|\\.)+) MCG.*$", "\\1", Additional_Info)),
+                                        DOSE_MG = as.numeric(gsub("^.*DOSE=((\\d|\\.)+) MG.*$", "\\1", Additional_Info)),
+                                        DOSE_ML = as.numeric(gsub("^.*DOSE=((\\d|\\.)+) ML.*$", "\\1", Additional_Info)),
+                                        DOSE_MG_ML = ifelse(is.na(DOSE_ML), NA, Medication),
+                                        DOSE_MG_ML_mg = as.numeric(gsub("^.* ((\\d|\\.)+) *mg.*$", "\\1", DOSE_MG_ML, ignore.case = TRUE)),
+                                        DOSE_MG_ML_ml = as.numeric(gsub("^.*/ *((\\d|\\.)*) *ml.*$", "\\1", DOSE_MG_ML, ignore.case = TRUE)),
+                                        DOSE_MG_ML_ml = ifelse(!is.na(DOSE_ML) & is.na(DOSE_MG_ML_ml), 1, DOSE_MG_ML_ml),
+                                        DOSE_MG = ifelse(!(is.na(DOSE_ML)), DOSE_ML*DOSE_MG_ML_mg/DOSE_MG_ML_ml, DOSE_MG),
+                                        DOSE_MCG = ifelse(!(is.na(DOSE_MG)), DOSE_MG*1000, DOSE_MCG),
+                                        DOSE_PUFF = as.numeric(gsub("^.*DOSE=((\\d|\\.)*) (INHALATION|PUFF|SPRAY).*$", "\\1", Additional_Info)),
+                                        FREQ = NA,
+                                        FREQ = ifelse(grepl("Daily|Nightly|Once|QAM|QD|QNOON|QPM|Q24", Additional_Info), 1, FREQ),
+                                        FREQ = ifelse(grepl("BID|Q12H", Additional_Info), 2, FREQ),
+                                        FREQ = ifelse(grepl("QAC|TID|Q8H", Additional_Info), 3, FREQ),
+                                        FREQ = ifelse(grepl("4x Daily|QID|Q6H", Additional_Info), 4, FREQ),
+                                        FREQ = ifelse(grepl("Q4H", Additional_Info), 6, FREQ),
+                                        FREQ = ifelse(grepl("Q3H", Additional_Info), 8, FREQ),
+                                        FREQ = ifelse(grepl("Q2H", Additional_Info), 12, FREQ),
+                                        FREQ = ifelse(grepl("Q1H", Additional_Info), 24, FREQ),
+                                        PRN = ifelse(grepl("PRN", Additional_Info), TRUE, FALSE),
+                                        DAILY_DOSE_MCG = ifelse(is.na(DOSE_MCG), NA, DOSE_MCG * ifelse(is.na(FREQ), 1, FREQ)),
+                                        DAILY_DOSE_PUFF = ifelse(is.na(DOSE_PUFF), NA, DOSE_PUFF * ifelse(is.na(FREQ), 1, FREQ)),
+                                        DAILY_DOSE = ifelse(!is.na(DAILY_DOSE_MCG), str_c("MCG: ", DAILY_DOSE_MCG), NA),
+                                        DAILY_DOSE = ifelse(!is.na(DAILY_DOSE_PUFF), str_c("Puffs: ", DAILY_DOSE_PUFF), DAILY_DOSE),
+                                        DAILY_DOSE = ifelse(is.na(DAILY_DOSE) & !is.na(FREQ), str_c("FREQ: ", FREQ), DAILY_DOSE),
+                                        NOTES = ifelse(PRN, "Prescribed as needed", ""),
+                                        NOTES = ifelse(is.na(DAILY_DOSE) | grepl("FREQ", DAILY_DOSE), str_c(NOTES, ifelse(NOTES == "", "", "; "), "Unknown dosage"), NOTES), 
+                                        NOTES = ifelse(is.na(FREQ), str_c(NOTES, ifelse(NOTES == "", "", "; "), "Unknown frequency"), NOTES)) %>%
+    select(-c(DOSE_MCG, DOSE_MG, DOSE_ML, DOSE_MG_ML, DOSE_MG_ML_mg, DOSE_MG_ML_ml, DOSE_PUFF, FREQ, PRN))
   if (!dir.exists(path_med_abn)) {dir.create(path_med_abn)}
   
+  loginfo("Applying Med_Map...")
+  Med_Map_df <- fread(str_c(general_path, "/Medication_Mapping.txt"))
+  logdebug("Available folders and number of medication groups:")
+  logdebug(t(Med_Map_df %>% group_by(Medication_Biobank_Folder) %>% summarise(Count = n())))
+  # Select relevant files
+  Relevant_Meds <- data.frame(Medication_Name = character(),
+                              Medication_Biobank_Folder = character(),
+                              Medication_GWAS_Group = character(),
+                              Medication_Pegasus_Group = character(),
+                              Search_Term = character(),
+                              Ignore.case = logical(),
+                              Perl = logical())
+  for (Grouping_Name in names(Medications_Of_Interest)){
+    if (length(Medications_Of_Interest[[Grouping_Name]]) == 0){
+      Mini_Med_Map <- Med_Map_df %>% filter(!!(as.symbol(Group_Column)) %in% Grouping_Name)
+      Medications_Of_Interest[[Grouping_Name]] = Mini_Med_Map %>% pull(Medication_Name)
+    } else {
+      Mini_Med_Map <- Med_Map_df %>% filter(!!(as.symbol(Group_Column)) %in% Grouping_Name,
+                                            Medication_Name %in% Medications_Of_Interest[[Grouping_Name]])
+    }
+    if (nrow(Mini_Med_Map) == 0){
+      logerror("Med grouping does not exist. Please try again.")
+      return(DF_to_fill)
+    }
+    Relevant_Meds <- rbind(Relevant_Meds, Mini_Med_Map)
+  }
+  rm(Mini_Med_Map, Med_Map_df)
+  Med_Row_ids <- 1:nrow(Relevant_Meds)
+  Medications_condensed <- Medications %>% group_by(Medication) %>% summarise()
+  Med_all_subgroups <- data.frame(Medication = character(),
+                                  Medication_Name = character(),
+                                  Medication_Biobank_Folder = character(),
+                                  Medication_GWAS_Group = character(),
+                                  Medication_Pegasus_Group = character())
+  for (mri in Med_Row_ids){
+    Med_subgroup <- Medications_condensed %>% filter(grepl(Relevant_Meds[mri,]$Search_Term,
+                                                           Medication,
+                                                           ignore.case = Relevant_Meds[mri,]$Ignore.case,
+                                                           perl = Relevant_Meds[mri,]$Perl)) %>%
+      mutate(Medication_Name  = Relevant_Meds[mri,]$Medication_Name,
+             Medication_Biobank_Folder = Relevant_Meds[mri,]$Medication_Biobank_Folder,
+             Medication_GWAS_Group = Relevant_Meds[mri,]$Medication_GWAS_Group,
+             Medication_Pegasus_Group = Relevant_Meds[mri,]$Medication_Pegasus_Group)
+    Med_all_subgroups <- rbind(Med_all_subgroups, Med_subgroup)
+    rm(Med_subgroup)
+  }
+  Medications <- right_join(Medications, Med_all_subgroups, by = "Medication")
+  rm(Med_all_subgroups, mri, Medications_condensed, Relevant_Meds, Med_Row_ids)
+  if ("Medication_Date_Detail" %in% names(Medications)){
+    Med_abn <- Medications %>% filter(Medication_Date_Detail == "Removed")
+    if (nrow(Med_abn) > 0){
+      logwarn(str_c(nrow(Med_abn), " row(s) out of ", nrow(Medications), " have been removed due having the flag 'Removed'."))
+      fwrite(Med_abn, str_c(path_med_abn, "Abnormality_1_Removed_Flag_All_Medications", output_file_ending))
+      Medications <- Medications %>% filter(Medication_Date_Detail != "Removed")
+    }
+  }
+  loginfo("Creating medication output columns...")
   # Get the "Any exist" first to lower the search group/increase speed later
   for (Grouping_Name in names(Medications_Of_Interest)){
-    Group_Header = str_c("Any_", gsub(" ", "_", Grouping_Name))
+    Group_Header = str_c("Any_", gsub("_{1,}", "_", gsub(" |,|-", "_", Grouping_Name)))
     Group <- Medications %>%
-      filter(grepl(Grouping_Name, Medication_Group),
+      filter(grepl(Grouping_Name, !!(as.symbol(Group_Column))),
              Medication_Name %in% Medications_Of_Interest[[Grouping_Name]])
-    Med_abn <- Group %>% filter(Medication_Date_Detail == "Removed")
-    if (nrow(Med_abn) > 0){
-      logwarn(str_c(nrow(Med_abn), " row(s) out of ", nrow(Group), " have been removed due having the flag 'Removed'."))
-      fwrite(Med_abn, str_c(path_med_abn, "Abnormality_1_Removed_Flag_", Group_Header, output_file_ending))
-      Group <- Group %>% filter(Medication_Date_Detail != "Removed")
-    }
     Output_Columns <- Group %>% group_by(EMPI) %>% select(EMPI, Medication_Name) %>% unique() %>%
       summarise(!!(as.symbol(Group_Header)) := "Yes")
-    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
-    DF_to_fill <- DF_to_fill %>%
-      mutate(!!(as.symbol(Group_Header)) := ifelse(is.na(!!(as.symbol(Group_Header))), "No", "Yes"))
-    loginfo(str_c(nrow(Output_Columns), " subjects were prescribed any ", Grouping_Name))
-    rm(Output_Columns)
-    # Look for the individual prescriptions
-    for (Med_Name in Medications_Of_Interest[[Grouping_Name]]){
-      Subgroup_Header <- gsub(" ", "_", gsub("/", "_", Med_Name))
-      Subgroup <- Group %>% filter(Medication_Name == Med_Name) %>% group_by(EMPI)
-      Med_abn <- Subgroup[duplicated(Subgroup) | duplicated(Subgroup, fromLast = TRUE),]
-      if (nrow(Med_abn) > 0){
-        logwarn(str_c(nrow(Med_abn), " completely duplicated row(s) out of ", nrow(Subgroup), " found. Duplicates removed."))
-        fwrite(Med_abn, str_c(path_med_abn, "Abnormality_2_Duplicate_rows_", Subgroup_Header, output_file_ending))
-        Subgroup <- Subgroup %>% unique()
-      }
-      Subgroup2 <- Subgroup %>% select(EMPI, Medication_Date, Medication, Hospital)
-      Med_abn <- Subgroup[duplicated(Subgroup2) | duplicated(Subgroup2, fromLast = TRUE),]
-      if (nrow(Med_abn) > 0){
-        logwarn(str_c(nrow(Med_abn), " partially duplicated row(s) out of ", nrow(Subgroup), " found. ",
-                      sum(duplicated(Subgroup2, fromLast = TRUE)), " rows removed."))
-        fwrite(Med_abn, str_c(path_med_abn, "Abnormality_3_Duplicate_rows_", Subgroup_Header, output_file_ending))
-        Subgroup <- distinct(Subgroup, EMPI, Medication_Date, Medication, Hospital, .keep_all = TRUE)
-      }
-      rm(Subgroup2)
-      Output_Columns <- Subgroup %>% group_by(EMPI) %>% summarise(!!(as.symbol(Subgroup_Header)) := "Yes")
+    if (Group_Info){
       DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
       DF_to_fill <- DF_to_fill %>%
-        mutate(!!(as.symbol(Subgroup_Header)) := ifelse(is.na(!!(as.symbol(Subgroup_Header))), "No", "Yes"))
-      Output_Columns <- Subgroup %>% arrange(Medication_Date) %>%
-        summarise(!!(as.symbol(str_c(Subgroup_Header, "_dates"))) := paste(Medication_Date, collapse = ";"),
-                  !!(as.symbol(str_c(Subgroup_Header, "_total_dates"))) := n())
-      DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
-      Output_Columns <- Subgroup %>% group_by(EMPI, Medication) %>% summarise(Medication_Occurances = n()) %>%
-        group_by(EMPI) %>%
-        summarise(!!(as.symbol(str_c(Subgroup_Header, "_most_common_prescription"))) := paste(Medication[which(Medication_Occurances == max(Medication_Occurances))], collapse = ";"),
-                  !!(as.symbol(str_c(Subgroup_Header, "_most_common_prescription_total"))) := max(Medication_Occurances))
-      DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
-      loginfo(str_c(nrow(Output_Columns), " subjects were prescribed ", tolower(Med_Name), "."))
-      logdebug(str_c("nlines ", Subgroup_Header, " after completion: ", nrow(Subgroup)))
-      if(write_files){
-        fwrite(Subgroup, str_c(output_file_header, Subgroup_Header, output_file_ending))
-      }
-      rm(Subgroup_Header)
-      rm(Subgroup, Output_Columns, Med_abn)
+        mutate(!!(as.symbol(Group_Header)) := ifelse(is.na(!!(as.symbol(Group_Header))), "No", "Yes"))
     }
-    rm(Med_Name)
-    # Now that all the errors have been noted.. add more count/date columns
-    Group <- Group %>% distinct(EMPI, Medication_Date, Medication, Hospital, .keep_all = TRUE)
-    # Clean up Additional_Info and generate Daily Dosage and Notes
-    # - Get MCG units (if ML: get MG from medication; if MG: convert to MCG) or PUFF count
-    # - Get FREQ
-    # - Note PRN
-    # - Calculate Daily Dosages
-    # - write Notes
-    Group <- Group %>% mutate(Additional_Info = gsub("PUFFS", "PUFF", Additional_Info, ignore.case = TRUE),
-                              Additional_Info = gsub("mcg", "MCG", Additional_Info, ignore.case = TRUE),
-                              Additional_Info = gsub("ml", "ML", Additional_Info, ignore.case = TRUE),
-                              Additional_Info = gsub(" of fluti", "", Additional_Info),
-                              Additional_Info = gsub("Inhl", "INH", Additional_Info, ignore.case = TRUE),
-                              Additional_Info = gsub("Nebu", "NEB", Additional_Info, ignore.case = TRUE),
-                              DOSE_MCG = as.numeric(gsub("^.*DOSE=((\\d|\\.)+) MCG.*$", "\\1", Additional_Info)),
-                              DOSE_MG = as.numeric(gsub("^.*DOSE=((\\d|\\.)+) MG.*$", "\\1", Additional_Info)),
-                              DOSE_ML = as.numeric(gsub("^.*DOSE=((\\d|\\.)+) ML.*$", "\\1", Additional_Info)),
-                              DOSE_MG_ML = ifelse(is.na(DOSE_ML), NA, Medication),
-                              DOSE_MG_ML_mg = as.numeric(gsub("^.* ((\\d|\\.)+) *mg.*$", "\\1", DOSE_MG_ML, ignore.case = TRUE)),
-                              DOSE_MG_ML_ml = as.numeric(gsub("^.*/ *((\\d|\\.)*) *ml.*$", "\\1", DOSE_MG_ML, ignore.case = TRUE)),
-                              DOSE_MG_ML_ml = ifelse(!is.na(DOSE_ML) & is.na(DOSE_MG_ML_ml), 1, DOSE_MG_ML_ml),
-                              DOSE_MG = ifelse(!(is.na(DOSE_ML)), DOSE_ML*DOSE_MG_ML_mg/DOSE_MG_ML_ml, DOSE_MG),
-                              DOSE_MCG = ifelse(!(is.na(DOSE_MG)), DOSE_MG*1000, DOSE_MCG),
-                              DOSE_PUFF = as.numeric(gsub("^.*DOSE=((\\d|\\.)*) (INHALATION|PUFF|SPRAY).*$", "\\1", Additional_Info)),
-                              FREQ = NA,
-                              FREQ = ifelse(grepl("Daily|Nightly|Once|QAM|QD|QNOON|QPM", Additional_Info), 1, FREQ),
-                              FREQ = ifelse(grepl("BID|Q12H", Additional_Info), 2, FREQ),
-                              FREQ = ifelse(grepl("QAC|TID", Additional_Info), 3, FREQ),
-                              FREQ = ifelse(grepl("4x Daily|QID|Q6H", Additional_Info), 4, FREQ),
-                              PRN = ifelse(grepl("PRN", Additional_Info), TRUE, FALSE),
-                              DAILY_DOSE_MCG = ifelse(is.na(DOSE_MCG), NA, DOSE_MCG * ifelse(is.na(FREQ), 1, FREQ)),
-                              DAILY_DOSE_PUFF = ifelse(is.na(DOSE_PUFF), NA, DOSE_PUFF * ifelse(is.na(FREQ), 1, FREQ)),
-                              DAILY_DOSE = ifelse(!is.na(DAILY_DOSE_MCG), str_c("MCG: ", DAILY_DOSE_MCG), NA),
-                              DAILY_DOSE = ifelse(!is.na(DAILY_DOSE_PUFF), str_c("Puffs: ", DAILY_DOSE_PUFF), DAILY_DOSE),
-                              DAILY_DOSE = ifelse(is.na(DAILY_DOSE) & !is.na(FREQ), str_c("FREQ: ", FREQ), DAILY_DOSE),
-                              NOTES = ifelse(PRN, "Prescribed as needed", ""),
-                              NOTES = ifelse(is.na(DAILY_DOSE) | grepl("FREQ", DAILY_DOSE), str_c(NOTES, ifelse(NOTES == "", "", "; "), "Unknown dosage"), NOTES), 
-                              NOTES = ifelse(is.na(FREQ), str_c(NOTES, ifelse(NOTES == "", "", "; "), "Unknown frequency"), NOTES)) %>%
-      select(-c(DOSE_MCG, DOSE_MG, DOSE_ML, DOSE_MG_ML, DOSE_MG_ML_mg, DOSE_MG_ML_ml, DOSE_PUFF, FREQ, PRN))
-    Output_Columns <- Group %>% group_by(EMPI) %>%
-      summarise(!!(as.symbol(str_c(Group_Header, "_dates"))) := paste(Medication_Date, collapse = ";"),
-                !!(as.symbol(str_c(Group_Header, "_total_dates"))) := n())
-    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
-    Output_Columns <- Group %>% group_by(EMPI, Medication_Name) %>% summarise(Medication_Occurances = n()) %>%
-      group_by(EMPI) %>%
-      summarise(!!(as.symbol(str_c(Group_Header, "_most_common_prescription_type"))) := paste(Medication_Name[which(Medication_Occurances == max(Medication_Occurances))], collapse = ";"),
-                !!(as.symbol(str_c(Group_Header, "_most_common_prescription_type_total"))) := max(Medication_Occurances))
-    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
-    Output_Columns <- Group %>% group_by(EMPI, Medication) %>% summarise(Medication_Occurances = n()) %>%
-      group_by(EMPI) %>%
-      summarise(!!(as.symbol(str_c(Group_Header, "_most_common_prescription"))) := paste(Medication[which(Medication_Occurances == max(Medication_Occurances))], collapse = ";"),
-                !!(as.symbol(str_c(Group_Header, "_most_common_prescription_total"))) := max(Medication_Occurances))
-    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
-    Output_Columns <- Group %>% group_by(EMPI) %>%
-      summarise(!!(as.symbol(str_c(Group_Header, "_all_medications"))) := paste(Medication, collapse = "|"),
-                !!(as.symbol(str_c(Group_Header, "_daily_dose_MCG"))) := paste(DAILY_DOSE_MCG, collapse = "|"),
-                !!(as.symbol(str_c(Group_Header, "_daily_puffs"))) := paste(DAILY_DOSE_PUFF, collapse = "|"),
-                !!(as.symbol(str_c(Group_Header, "_daily_dose"))) := paste(DAILY_DOSE, collapse = "|"),
-                !!(as.symbol(str_c(Group_Header, "_notes"))) := paste(NOTES, collapse= "|"))
-    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
-    # Rearrange so "Any" columns are together for easier viewing/understanding
-    DF_to_fill <- DF_to_fill %>% select(EMPI:Group_Header, starts_with(Group_Header), everything())
-    y <- Group %>% group_by(EMPI) %>%
-      summarise(Medications_With_Information = paste(Medication, collapse = "|"),
-                Information = paste(Additional_Info, collapse = "|"),
-                DAILY_DOSE_MCG = paste(DAILY_DOSE_MCG, collapse = "|"),
-                DAILY_DOSE_PUFF = paste(DAILY_DOSE_PUFF, collapse = "|"),
-                DAILY_DOSE = paste(DAILY_DOSE, collapse = "|"),
-                NOTES = paste(NOTES, collapse= "|"),
-                n1 = n())
+    loginfo(str_c(nrow(Output_Columns), " subjects were prescribed any ", Grouping_Name))
     rm(Output_Columns)
-    if(write_files){
-      fwrite(Group, str_c(output_file_header, Group_Header, output_file_ending))
+    if(Individual_Info){
+      # Look for the individual prescriptions
+      for (Med_Name in Medications_Of_Interest[[Grouping_Name]]){
+        Subgroup_Header <- str_c(gsub("_{1,}", "_", gsub(" |,|-", "_", Grouping_Name)),
+                                 "_", gsub("/| ", "_", Med_Name))
+        Subgroup <- Group %>% filter(Medication_Name == Med_Name) %>% group_by(EMPI)
+        Med_abn <- Subgroup[duplicated(Subgroup) | duplicated(Subgroup, fromLast = TRUE),]
+        if (nrow(Med_abn) > 0){
+          logwarn(str_c(nrow(Med_abn), " completely duplicated row(s) out of ", nrow(Subgroup), " found. Duplicates removed."))
+          fwrite(Med_abn, str_c(path_med_abn, "Abnormality_2_Duplicate_rows_", Subgroup_Header, output_file_ending))
+          Subgroup <- Subgroup %>% unique()
+        }
+        Subgroup2 <- Subgroup %>% select(EMPI, Medication_Date, Medication, Hospital)
+        Med_abn <- Subgroup[duplicated(Subgroup2) | duplicated(Subgroup2, fromLast = TRUE),]
+        if (nrow(Med_abn) > 0){
+          logwarn(str_c(nrow(Med_abn), " partially duplicated row(s) out of ", nrow(Subgroup), " found. ",
+                        sum(duplicated(Subgroup2, fromLast = TRUE)), " rows removed."))
+          fwrite(Med_abn, str_c(path_med_abn, "Abnormality_3_Duplicate_rows_", Subgroup_Header, output_file_ending))
+          Subgroup <- distinct(Subgroup, EMPI, Medication_Date, Medication, Hospital, .keep_all = TRUE)
+        }
+        rm(Subgroup2)
+        # Start writing output
+        Output_Columns <- Subgroup %>% group_by(EMPI) %>% summarise(!!(as.symbol(Subgroup_Header)) := "Yes")
+        DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+        DF_to_fill <- DF_to_fill %>%
+          mutate(!!(as.symbol(Subgroup_Header)) := ifelse(is.na(!!(as.symbol(Subgroup_Header))), "No", "Yes"))
+        Output_Columns <- Subgroup %>% arrange(Medication_Date) %>% group_by(EMPI) %>%
+          summarise(!!(as.symbol(str_c(Subgroup_Header, "_total_dates"))) := n(),
+                    !!(as.symbol(str_c(Subgroup_Header, "_first_date"))) := first(Medication_Date),
+                    !!(as.symbol(str_c(Subgroup_Header, "_last_date"))) := last(Medication_Date),
+                    !!(as.symbol(str_c(Subgroup_Header, "_dates"))) := paste(Medication_Date, collapse = ";"))
+        DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+        Output_Columns <- Subgroup %>% group_by(EMPI, Medication) %>% summarise(Medication_Occurances = n()) %>%
+          group_by(EMPI) %>%
+          summarise(!!(as.symbol(str_c(Subgroup_Header, "_most_common_prescription_total"))) := max(Medication_Occurances),
+                    !!(as.symbol(str_c(Subgroup_Header, "_most_common_prescription"))) := paste(Medication[which(Medication_Occurances == max(Medication_Occurances))], collapse = ";"))
+        DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+        if (Daily_Dose_Info){
+          Output_Columns <- Subgroup %>% group_by(EMPI) %>%
+            summarise(!!(as.symbol(str_c(Subgroup_Header, "_all_medications"))) := paste(Medication, collapse = "|"),
+                      !!(as.symbol(str_c(Subgroup_Header, "_daily_dose_MCG"))) := paste(DAILY_DOSE_MCG, collapse = "|"),
+                      !!(as.symbol(str_c(Subgroup_Header, "_daily_puffs"))) := paste(DAILY_DOSE_PUFF, collapse = "|"),
+                      !!(as.symbol(str_c(Subgroup_Header, "_daily_dose"))) := paste(DAILY_DOSE, collapse = "|"),
+                      !!(as.symbol(str_c(Subgroup_Header, "_notes"))) := paste(NOTES, collapse= "|"))
+          DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+        }
+        loginfo(str_c(nrow(Output_Columns), " subjects were prescribed ", tolower(Med_Name), "."))
+        logdebug(str_c("nlines ", Subgroup_Header, " after completion: ", nrow(Subgroup)))
+        if(write_files){
+          fwrite(Subgroup, str_c(output_file_header, Group_Header, "_", Subgroup_Header, output_file_ending))
+        }
+        rm(Subgroup_Header)
+        rm(Subgroup, Output_Columns, Med_abn)
+      }
+      rm(Med_Name)
+    }
+    if(Group_Info){
+      # Now that all the errors have been noted.. add more count/date columns
+      Group <- Group %>% distinct(EMPI, Medication_Date, Medication, Hospital, .keep_all = TRUE)
+      Output_Columns <- Group %>% arrange(Medication_Date) %>% group_by(EMPI) %>%
+        summarise(!!(as.symbol(str_c(Group_Header, "_total_dates"))) := n(),
+                  !!(as.symbol(str_c(Group_Header, "_first_date"))) := first(Medication_Date),
+                  !!(as.symbol(str_c(Group_Header, "_last_date"))) := last(Medication_Date),
+                  !!(as.symbol(str_c(Group_Header, "_dates"))) := paste(Medication_Date, collapse = ";"))
+      DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+      Output_Columns <- Group %>% group_by(EMPI, Medication_Name) %>% summarise(Medication_Occurances = n()) %>%
+        group_by(EMPI) %>%
+        summarise(!!(as.symbol(str_c(Group_Header, "_most_common_prescription_type_total"))) := max(Medication_Occurances),
+                  !!(as.symbol(str_c(Group_Header, "_most_common_prescription_type"))) := paste(Medication_Name[which(Medication_Occurances == max(Medication_Occurances))], collapse = ";"))
+      DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+      Output_Columns <- Group %>% group_by(EMPI, Medication) %>% summarise(Medication_Occurances = n()) %>%
+        group_by(EMPI) %>%
+        summarise(!!(as.symbol(str_c(Group_Header, "_most_common_prescription_total"))) := max(Medication_Occurances),
+                  !!(as.symbol(str_c(Group_Header, "_most_common_prescription"))) := paste(Medication[which(Medication_Occurances == max(Medication_Occurances))], collapse = ";"))
+      DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+      if (Daily_Dose_Info){
+        Output_Columns <- Group %>% group_by(EMPI) %>%
+          summarise(!!(as.symbol(str_c(Group_Header, "_all_medications"))) := paste(Medication, collapse = "|"),
+                    !!(as.symbol(str_c(Group_Header, "_daily_dose_MCG"))) := paste(DAILY_DOSE_MCG, collapse = "|"),
+                    !!(as.symbol(str_c(Group_Header, "_daily_puffs"))) := paste(DAILY_DOSE_PUFF, collapse = "|"),
+                    !!(as.symbol(str_c(Group_Header, "_daily_dose"))) := paste(DAILY_DOSE, collapse = "|"),
+                    !!(as.symbol(str_c(Group_Header, "_notes"))) := paste(NOTES, collapse= "|"))
+        DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+      }
+      # Rearrange so "Any" columns are together for easier viewing/understanding
+      DF_to_fill <- DF_to_fill %>% select(EMPI:Group_Header, starts_with(Group_Header), everything())
+      rm(Output_Columns)
+      if(write_files){
+        fwrite(Group, str_c(output_file_header, Group_Header, output_file_ending))
+      }
     }
     rm(Group_Header)
     rm(Group)
+  }
+  if (!missing(merged_group_name)){
+    Medications_distinct <- Medications %>% distinct(EMPI, Medication_Date, Medication, Hospital, .keep_all = TRUE)
+    Merged_Group_Header = str_c("Any_", gsub("_{1,}", "_", gsub(" |,|-", "_", merged_group_name)))
+    Output_Columns = Medications_distinct %>% group_by(EMPI) %>% select(EMPI, Medication_Name) %>%
+      unique() %>% summarise(!!(as.symbol(Merged_Group_Header)) := "Yes")
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+    DF_to_fill <- DF_to_fill %>%
+      mutate(!!(as.symbol(Merged_Group_Header)) := ifelse(is.na(!!(as.symbol(Merged_Group_Header))),
+                                                          "No", "Yes"))
+    loginfo(str_c(nrow(Output_Columns), " subjects were prescribed any ", merged_group_name))
+    Output_Columns <- Medications_distinct %>% arrange(Medication_Date) %>% group_by(EMPI) %>%
+      summarise(!!(as.symbol(str_c(Merged_Group_Header, "_total_dates"))) := n(),
+                !!(as.symbol(str_c(Merged_Group_Header, "_first_date"))) := first(Medication_Date),
+                !!(as.symbol(str_c(Merged_Group_Header, "_last_date"))) := last(Medication_Date),
+                !!(as.symbol(str_c(Merged_Group_Header, "_dates"))) := paste(Medication_Date, collapse = ";"))
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+    Output_Columns <- Medications_distinct %>% filter(grepl("[Nn]eb", Medication)) %>% group_by(EMPI) %>%
+      summarise(!!(as.symbol(str_c(Merged_Group_Header, "_Nebulizer"))) := "Yes")
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+    DF_to_fill <- DF_to_fill %>%
+      mutate(!!(as.symbol(str_c(Merged_Group_Header, "_Nebulizer"))) := ifelse(is.na(!!(as.symbol(str_c(Merged_Group_Header, "_Nebulizer")))),
+                                                          "No", "Yes"))
+      
+    # Rearrange so "Any" columns are together for easier viewing/understanding
+    DF_to_fill <- DF_to_fill %>% select(EMPI:Merged_Group_Header, starts_with(Merged_Group_Header), everything())
+    rm(Output_Columns)
+    if(write_files){
+      fwrite(Medications_distinct, str_c(output_file_header, Merged_Group_Header, output_file_ending))
+    }
+    rm(Medications_distinct)
   }
   return(DF_to_fill)
 }
