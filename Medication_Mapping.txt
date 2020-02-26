@@ -11,8 +11,8 @@ Azatadine	"Antihistamines, piperidine"	Oral Antihistamines		Terfenadine|Seldane	
 Azatadine/pseudoephedrine	Antihistamine/decongestant	Oral Antihistamines and Oral Decongestants		Azatadine.*[Pp]seudoephedrine	FALSE	FALSE
 Azelastine	"Antihistamines, nasal"	Intranasal Antihistamines		[Aa]stelin|Azelastine.(hcl|.*([Nn]as))	FALSE	FALSE
 Azelastine/Fluticasone	"Antihistamines, nasal"	Intranasal Antihistamines		Azelastine.*[Ff]luticasone|Dymista	FALSE	FALSE
-Beclomethasone diproprionate	"Anti-inflammatories, inhalation"	Inhaled Corticosteroids	Inhaled Steroids	Beclomethasone([Dd]ipr)*((?![Nn]asal|80.*Aerosol).)*$|Beclovent|Beconase inhaler|Qvar|Vancenase inhaler|Vanceril	FALSE	TRUE
-Beclomethasone diproprionate	"Anti-inflammatories, nasal"	Intranasal Corticosteroids		Beclomethasone ([Dd]ipropionate)*.*([Nn]asal|80.*[Aa]erosol|cream)|Qnasl|(Beco|Vance)nase((?!inhaler).)*$	FALSE	TRUE
+Beclomethasone dipropionate	"Anti-inflammatories, inhalation"	Inhaled Corticosteroids	Inhaled Steroids	Beclomethasone([Dd]ipr)*((?![Nn]asal|80.*Aerosol).)*$|Beclovent|Beconase inhaler|Qvar|Vancenase inhaler|Vanceril	FALSE	TRUE
+Beclomethasone dipropionate	"Anti-inflammatories, nasal"	Intranasal Corticosteroids		Beclomethasone ([Dd]ipropionate)*.*([Nn]asal|80.*[Aa]erosol|cream)|Qnasl|(Beco|Vance)nase((?!inhaler).)*$	FALSE	TRUE
 Betamethasone	Glucocorticoids		Inhaled Steroids	^Betamet( acet/|hasone (0.12|0.6|1mg|Acetate|Sodium|soluspan)|Celestone)	FALSE	FALSE
 Bitolterol	"Bronchodilators, sympathomimetic, inhalation"	Short Acting Beta Agonists		Bitolterol	FALSE	FALSE
 Brompheniramine	"Antihistamines, alkylamine"	Oral Antihistamines		Astemizole|Hismanal	FALSE	FALSE
