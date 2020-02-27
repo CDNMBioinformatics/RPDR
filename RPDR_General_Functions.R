@@ -74,6 +74,28 @@ process3_deidentified_asthma_copd <- function(DF_to_fill = All_merged,
   return(DF_to_fill)
 }
 
+process3_deidentified_asthma_tobacco <- function(DF_to_fill = All_merged,
+                                                 input_file_name = config$biobank_file_name){
+  loginfo("Processing biobank file...")
+  Deidentified <- fread(input_file_name)
+  Deidentified <- Deidentified %>% 
+    select(`Biobank Subject ID`, contains("Asthma"), contains("Tobacco"))
+  names(Deidentified) <- gsub("Tobacco_User_Never", "NonSmoker", 
+                              gsub("_$", "",
+                                   gsub("(.*)_current_.*", "\\1",
+                                        gsub("(.*)_no_history_.*", "Non\\1",
+                                             gsub("_+", "_",
+                                                  gsub("( |\\(|\\)|-|/|\\[|\\])", "_",
+                                                       gsub("(.* )(\\[.*)", "\\1",
+                                                            names(Deidentified))))))))
+  Deidentified <- Deidentified %>%
+    mutate_at(vars(contains("Asthma"), contains("NonSmoker")), ~ifelse(.x == "Yes", 1, 0)) %>%
+    select(Biobank_Subject_ID, Asthma, NonAsthma, everything())
+  DF_to_fill <- left_join(DF_to_fill, Deidentified, by = "Biobank_Subject_ID")
+  loginfo("Asthma and COPD identifiers have been added")
+  rm(Deidentified)
+  return(DF_to_fill)
+}
 
 process_BMI <- function(BMI_df = Deidentified){
   loginfo("Processing BMI...")
