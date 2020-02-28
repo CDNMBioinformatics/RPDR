@@ -46,7 +46,8 @@ process3_deidentified <- function(DF_to_fill = All_merged,
                                              gsub("(.* )(\\[.*)", "\\1",
                                                   names(Deidentified))))))
   Deidentified <- Deidentified %>%
-    mutate_at(vars(contains("Asthma")), ~ifelse(.x == "Yes", 1, 0))
+    mutate_at(vars(contains("Asthma")), ~ifelse(.x == "Yes", 1, 0)) %>%
+    mutate(Biobank_Subject_ID = as.integer(Biobank_Subject_ID))
   DF_to_fill <- left_join(DF_to_fill, Deidentified, by = "Biobank_Subject_ID")
   loginfo("Asthma and NonAsthma identifiers have been added")
   rm(Deidentified)
@@ -67,7 +68,8 @@ process3_deidentified_asthma_copd <- function(DF_to_fill = All_merged,
                                                   names(Deidentified))))))
   Deidentified <- Deidentified %>%
     mutate_at(vars(contains("Asthma"), contains("COPD")), ~ifelse(.x == "Yes", 1, 0)) %>%
-    select(Biobank_Subject_ID, Asthma, NonAsthma, COPD, NonCOPD)
+    select(Biobank_Subject_ID, Asthma, NonAsthma, COPD, NonCOPD) %>%
+    mutate(Biobank_Subject_ID = as.integer(Biobank_Subject_ID))
   DF_to_fill <- left_join(DF_to_fill, Deidentified, by = "Biobank_Subject_ID")
   loginfo("Asthma and COPD identifiers have been added")
   rm(Deidentified)
@@ -90,7 +92,8 @@ process3_deidentified_asthma_tobacco <- function(DF_to_fill = All_merged,
                                                             names(Deidentified))))))))
   Deidentified <- Deidentified %>%
     mutate_at(vars(contains("Asthma"), contains("NonSmoker")), ~ifelse(.x == "Yes", 1, 0)) %>%
-    select(Biobank_Subject_ID, Asthma, NonAsthma, everything())
+    select(Biobank_Subject_ID, Asthma, NonAsthma, everything()) %>%
+    mutate(Biobank_Subject_ID = as.integer(Biobank_Subject_ID))
   DF_to_fill <- left_join(DF_to_fill, Deidentified, by = "Biobank_Subject_ID")
   loginfo("Asthma and COPD identifiers have been added")
   rm(Deidentified)
@@ -131,7 +134,8 @@ process3_deidentified_complex <- function(DF_to_fill = All_merged,
            NonAsthma = Asthma_no_history_NPV_0.99_Existence_Yes_No) %>%
     mutate(Asthma = ifelse(Asthma == "Yes", 1, 0), NonAsthma = ifelse(NonAsthma == "Yes", 1, 0))
   Deidentified <- Deidentified %>% select(-(Gender:Vital_Status)) %>%
-    select(-(starts_with("BMI")))
+    select(-(starts_with("BMI"))) %>%
+    mutate(Biobank_Subject_ID = as.integer(Biobank_Subject_ID))
   Deidentified <- process_BMI(Deidentified)
   Deidentified <- process_dates(Deidentified)
   DF_to_fill <- left_join(DF_to_fill, Deidentified, by = "Biobank_Subject_ID")
