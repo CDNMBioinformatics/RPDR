@@ -11,7 +11,7 @@ require(sqldf)
 ######################################## General functions  ########################################
 ####################################################################################################
 process1_biobankIDs <- function(input_file_header = config$rpdr_file_header,
-                               input_file_ending = config$rpdr_file_ending){
+                                input_file_ending = config$rpdr_file_ending){
   loginfo("Processing biobank ids file... ")
   BiobankIDs <- data.table(fread(str_c(input_file_header, "Bib", input_file_ending)))
   BiobankIDs <- BiobankIDs %>% select(Subject_Id, EMPI) %>% rename(Biobank_Subject_ID = Subject_Id)
@@ -20,8 +20,8 @@ process1_biobankIDs <- function(input_file_header = config$rpdr_file_header,
 }
 
 process2_demographics <- function(DF_to_fill = All_merged,
-                                 input_file_header = config$rpdr_file_header,
-                                 input_file_ending = config$rpdr_file_ending){
+                                  input_file_header = config$rpdr_file_header,
+                                  input_file_ending = config$rpdr_file_ending){
   loginfo("Processing demographics file...")
   Demographics <- data.table(fread(str_c(input_file_header, "Dem", input_file_ending)))
   Demographics <- Demographics %>% select(EMPI, Gender, Date_of_Birth, Age, Date_Of_Death, Race)
@@ -143,14 +143,14 @@ process3_deidentified_complex <- function(DF_to_fill = All_merged,
 ####################################### Diagnosis functions  #######################################
 ####################################################################################################
 process4_diagnoses <- function(DF_to_fill = All_merged,
-                              input_file_header = config$rpdr_file_header,
-                              input_file_ending = config$rpdr_file_ending,
-                              path_dia_abn = str_c(config$data_dir, "Diagnoses_abnormalities/"),
-                              Diagnoses_Of_Interest,
-                              Individual_Info = TRUE,
-                              write_files = config$create_intermediates,
-                              output_file_header = config$intermediate_files_dir,
-                              output_file_ending = config$general_file_ending){
+                               input_file_header = config$rpdr_file_header,
+                               input_file_ending = config$rpdr_file_ending,
+                               path_dia_abn = str_c(config$data_dir, "Diagnoses_abnormalities/"),
+                               Diagnoses_Of_Interest,
+                               Individual_Info = TRUE,
+                               write_files = config$create_intermediates,
+                               output_file_header = config$intermediate_files_dir,
+                               output_file_ending = config$general_file_ending){
   if (missing(Diagnoses_Of_Interest)){
     logerror("No list of Diagnoses were specified. Process stopped.")
     return(DF_to_fill)
@@ -579,15 +579,15 @@ Create_ACTH_Cortisol_DHEA_Output_Columns <- function(ACTH_Cortisol_DHEA_Group,
 }
 
 process6_ACTH_labs <- function(DF_to_fill = All_merged,
-                              input_file_header = config$rpdr_file_header,
-                              input_file_ending = config$rpdr_file_ending,
-                              path_lab_abn = str_c(config$data_dir, "Lab_abnormalities/"),
-                              skip_ACTH = config$ACTH_params$skip_ACTH,
-                              strict = config$ACTH_params$strict,
-                              create_cortisol_group = config$ACTH_params$create_cortisol_group,
-                              write_files = config$create_intermediates,
-                              output_file_header = config$intermediate_files_dir,
-                              output_file_ending = config$general_file_ending){
+                               input_file_header = config$rpdr_file_header,
+                               input_file_ending = config$rpdr_file_ending,
+                               path_lab_abn = str_c(config$data_dir, "Lab_abnormalities/"),
+                               skip_ACTH = config$ACTH_params$skip_ACTH,
+                               strict = config$ACTH_params$strict,
+                               create_cortisol_group = config$ACTH_params$create_cortisol_group,
+                               write_files = config$create_intermediates,
+                               output_file_header = config$intermediate_files_dir,
+                               output_file_ending = config$general_file_ending){
   loginfo("Processing labs file...")
   Labs <- data.table(fread(str_c(input_file_header, "Lab", input_file_ending))) %>% arrange(EMPI, Seq_Date_Time)
   if (!dir.exists(path_lab_abn)) {dir.create(path_lab_abn)}
@@ -1041,3 +1041,6 @@ process6_IGE_IGG_labs <- function(DF_to_fill = All_merged,
   rm(Labs)
   return(DF_to_fill)
 }
+####################################################################################################
+####################################### Pulmonary functions  #######################################
+####################################################################################################
