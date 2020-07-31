@@ -1,6 +1,6 @@
+require(data.table) # fread, fwrite
 require(dplyr) # mutate, filter, select, ...
 require(stringr) # str_c
-require(data.table) # fread, fwrite
 require(tidyverse)
 require(logging)
 require(readr)
@@ -10,6 +10,7 @@ require(sqldf)
 ####################################################################################################
 ######################################## General functions  ########################################
 ####################################################################################################
+# If query came from Biobank, use this as step one
 process1_biobankIDs <- function(input_file_header = config$rpdr_file_header,
                                 input_file_ending = config$rpdr_file_ending){
   loginfo("Processing biobank ids file... ")
@@ -19,15 +20,58 @@ process1_biobankIDs <- function(input_file_header = config$rpdr_file_header,
   return(BiobankIDs)
 }
 
+# If query came from RPDR, use this as step one
+process1_demographics <- function(input_file_header = config$rpdr_file_header,
+                                  input_file_ending = config$rpdr_file_ending){
+  loginfo("Processing demographics file...")
+  Demographics <- data.table(fread(str_c(input_file_header, "Dem", input_file_ending)))
+  Demographics <- Demographics %>% select(EMPI, Gender, Race, Date_of_Birth, Age, Date_Of_Death, Vital_status)
+  loginfo(str_c(nrow(Demographics), " subjects processed"))
+  return(Demographics)
+}
+
 process2_demographics <- function(DF_to_fill = All_merged,
                                   input_file_header = config$rpdr_file_header,
                                   input_file_ending = config$rpdr_file_ending){
   loginfo("Processing demographics file...")
   Demographics <- data.table(fread(str_c(input_file_header, "Dem", input_file_ending)))
-  Demographics <- Demographics %>% select(EMPI, Gender, Date_of_Birth, Age, Date_Of_Death, Race)
-  DF_to_fill <- merge(DF_to_fill, Demographics, by = "EMPI")
-  loginfo("Gender, date of birth, age, date of death, and race information have been added")
+  Demographics <- Demographics %>% select(EMPI, Gender, Race, Date_of_Birth, Age, Date_Of_Death, Vital_status)
+  DF_to_fill <- left_join(DF_to_fill, Demographics, by = "EMPI")
+  loginfo("Gender, race,  date of birth, age, date of death, and vital status information have been added")
   rm(Demographics)
+  return(DF_to_fill)
+}
+
+process2_biobankIDs <- function(DF_to_fill = All_merged,
+                                input_file_header = config$rpdr_file_header,
+                                input_file_ending = config$rpdr_file_ending){
+  loginfo("Processing biobank ids file... ")
+  BiobankIDs <- data.table(fread(str_c(input_file_header, "Bib", input_file_ending)))
+  BiobankIDs <- BiobankIDs %>% select(Subject_Id, EMPI) %>% rename(Biobank_Subject_ID = Subject_Id)
+  DF_to_fill <- left_join(DF_to_fill, BiobankIDs, by = "EMPI")
+  loginfo("Available BiobankIds have been added")
+  rm(BiobankIDs)
+  return(DF_to_fill)
+}
+
+process2_identifable_information <- function(DF_to_fill = All_merged,
+                                   input_file_header = config$rpdr_file_header,
+                                   input_file_ending = config$rpdr_file_ending){
+  loginfo("Processing identifiable information...")
+  Identifiable <- fread(str_c(input_file_header, "Con", input_file_ending))
+  Identifiable <- Identifiable %>% mutate(Zip = as.character(Zip),
+                                          Zip = ifelse(grepl("CT|MA|ME|NH|NJ|RI|VT", State) &
+                                                         (str_count(Zip) == 4 |  str_count(Zip) == 8),
+                                                       str_c("0", Zip),
+                                                       ifelse(grepl("PR|VI", State) & 
+                                                         (str_count(Zip) == 3 | str_count(Zip) == 7),
+                                                         str_c("00", Zip),
+                                                         Zip)),
+                                          Zip = substr(Zip, 1, 5),
+                                          Employee = ifelse(grepl("E", VIP), "YES", "NO"))
+  Identifiable <- Identifiable %>% select(EMPI, Zip, Employee)
+  DF_to_fill <- left_join(DF_to_fill, Identifiable, by = "EMPI")
+  rm(Identifiable)
   return(DF_to_fill)
 }
 
@@ -100,12 +144,13 @@ process3_deidentified_asthma_tobacco <- function(DF_to_fill = All_merged,
   return(DF_to_fill)
 }
 
-process_BMI <- function(BMI_df = Deidentified){
-  loginfo("Processing BMI...")
-  BMI_df <- BMI_df %>% mutate_at(vars(contains("List")), ~gsub("\\[((\\d|\\.)+)\\]", "\\1", .x))
-  BMI_df <- BMI_df %>% mutate_at(vars(contains("List")), ~gsub(" ", ";", .x))
-  BMI_df <- BMI_df %>% mutate_at(vars(contains("List")), ~gsub("^$", NA, .x))
-  return(BMI_df)
+process_List <- function(List_df = Deidentified){
+  loginfo("Processing List All Values items...")
+  List_df <- List_df %>% mutate_at(vars(contains("List")), ~gsub("\\[((\\d|\\.)+)\\]", "\\1", .x))
+  List_df <- List_df %>% mutate_at(vars(contains("List")), ~gsub(" ", ";", .x))
+  List_df <- List_df %>% mutate_at(vars(contains("List")), ~gsub(";$", "", .x))
+  List_df <- List_df %>% mutate_at(vars(contains("List")), ~gsub("^$", NA, .x))
+  return(List_df)
 }
 
 process_dates <- function(DF = Deidentified){
@@ -136,13 +181,53 @@ process3_deidentified_complex <- function(DF_to_fill = All_merged,
   Deidentified <- Deidentified %>% select(-(Gender:Vital_Status)) %>%
     select(-(starts_with("BMI"))) %>%
     mutate(Biobank_Subject_ID = as.integer(Biobank_Subject_ID))
-  Deidentified <- process_BMI(Deidentified)
+  Deidentified <- process_List(Deidentified)
   Deidentified <- process_dates(Deidentified)
   DF_to_fill <- left_join(DF_to_fill, Deidentified, by = "Biobank_Subject_ID")
   loginfo("Asthma and NonAsthma, BMI, and Spirometry identifiers have been added")
   rm(Deidentified)
   return(DF_to_fill)
 }
+process3_deidentified_complex2 <- function(DF_to_fill = All_merged,
+                                           input_file_name = config$biobank_file_name){
+  loginfo("Processing biobank file...")
+  Deidentified <- fread(input_file_name)
+  names(Deidentified) <- gsub("^(.*)_$", "\\1",
+                              gsub("_+", "_",
+                                   gsub(" |-|\\(|\\)|\\[|\\]|;|:|/|&", "_", names(Deidentified))))
+  Deidentified <- Deidentified %>%
+    rename(Asthma_0.95PPV = `Asthma_current_or_past_history_custom_PPV_>=_0.95PPV_Existence_Yes_No`,
+           COPD_0.94PPV = `COPD_current_or_past_history_custom_PPV_>=_0.94PPV_Existence_Yes_No`,
+           T2DM_0.99PPV = T2DM_current_or_past_history_PPV_0.99_Existence_Yes_No,
+           Obesity_0.97PPV = `Obesity_current_or_past_history_custom_PPV_>=_0.97PPV_Existence_Yes_No`) %>%
+    mutate_at(vars(contains("PPV")), ~ifelse(.x == "Yes", 1, 0))
+  Deidentified <- process_List(Deidentified)
+  Deidentified <- Deidentified %>% select(Biobank_Subject_ID, Body_Mass_Index_BMI_Existence_Yes_No:Obesity_0.97PPV)
+  DF_to_fill <- left_join(DF_to_fill, Deidentified, by = "Biobank_Subject_ID")
+  rm(Deidentified)
+  return(DF_to_fill)
+}
+
+process3_deidentified_ppv_only <- function(DF_to_fill = All_merged,
+                                           input_file_name = config$biobank_file_name){
+  loginfo("Processing biobank file...")
+  Deidentified <- fread(input_file_name)
+  names(Deidentified) <- gsub("^(.*)_$", "\\1",
+                              gsub("_+", "_",
+                                   gsub(" |-|\\(|\\)|\\[|\\]|;|:|/|&", "_", names(Deidentified))))
+  Deidentified <- Deidentified %>% select(Biobank_Subject_ID, contains("PPV"))
+  names(Deidentified) <- gsub("^(.*)_current_or_past_history_custom_PPV_>=_((\\d|\\.)*PPV)_(.*)$",
+                              "\\1_\\2_\\4",
+                              names(Deidentified))
+  Deidentified <- Deidentified %>% mutate_at(vars(contains("List_of_All_Values")),
+                                             ~as.numeric(gsub("\\[(.*)\\]", "\\1", .x)),
+                                             vars(contains("Existence")),
+                                             ~ifelse(grepl("Yes", .x), 1, 0))
+  DF_to_fill <- left_join(DF_to_fill, Deidentified, by = "Biobank_Subject_ID")
+  rm(Deidentified)
+  return(DF_to_fill)
+}
+
 ####################################################################################################
 ####################################### Diagnosis functions  #######################################
 ####################################################################################################
@@ -151,6 +236,7 @@ process4_diagnoses <- function(DF_to_fill = All_merged,
                                input_file_ending = config$rpdr_file_ending,
                                path_dia_abn = str_c(config$data_dir, "Diagnoses_abnormalities/"),
                                Diagnoses_Of_Interest,
+                               Group_Info = TRUE,
                                Individual_Info = TRUE,
                                write_files = config$create_intermediates,
                                output_file_header = config$intermediate_files_dir,
@@ -213,11 +299,27 @@ process4_diagnoses <- function(DF_to_fill = All_merged,
         rm(Subgroup, Output_Columns, Dia_abn)
       }
     }
+    Group <- Group %>% unique()
+    Group2 <- Group %>% select(EMPI, Date, Diagnosis_Name, Hospital)
+    Dia_abn <- Group[duplicated(Group2) | duplicated(Group2, fromLast=TRUE),]
+    if (nrow(Dia_abn) > 0){
+      logwarn(str_c(nrow(Dia_abn), " partially duplicated row(s) out of ", nrow(Group),
+                    " found. ", sum(duplicated(Group2, fromLast = TRUE)), " rows removed."))
+      fwrite(Dia_abn, str_c(path_dia_abn, "Abnormality_2_Duplicate_rows_",
+                            Group_Header, output_file_ending))
+      Group <- distinct(Group, EMPI, Date, Diagnosis_Name, Hospital, .keep_all = TRUE)
+    }
+    rm(Group2)
+    Output_Columns <- Group %>% group_by(EMPI) %>% mutate(Date = mdy(Date)) %>% arrange(Date) %>%
+      summarise(!!(as.symbol(str_c(Group_Header, "_total_dates"))) := n(),
+                !!(as.symbol(str_c(Group_Header, "_dates"))) := paste(Date, collapse = ";"))
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+    
     if(write_files){
       fwrite(Group, str_c(output_file_header, Group_Header, output_file_ending))
     }
     rm(Group_Header)
-    rm(Group)
+    rm(Group, Output_Columns, Dia_abn)
   }
   
   rm(Diagnoses)
@@ -596,6 +698,9 @@ process6_ACTH_labs <- function(DF_to_fill = All_merged,
   Labs <- data.table(fread(str_c(input_file_header, "Lab", input_file_ending))) %>% arrange(EMPI, Seq_Date_Time)
   if (!dir.exists(path_lab_abn)) {dir.create(path_lab_abn)}
   logdebug(str_c("Note: All Lab abnormalites can be found at ", path_lab_abn))
+  
+  # Only care about ACTH, Cortisol, and/or DHEA(s) in this function
+  Labs <- Labs %>% filter(grepl("ACTH|Cortisol|DHEA", Group_Id))
   
   # Clean data (1):
   # (A): Change "Less than x" to "< x" and "Greater than x" to "> x"; Get rid of an extra spacing
@@ -1045,6 +1150,656 @@ process6_IGE_IGG_labs <- function(DF_to_fill = All_merged,
   rm(Labs)
   return(DF_to_fill)
 }
+process6_Covid_labs <- function(DF_to_fill = All_merged,
+                                input_file_header = config$rpdr_file_header,
+                                input_file_ending = config$rpdr_file_ending,
+                                path_lab_abn = str_c(config$data_dir, "Lab_abnormalities/"),
+                                output_file_ending = config$general_file_ending){
+  loginfo("Processing Covid19 labs...")
+  Labs <- data.table(fread(str_c(input_file_header, "Lab", input_file_ending))) %>% arrange(EMPI)
+  if (!dir.exists(path_lab_abn)) {dir.create(path_lab_abn)}
+  logdebug(str_c("Note: All Lab abnormalites can be found at ", path_lab_abn))
+  
+  Labs <- Labs %>% filter(grepl("SARS", Group_Id))
+  
+  Labs <- Labs %>% mutate(Result_Updated = ifelse(grepl("2 RNA", Group_Id),
+                                                  # RNA Tests
+                                                  ifelse(grepl("NEGATIVE|(NOT |UN)DETECTED", Result),
+                                                         "NEGATIVE",
+                                                         ifelse(grepl("POSITIVE|DETECTED", Result),
+                                                                "POSITIVE",
+                                                                NA)),
+                                                  # IGG Tests
+                                                  ifelse(grepl("POSITIVE", Result),
+                                                         "POSITIVE",
+                                                         ifelse(grepl("^Po", Result_Text),
+                                                                "POSITIVE",
+                                                                ifelse(grepl("^Ne", Result_Text),
+                                                                       "NEGATIVE",
+                                                                       ifelse(grepl("^<", Result),
+                                                                              "NEGATIVE",
+                                                                              NA))))))
+  
+  Lab_abn <- Labs[(duplicated(Labs)),]
+  if (nrow(Lab_abn) > 0){
+    logwarn(str_c(nrow(Lab_abn), " completely duplicated row(s) out of ", nrow(Labs), " removed"))
+    fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_Duplicate_rows", output_file_ending))
+  }
+  Labs <- Labs %>% unique()
+  
+  Labs <- Labs %>% filter(!is.na(Result_Updated)) %>% group_by(EMPI) %>% arrange(Seq_Date_Time)
+  Output_Columns <- Labs %>% summarise("Tested" = "Yes",
+                                       "Number_Of_Total_Tests" = n(),
+                                       "First_Test_Date" = first(Seq_Date_Time),
+                                       "First_Test_Result" = first(Result_Updated),
+                                       "All_Test_Dates" = paste(Seq_Date_Time, collapse = ";"),
+                                       "Result_Order" = paste(Result_Updated, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+  DF_to_fill <- DF_to_fill %>% mutate(Tested = ifelse(is.na(Tested), "No", Tested),
+                                      Number_Of_Total_Tests = ifelse(is.na(Number_Of_Total_Tests),
+                                                                     0, Number_Of_Total_Tests))
+  Subgroup <- Labs %>% filter(grepl("POSITIVE", Result_Updated))
+  Output_Columns <- Subgroup %>% summarise("Positive_Result" = "Yes",
+                                           "Number_Of_Total_Positive_Tests" = n(),
+                                           "First_Positive_Test_Date" = first(Seq_Date_Time),
+                                           "All_Positive_Test_Dates" = paste(Seq_Date_Time, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+  DF_to_fill <- DF_to_fill %>% mutate(Positive_Result = ifelse(is.na(Positive_Result), "No", Positive_Result),
+                                      Number_Of_Total_Positive_Tests = ifelse(is.na(Number_Of_Total_Positive_Tests),
+                                                                              0, Number_Of_Total_Positive_Tests))
+  Subgroup <- Labs %>% filter(grepl("NEGATIVE", Result_Updated))
+  Output_Columns <- Subgroup %>% summarise("Negative_Result" = "Yes",
+                                           "Number_Of_Total_Negative_Tests" = n(),
+                                           "First_Negative_Test_Date" = first(Seq_Date_Time),
+                                           "All_Negative_Test_Dates" = paste(Seq_Date_Time, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+  DF_to_fill <- DF_to_fill %>% mutate(Negative_Result = ifelse(is.na(Negative_Result), "No", Negative_Result),
+                                      Number_Of_Total_Negative_Tests = ifelse(is.na(Number_Of_Total_Negative_Tests),
+                                                                              0, Number_Of_Total_Negative_Tests))
+  
+  rm(Labs, Subgroup)
+  return(DF_to_fill)
+}
+
+process6_Cholesterol_labs <- function(DF_to_fill = All_merged,
+                                input_file_header = config$rpdr_file_header,
+                                input_file_ending = config$rpdr_file_ending,
+                                path_lab_abn = str_c(config$data_dir, "Lab_abnormalities/"),
+                                output_file_ending = config$general_file_ending,
+                                Optimal_Intermediate = 200,
+                                Intermediate_High = 240){
+  loginfo("Processing Cholesterol labs...")
+  Labs <- data.table(fread(str_c(input_file_header, "Lab", input_file_ending))) %>% arrange(EMPI)
+  if (!dir.exists(path_lab_abn)) {dir.create(path_lab_abn)}
+  logdebug(str_c("Note: All Lab abnormalites can be found at ", path_lab_abn))
+  
+  Labs <- Labs %>% filter(grepl("Cholesterol", Group_Id))
+  
+  # Clean data (1): Remove non-numeric values
+  Lab_abn <- Labs %>% filter(!grepl("^\\d", Result))
+  if (nrow(Lab_abn) > 0){
+    logwarn(str_c(nrow(Lab_abn), " entries out of ", nrow(Labs), " removed due to non-numeric values"))
+    fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_1_Non-numeric", output_file_ending))
+    Labs <- Labs %>% filter(grepl("^\\d", Result))
+  }
+  Labs <- Labs %>% mutate(Result = as.numeric(Result))
+  
+  # Clean data (2): Remove duplicates
+  Lab_abn <- Labs[(duplicated(Labs)),]
+  if (nrow(Lab_abn) > 0){
+    logwarn(str_c(nrow(Lab_abn), " completely duplicated row(s) out of ", nrow(Labs), " removed"))
+    fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_2_Duplicate_rows", output_file_ending))
+    Labs <- Labs %>% unique()
+  }
+  
+  Labs <- Labs %>%
+    extract(Seq_Date_Time, c("Seq_Date", "Seq_Time"),
+            regex = "(\\d{2}/\\d{2}/\\d{4}) (\\d{2}:\\d{2})", remove = FALSE) %>%
+    separate(Seq_Time, c("Seq_Hour", "Seq_Min", sep = ":"), remove = FALSE) %>% select(-":") %>%
+    mutate(Seq_Date = ifelse(is.na(Seq_Time), Seq_Date_Time, Seq_Date),
+           Seq_Date = mdy(Seq_Date),
+           Seq_Hour = as.numeric(Seq_Hour),
+           Seq_Min = as.numeric(Seq_Min)) %>%
+    arrange(Seq_Date, Seq_Time)
+  
+  loginfo(str_c("Using ", Optimal_Intermediate, " and ", Intermediate_High,
+                " as thresholds between Optimal, Intermediate, and High"))
+  Output_Columns <- Labs %>% group_by(EMPI) %>%
+    summarise(Cholesterol = "Yes",
+              Cholesterol_number_recorded = n(),
+              Cholesterol_average = mean(Result),
+              Cholesterol_min = min(Result, na.rm = TRUE),
+              Cholesterol_max = max(Result, na.rm = TRUE),
+              Cholesterol_median = median(Result, na.rm = TRUE),
+              Cholesterol_all_values = paste(Result, collapse = ";"),
+              Cholesterol_all_dates = paste(Seq_Date_Time, collapse = ";"),
+              Cholesterol_probable_category = ifelse(Cholesterol_median < Optimal_Intermediate,
+                                                     "Optimal",
+                                                     ifelse(Cholesterol_median < Intermediate_High,
+                                                            "Intermediate", "High")))
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Cholesterol = ifelse(is.na(Cholesterol), "No", Cholesterol),
+           Cholesterol_number_recorded = ifelse(is.na(Cholesterol_number_recorded),
+                                                0, Cholesterol_number_recorded))
+  Optimal <- Labs %>% filter(Result < Optimal_Intermediate)
+  Output_Columns <- Optimal %>% group_by(EMPI) %>%
+    summarise(Cholesterol_optimal = "Yes",
+              Cholesterol_optimal_number_recorded = n(),
+              Cholesterol_optimal_values = paste(Result, collapse = ";"),
+              Cholesterol_optimal_dates = paste(Seq_Date_Time, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Cholesterol_optimal = ifelse(is.na(Cholesterol_optimal), "No", Cholesterol_optimal),
+           Cholesterol_optimal_number_recorded = ifelse(is.na(Cholesterol_optimal_number_recorded),
+                                                    0, Cholesterol_optimal_number_recorded))
+  Intermediate <- Labs %>% filter(Result >= Optimal_Intermediate & Result < Intermediate_High)
+  Output_Columns <- Intermediate %>% group_by(EMPI) %>%
+    summarise(Cholesterol_intermediate = "Yes",
+              Cholesterol_intermediate_number_recorded = n(),
+              Cholesterol_intermediate_values = paste(Result, collapse = ";"),
+              Cholesterol_intermediate_dates = paste(Seq_Date_Time, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Cholesterol_intermediate = ifelse(is.na(Cholesterol_intermediate), "No", Cholesterol_intermediate),
+           Cholesterol_intermediate_number_recorded = ifelse(is.na(Cholesterol_intermediate_number_recorded),
+                                                        0, Cholesterol_intermediate_number_recorded))
+  High <- Labs %>% filter(Result >= Intermediate_High)
+  Output_Columns <- High %>% group_by(EMPI) %>%
+    summarise(Cholesterol_high = "Yes",
+              Cholesterol_high_number_recorded = n(),
+              Cholesterol_high_values = paste(Result, collapse = ";"),
+              Cholesterol_high_dates = paste(Seq_Date_Time, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Cholesterol_high = ifelse(is.na(Cholesterol_high), "No", Cholesterol_high),
+           Cholesterol_high_number_recorded = ifelse(is.na(Cholesterol_high_number_recorded),
+                                                             0, Cholesterol_high_number_recorded))
+  rm(Optimal, Intermediate, High, Labs, Output_Columns)
+  return(DF_to_fill)
+}
+####################################################################################################
+##################################### Health History functions #####################################
+####################################################################################################
+process7_physical <- function(DF_to_fill = All_merged,
+                             input_file_header = config$rpdr_file_header,
+                             input_file_ending = config$rpdr_file_ending,
+                             path_phy_abn = str_c(config$data_dir, "Phy_abnormalities/"),
+                             output_file_ending = config$general_file_ending,
+                             Return_BMI = TRUE,
+                             Underweight_Normal = 18.5,
+                             Normal_Overweight = 24.9,
+                             Overweight_Obese = 30,
+                             Return_Influenza = TRUE){
+  loginfo("Processing Health History & Physical Findings data...")
+  Phy <- data.table(fread(str_c(input_file_header, "Phy", input_file_ending))) %>% arrange(EMPI)
+  if (!dir.exists(path_phy_abn)) {dir.create(path_phy_abn)}
+  logdebug(str_c("Note: All Health History & Physical Findings abnormalites can be found at ",
+                 path_phy_abn))
+  if(Return_BMI){
+    BMI <- Phy %>% filter(grepl("BMI", Concept_Name))
+    
+    Phy_abn <- BMI[(duplicated(BMI)),]
+    if (nrow(Phy_abn) > 0){
+      logwarn(str_c(nrow(Phy_abn), " completely duplicated row(s) out of ", nrow(BMI), " removed"))
+      fwrite(Phy_abn, str_c(path_phy_abn, "Abnormality_BMI_Duplicate_rows", output_file_ending))
+      BMI <- BMI %>% unique()
+    }
+    rm(Phy_abn)
+    BMI <- BMI %>% mutate(Result = as.numeric(Result),
+                          Date = mdy(Date))
+    loginfo(str_c("Using ", Underweight_Normal, ", ", Normal_Overweight,", and ",
+                  Overweight_Obese, " as thresholds between Underweight, Normal, Overweight, and Obese"))
+    
+    Output_Columns <- BMI %>% group_by(EMPI) %>% arrange(Date) %>%
+      summarise(BMI = "Yes",
+                BMI_number_recorded = n(),
+                BMI_average = mean(Result),
+                BMI_min = min(Result, na.rm = TRUE),
+                BMI_max = max(Result, na.rm = TRUE),
+                BMI_median = median(Result, na.rm = TRUE),
+                BMI_all_values = paste(Result, collapse = ";"),
+                BMI_all_dates = paste(Date, collapse = ";"),
+                BMI_probable_category = ifelse(BMI_median < Underweight_Normal, "Underweight",
+                                               ifelse(BMI_median < Normal_Overweight, "Normal",
+                                                      ifelse(BMI_median < Overweight_Obese,
+                                                             "Overweight", "Obese"))))
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+    DF_to_fill <- DF_to_fill %>% mutate(BMI = ifelse(is.na(BMI), "No", BMI),
+                                        BMI_number_recorded = ifelse(is.na(BMI_number_recorded),
+                                                                     0, BMI_number_recorded))
+    Underweight <- BMI %>% filter(Result < Underweight_Normal)
+    Output_Columns <- Underweight %>% group_by(EMPI) %>% arrange(Date) %>%
+      summarise(BMI_underweight = "Yes",
+                BMI_underweight_number_recorded = n(),
+                BMI_underweight_all_values = paste(Result, collapse = ";"),
+                BMI_underweight_all_dates = paste(Date, collapse = ";"))
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+    DF_to_fill <- DF_to_fill %>%
+      mutate(BMI_underweight = ifelse(is.na(BMI_underweight), "No", BMI_underweight),
+             BMI_underweight_number_recorded = ifelse(is.na(BMI_underweight_number_recorded),
+                                                      0, BMI_underweight_number_recorded))
+    Normal <- BMI %>% filter(Result >= Underweight_Normal & Result < Normal_Overweight)
+    Output_Columns <- Normal %>% group_by(EMPI) %>% arrange(Date) %>%
+      summarise(BMI_normal = "Yes",
+                BMI_normal_number_recorded = n(),
+                BMI_normal_all_values = paste(Result, collapse = ";"),
+                BMI_normal_all_dates = paste(Date, collapse = ";"))
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+    DF_to_fill <- DF_to_fill %>%
+      mutate(BMI_normal = ifelse(is.na(BMI_normal), "No", BMI_normal),
+             BMI_normal_number_recorded = ifelse(is.na(BMI_normal_number_recorded),
+                                                 0, BMI_normal_number_recorded))
+    Overweight <- BMI %>% filter(Result >= Normal_Overweight & Result < Overweight_Obese)
+    Output_Columns <- Overweight %>% group_by(EMPI) %>% arrange(Date) %>%
+      summarise(BMI_overweight = "Yes",
+                BMI_overweight_number_recorded = n(),
+                BMI_overweight_all_values = paste(Result, collapse = ";"),
+                BMI_overweight_all_dates = paste(Date, collapse = ";"))
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+    DF_to_fill <- DF_to_fill %>%
+      mutate(BMI_overweight = ifelse(is.na(BMI_overweight), "No", BMI_overweight),
+             BMI_overweight_number_recorded = ifelse(is.na(BMI_overweight_number_recorded),
+                                                     0, BMI_overweight_number_recorded))
+    Obese <- BMI %>% filter(Result >= Overweight_Obese)
+    Output_Columns <- Obese %>% group_by(EMPI) %>% arrange(Date) %>%
+      summarise(BMI_obese = "Yes",
+                BMI_obese_number_recorded = n(),
+                BMI_obese_all_values = paste(Result, collapse = ";"),
+                BMI_obese_all_dates = paste(Date, collapse = ";"))
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+    DF_to_fill <- DF_to_fill %>%
+      mutate(BMI_obese = ifelse(is.na(BMI_obese), "No", BMI_obese),
+             BMI_obese_number_recorded = ifelse(is.na(BMI_obese_number_recorded),
+                                                0, BMI_obese_number_recorded))
+    rm(Underweight, Normal, Overweight, Obese, BMI, Output_Columns)
+  }
+  if (Return_Influenza){
+    Flu <- Phy %>% filter(grepl("Influenza", Concept_Name))
+    Phy_abn <- Flu %>% filter(!grepl("^$|Done", Result))
+    if (nrow(Phy_abn) > 0){
+      logwarn(str_c(nrow(Phy_abn), " out of ", nrow(Flu), " entries removed as records are of",
+                    "declines, deferreds, and unavailables"))
+      fwrite(Phy_abn, str_c(path_phy_abn, "Abnormality_Flu_Invalid_information", output_file_ending))
+      Flu <- Flu %>% filter(grepl("^$|Done", Result))
+    }
+    Phy_abn <- Flu[(duplicated(Flu)),]
+    if (nrow(Phy_abn) > 0){
+      logwarn(str_c(nrow(Phy_abn), " completely duplicated row(s) out of ", nrow(Flu), " removed"))
+      fwrite(Phy_abn, str_c(path_phy_abn, "Abnormality_Flu_Duplicate_rows", output_file_ending))
+      Flu <- Flu %>% unique()
+    }
+    rm(Phy_abn)
+    Flu <- Flu %>% mutate(Date = mdy(Date))
+    Output_Columns <- Flu %>% group_by(EMPI) %>% arrange(Date) %>%
+      summarise(Flu_vaccined = "Yes",
+                Flu_vaccine_count  = n(),
+                Flu_vaccine_most_recent = last(Date),
+                Flu_vaccine_all_dates = paste(Date, collapse = ";"))
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+    DF_to_fill <- DF_to_fill %>%
+      mutate(Flu_vaccined = ifelse(is.na(Flu_vaccined), "No", Flu_vaccined),
+             Flu_vaccine_count = ifelse(is.na(Flu_vaccine_count), 0, Flu_vaccine_count))
+    rm(Output_Columns, Flu)
+  }
+  return(DF_to_fill)
+}
+
+####################################################################################################
+####################################### Encounters functions #######################################
+####################################################################################################
+process_encounters <- function(DF_to_fill = All_merged,
+                               input_file_header = config$rpdr_file_header,
+                               input_file_ending = config$rpdr_file_ending,
+                               path_enc_abn = str_c(config$data_dir, "Enc_abnormalities/"),
+                               output_file_ending = config$general_file_ending){
+  loginfo("Processing Encounters data...")
+  Encounters <- data.table(fread(str_c(input_file_header, "Enc", input_file_ending))) %>% arrange(EMPI)
+  if (!dir.exists(path_enc_abn)) {dir.create(path_enc_abn)}
+  logdebug(str_c("Note: All encounter abnormalites can be found at ", path_enc_abn))
+  # Cleaning: reformat date objects and resort for easier visualization
+  Encounters <- Encounters %>% mutate(Admit_Date = as.Date(Admit_Date, "%m/%d/%Y"),
+                                      Discharge_Date = as.Date(Discharge_Date, "%m/%d/%Y")) %>%
+    arrange(EMPI, desc(Discharge_Date), Admit_Date, desc(Encounter_Status))
+  Output_columns <- Encounters %>% group_by(EMPI) %>% summarise(Encounter_Info_Available = "Yes", .groups = 'drop')
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Encounter_Info_Available = ifelse(is.na(Encounter_Info_Available), "No", Encounter_Info_Available))
+  loginfo(str_c(nrow(Output_columns), " subjects have had an encounter and have a covid positive test"))
+  
+  Output_columns <- Encounters %>% filter(Inpatient_Outpatient == "Inpatient") %>% group_by(EMPI) %>%
+    summarise(Inpatient_Encounter_Info_Available = "Yes", .groups = 'drop')
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Inpatient_Encounter_Info_Available = ifelse(is.na(Inpatient_Encounter_Info_Available), "No", Inpatient_Encounter_Info_Available))
+  loginfo(str_c(nrow(Output_columns), " subjects have had an inpatient encounter and have a covid positive test"))
+  
+  Output_columns <- Encounters %>% filter(Inpatient_Outpatient == "Outpatient") %>% group_by(EMPI) %>%
+    summarise(Outpatient_Encounter_Info_Available = "Yes", .groups = 'drop')
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Outpatient_Encounter_Info_Available = ifelse(is.na(Outpatient_Encounter_Info_Available), "No", Outpatient_Encounter_Info_Available))
+  loginfo(str_c(nrow(Output_columns), " subjects have had an outpatient encounter and have a covid positive test"))
+  
+  Output_columns <- Encounters %>% filter(Inpatient_Outpatient == "Outpatient-Emergency") %>% group_by(EMPI) %>%
+    summarise(Emergency_Encounter_Info_Available = "Yes", .groups = 'drop')
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Emergency_Encounter_Info_Available = ifelse(is.na(Emergency_Encounter_Info_Available), "No", Emergency_Encounter_Info_Available))
+  loginfo(str_c(nrow(Output_columns), " subjects have had an outpatient-emergency encounter and have a covid positive test"))
+  
+  # Cleaning: Let's assume that no covid diagnosis was made before January 01, 2020
+  Encounters <- Encounters %>% filter(Admit_Date > "2020-01-01")
+  Output_columns <- Encounters %>% group_by(EMPI) %>% summarise(Encounter_Info_After_01012020 = "Yes", .groups = 'drop')
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Encounter_Info_After_01012020 = ifelse(is.na(Encounter_Info_After_01012020), "No", Encounter_Info_After_01012020))
+  loginfo(str_c(nrow(Output_columns), " subjects have had an encounter since Jan 01, 2020"))
+  
+  # Cleaning: We are looking for LOS of relevance so let's ignore encounter information
+  # up to a week before the Encounter
+  Dates_of_Interest <- DF_to_fill %>% filter(Positive_Result == "Yes") %>%
+    extract(First_Positive_Test_Date, c("First_Positive_Test_Date", "First_Positive_Test_Time"),
+            regex = "(\\d{2}/\\d{2}/\\d{4}) (\\d{2}:\\d{2})", remove = FALSE) %>%
+    select(EMPI, First_Positive_Test_Date) %>%
+    mutate(First_Positive_Test_Date = as.Date(First_Positive_Test_Date, "%m/%d/%Y"),
+           Lower_Bound_Date = First_Positive_Test_Date - 7)
+  Encounters <- left_join(Encounters, Dates_of_Interest)
+  Encounters <- Encounters %>% filter(Admit_Date >= Lower_Bound_Date)
+  Output_columns <- Encounters %>% group_by(EMPI) %>% summarise(Encounter_Info_After_1_Week_Before_FirstTest = "Yes", .groups = 'drop')
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Encounter_Info_After_1_Week_Before_FirstTest = ifelse(is.na(Encounter_Info_After_1_Week_Before_FirstTest), "No", Encounter_Info_After_1_Week_Before_FirstTest))
+  loginfo(str_c(nrow(Output_columns), " subjects have had an encounter after a week before their first positive test"))
+  
+  rm(Dates_of_Interest)
+  
+  # Cleaning: Let's only look at the lines that have something to do with COVID
+  Encounters <- Encounters %>%
+    mutate(contains_covid = grepl("COVID", Admitting_Diagnosis) | grepl("COVID", Principal_Diagnosis) |
+             grepl("COVID", Diagnosis_1) | grepl("COVID", Diagnosis_2) |
+             grepl("COVID", Diagnosis_3) | grepl("COVID", Diagnosis_4) |
+             grepl("COVID", Diagnosis_5) | grepl("COVID", Diagnosis_6) |
+             grepl("COVID", Diagnosis_7) | grepl("COVID", Diagnosis_8) |
+             grepl("COVID", Diagnosis_9) | grepl("COVID", Diagnosis_10))
+  Covid_Ids <- Encounters %>% filter(contains_covid) %>% group_by(EMPI) %>% summarise() %>% pull()
+  Encounters <- Encounters %>% filter(EMPI %in% Covid_Ids)
+  Output_columns <- Encounters %>% group_by(EMPI) %>% summarise(Covid_Related_Encounter_Info = "Yes", .groups = 'drop')
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Covid_Related_Encounter_Info = ifelse(is.na(Covid_Related_Encounter_Info), "No", Covid_Related_Encounter_Info))
+  loginfo(str_c(nrow(Output_columns), " subjects have had an encounter that had a COVID diagnosis"))
+  
+  rm(Covid_Ids)
+  
+  # Compare Inpatient metrics
+  Inpatient <- Encounters %>% filter(Inpatient_Outpatient == "Inpatient")
+  Output_columns <- Inpatient %>% group_by(EMPI) %>% summarise(Covid_Related_with_Inpatient_Encounter_Info = "Yes", .groups = 'drop')
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Covid_Related_with_Inpatient_Encounter_Info = ifelse(is.na(Covid_Related_with_Inpatient_Encounter_Info), "No", Covid_Related_with_Inpatient_Encounter_Info))
+  loginfo(str_c(nrow(Output_columns), " subjects have had an encounter that had a COVID diagnosis and at least one inpatient encounter"))
+  
+  Covid_Inpatient <- Inpatient %>% filter(contains_covid)
+  Output_columns <- Covid_Inpatient %>% group_by(EMPI) %>% summarise(Covid_Specific_Inpatient_Encounter_Info = "Yes", .groups = 'drop')
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Covid_Specific_Inpatient_Encounter_Info = ifelse(is.na(Covid_Specific_Inpatient_Encounter_Info), "No", Covid_Specific_Inpatient_Encounter_Info))
+  loginfo(str_c(nrow(Output_columns), " subjects have had a COVID diagnosis during an inpatient encounter"))
+  
+  Covid_Inpatient_Status <- Covid_Inpatient %>% filter(LOS_Days > 0) %>% arrange(Admit_Date)
+  Output_columns <- Covid_Inpatient_Status %>% group_by(EMPI) %>%
+    summarise(Covid_Specific_Inpatient_Encounter_LOS_Information = "Yes",
+              Covid_Specific_Inpatient_Encounter_LOS_Occurances = n(),
+              Covid_Specific_Inpatient_Encounter_LOS_First = first(LOS_Days),
+              Covid_Specific_Inpatient_Encounter_LOS_Last = last(LOS_Days),
+              Covid_Specific_Inpatient_Encounter_LOS_Total = sum(LOS_Days),
+              Covid_Specific_Inpatient_Encounter_LOS_First_Admit_to_Last_Discharge = last(Discharge_Date) - first(Admit_Date),
+              Covid_Specific_Inpatient_Encounter_LOS_Time_in_between_First_and_Second_Stay = ifelse(Covid_Specific_Inpatient_Encounter_LOS_Occurances > 1,
+                                                                                                    nth(Admit_Date, 2) - first(Discharge_Date),
+                                                                                                    NA),
+              Covid_Specific_Inpatient_Encounter_LOS_Time_in_between_Second_and_Third_Stay = ifelse(Covid_Specific_Inpatient_Encounter_LOS_Occurances > 2,
+                                                                                                    nth(Admit_Date, 3) - nth(Discharge_Date, 2),
+                                                                                                    NA),
+              .groups = 'drop')
+  if (sum(is.na(Output_columns$Covid_Specific_Inpatient_Encounter_LOS_Time_in_between_Second_and_Third_Stay))){
+    Output_columns <- Output_columns %>% select(-Covid_Specific_Inpatient_Encounter_LOS_Time_in_between_Second_and_Third_Stay)
+  }
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Covid_Specific_Inpatient_Encounter_LOS_Information = ifelse(is.na(Covid_Specific_Inpatient_Encounter_LOS_Information), "No", Covid_Specific_Inpatient_Encounter_LOS_Information))
+  loginfo(str_c(nrow(Output_columns), " subjects have had a COVID diagnosis during an inpatient encounter and have LOS information"))
+  
+  rm(Inpatient, Covid_Inpatient, Covid_Inpatient_Status)
+  
+  # Compare Outpatient metrics
+  Outpatient <- Encounters %>% filter(Inpatient_Outpatient == "Outpatient")
+  Output_columns <- Outpatient %>% group_by(EMPI) %>% summarise(Covid_Related_with_Outpatient_Encounter_Info = "Yes", .groups = 'drop')
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Covid_Related_with_Outpatient_Encounter_Info = ifelse(is.na(Covid_Related_with_Outpatient_Encounter_Info), "No", Covid_Related_with_Outpatient_Encounter_Info))
+  loginfo(str_c(nrow(Output_columns), " subjects have had an encounter that had a COVID diagnosis and at least one outpatient encounter"))
+  
+  Covid_Outpatient <- Outpatient %>% filter(contains_covid)
+  Output_columns <- Covid_Outpatient %>% group_by(EMPI) %>% summarise(Covid_Specific_Outpatient_Encounter_Info = "Yes", .groups = 'drop')
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Covid_Specific_Outpatient_Encounter_Info = ifelse(is.na(Covid_Specific_Outpatient_Encounter_Info), "No", Covid_Specific_Outpatient_Encounter_Info))
+  loginfo(str_c(nrow(Output_columns), " subjects have had a COVID diagnosis during an outpatient encounter"))
+  
+  Covid_Outpatient_Status <- Covid_Outpatient %>% filter(Encounter_Status == "Regular" |
+                                                    Encounter_Status == "Inhouse" | 
+                                                    Encounter_Status == "Contains Invalid DRGs") %>%
+    arrange(EMPI, Admit_Date, desc(Discharge_Date))
+  Covid_Outpatient_Status <- distinct(Covid_Outpatient_Status, EMPI, Admit_Date, .keep_all = TRUE)
+  Covid_Outpatient_Status <- distinct(Covid_Outpatient_Status, EMPI, Discharge_Date, .keep_all = TRUE)
+  Output_columns <- Covid_Outpatient_Status %>% group_by(EMPI) %>%
+    summarise(Covid_Specific_Outpatient_Encounter_Existence = "Yes",
+              Covid_Specific_Outpatient_Encounter_Occurances = n(),
+              Covid_Specific_Outpatient_Consecutive_Encounters_Existence = ifelse(any(ifelse(any(LOS_Days > 0), TRUE, FALSE),
+                                                                                      ifelse(Covid_Specific_Outpatient_Encounter_Occurances > 1,
+                                                                                             any(Admit_Date[2:length(Admit_Date)] - Discharge_Date[1:length(Discharge_Date) - 1] == 1),
+                                                                                             FALSE)),
+                                                                                  "Yes", "No"),
+              Covid_Specific_Outpatient_LOS_Total = sum(LOS_Days) + ifelse(Covid_Specific_Outpatient_Encounter_Occurances > 1,
+                                                                           sum(Admit_Date[2:length(Admit_Date)] - Discharge_Date[1:length(Discharge_Date) - 1] == 1),
+                                                                           0),
+              .groups = 'drop')
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Covid_Specific_Outpatient_Encounter_Existence = ifelse(is.na(Covid_Specific_Outpatient_Encounter_Existence), "No", Covid_Specific_Outpatient_Encounter_Existence),
+           Covid_Specific_Outpatient_Consecutive_Encounters_Existence = ifelse(is.na(Covid_Specific_Outpatient_Consecutive_Encounters_Existence), "No", Covid_Specific_Outpatient_Consecutive_Encounters_Existence))
+  loginfo(str_c(nrow(Output_columns), " subjects have had a COVID diagnosis during an outpatient encounter and status information"))
+  
+  rm(Outpatient, Covid_Outpatient, Covid_Outpatient_Status)
+  
+  # Compare Outpatient-Emergency metrics
+  Emergency <- Encounters %>% filter(Inpatient_Outpatient == "Outpatient-Emergency")
+  Output_columns <- Emergency %>% group_by(EMPI) %>% summarise(Covid_Related_with_Emergency_Encounter_Info = "Yes", .groups = 'drop')
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Covid_Related_with_Emergency_Encounter_Info = ifelse(is.na(Covid_Related_with_Emergency_Encounter_Info), "No", Covid_Related_with_Emergency_Encounter_Info))
+  loginfo(str_c(nrow(Output_columns), " subjects have had an encounter that had a COVID diagnosis and at least one outpatient-emergency encounter"))
+  
+  Covid_Emergency <- Emergency %>% filter(contains_covid)
+  Output_columns <- Covid_Emergency %>% group_by(EMPI) %>% summarise(Covid_Specific_Emergency_Encounter_Info = "Yes", .groups = 'drop')
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Covid_Specific_Emergency_Encounter_Info = ifelse(is.na(Covid_Specific_Emergency_Encounter_Info), "No", Covid_Specific_Emergency_Encounter_Info))
+  loginfo(str_c(nrow(Output_columns), " subjects have had a COVID diagnosis during an outpatient-emergency encounter"))
+  
+  Covid_Emergency_Status <- Covid_Emergency %>% filter(Encounter_Status == "Regular" |
+                                                         Encounter_Status == "Inhouse" | 
+                                                         Encounter_Status == "Contains Invalid DRGs") %>%
+    arrange(EMPI, Admit_Date, desc(Discharge_Date))
+  Covid_Emergency_Status <- distinct(Covid_Emergency_Status, EMPI, Admit_Date, .keep_all = TRUE)
+  Covid_Emergency_Status <- distinct(Covid_Emergency_Status, EMPI, Discharge_Date, .keep_all = TRUE)
+  Output_columns <- Covid_Emergency_Status %>% group_by(EMPI) %>%
+    summarise(Covid_Specific_Emergency_Encounter_Existence = "Yes",
+              Covid_Specific_Emergency_Encounter_Occurances = n(),
+              Covid_Specific_Emergency_Consecutive_Encounters_Existence = ifelse(any(ifelse(any(LOS_Days > 0), TRUE, FALSE),
+                                                                                      ifelse(Covid_Specific_Emergency_Encounter_Occurances > 1,
+                                                                                             any(Admit_Date[2:length(Admit_Date)] - Discharge_Date[1:length(Discharge_Date) - 1] == 1),
+                                                                                             FALSE)),
+                                                                                  "Yes", "No"),
+              Covid_Specific_Emergency_LOS_Total = sum(LOS_Days) + ifelse(Covid_Specific_Emergency_Encounter_Occurances > 1,
+                                                                           sum(Admit_Date[2:length(Admit_Date)] - Discharge_Date[1:length(Discharge_Date) - 1] == 1),
+                                                                           0),
+              .groups = 'drop')
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Covid_Specific_Emergency_Encounter_Existence = ifelse(is.na(Covid_Specific_Emergency_Encounter_Existence), "No", Covid_Specific_Emergency_Encounter_Existence),
+           Covid_Specific_Emergency_Consecutive_Encounters_Existence = ifelse(is.na(Covid_Specific_Emergency_Consecutive_Encounters_Existence), "No", Covid_Specific_Emergency_Consecutive_Encounters_Existence))
+  loginfo(str_c(nrow(Output_columns), " subjects have had a COVID diagnosis during an outpatient-emergency encounter and status information"))
+  
+  rm(Emergency, Covid_Emergency, Covid_Emergency_Status)
+  rm(Encounters, Output_columns)
+  return(DF_to_fill)
+}
+
+####################################################################################################
+########################################## Summary Stats  ##########################################
+####################################################################################################
+create_summary_stats_files <- function(Cleaned_DF = All_merged,
+                                       summary_stats_dir = config$summary_stats_dir,
+                                       additional_header = "",
+                                       TS = timestamp,
+                                       file_ending = config$general_file_ending,
+                                       use.TS = TRUE,
+                                       return.vital_status = TRUE,
+                                       return.age = TRUE,
+                                       return.race = TRUE,
+                                       return.gender = TRUE,
+                                       return.bmi = TRUE,
+                                       return.cholesterol = TRUE,
+                                       return.flu = TRUE){
+  loginfo("Generate summaries...")
+  stats_file_ending = ifelse(use.TS, str_c("_Stats_", TS, file_ending), str_c("_Stats", file_ending))
+  stats_file_input = str_c(summary_stats_dir, additional_header)
+  if (return.age){
+    Cleaned_DF <- Cleaned_DF %>%
+      mutate(Living = ifelse(grepl("Not reported as deceased", Vital_status), "Yes", "No"),
+             Age_Range = ifelse(Age < 10,
+                                "0-9",
+                                ifelse(Age < 20,
+                                       "10-19",
+                                       ifelse(Age < 30,
+                                              "20-29",
+                                              ifelse(Age < 40,
+                                                     "30-39",
+                                                     ifelse(Age < 50,
+                                                            "40-49",
+                                                            ifelse(Age < 60,
+                                                                   "50-59",
+                                                                   ifelse(Age < 70,
+                                                                          "60-69",
+                                                                          ifelse(Age < 80,
+                                                                                 "70-79",
+                                                                                 ifelse(Age < 90,
+                                                                                        "80-89",
+                                                                                        "90+"))))))))))
+  }
+  if (!dir.exists(summary_stats_dir)) {dir.create(summary_stats_dir)}
+  Alive <- Cleaned_DF %>% filter(grepl("Not reported as deceased", Vital_status))
+  Deceased <- Cleaned_DF %>% filter(!grepl("Not reported as deceased", Vital_status))
+  if (return.vital_status){
+    loginfo("Creating vital status table...")
+    fwrite(Cleaned_DF %>% group_by(Living) %>% summarise (Count_All = n(),
+                                                          Percent_All = n()/nrow(Cleaned_DF)*100),
+           str_c(stats_file_input, "Vital_Status", stats_file_ending))
+  }
+  if (return.gender){
+    loginfo("Creating gender table...")
+    Group_Stats <- left_join(left_join(Cleaned_DF %>% group_by(Gender) %>%
+                                         summarise (Count_All = n(),
+                                                    Percent_All = n()/nrow(Cleaned_DF)*100),
+                                       Alive %>% group_by(Gender) %>%
+                                         summarise (Count_Alive = n(),
+                                                    Percent_Alive = n()/nrow(Alive)*100)),
+                             Deceased %>% group_by(Gender) %>%
+                               summarise (Count_Deceased = n(),
+                                          Percent_Deceased = n()/nrow(Deceased)*100))
+    fwrite(Group_Stats, str_c(stats_file_input, "Gender", stats_file_ending))
+  }
+  if (return.age){
+    loginfo("Creating age table...")
+    Group_Stats <- left_join(left_join(Cleaned_DF %>% group_by(Age_Range) %>%
+                                         summarise (Count_All = n(),
+                                                    Percent_All = n()/nrow(Cleaned_DF)*100),
+                                       Alive %>% group_by(Age_Range) %>%
+                                         summarise (Count_Alive = n(),
+                                                    Percent_Alive = n()/nrow(Alive)*100)),
+                             Deceased %>% group_by(Age_Range) %>%
+                               summarise (Count_Deceased = n(),
+                                          Percent_Deceased = n()/nrow(Deceased)*100))
+    fwrite(Group_Stats, str_c(stats_file_input, "Age", stats_file_ending)) 
+  }
+  if (return.race){
+    loginfo("Creating race table...")
+    Group_Stats <- left_join(left_join(Cleaned_DF %>% group_by(Race) %>%
+                                         summarise (Count_All = n(),
+                                                    Percent_All = n()/nrow(Cleaned_DF)*100),
+                                       Alive %>% group_by(Race) %>%
+                                         summarise (Count_Alive = n(),
+                                                    Percent_Alive = n()/nrow(Alive)*100)),
+                             Deceased %>% group_by(Race) %>%
+                               summarise (Count_Deceased = n(),
+                                          Percent_Deceased = n()/nrow(Deceased)*100))
+    fwrite(Group_Stats, str_c(stats_file_input, "Race", stats_file_ending))
+  }
+  if (return.bmi){
+    loginfo("Creating bmi table...")
+    Group_Stats <- left_join(left_join(Cleaned_DF %>% group_by(BMI_probable_category) %>%
+                                         summarise (Count_All = n(),
+                                                    Percent_All = n()/nrow(Cleaned_DF)*100),
+                                       Alive %>% group_by(BMI_probable_category) %>%
+                                         summarise (Count_Alive = n(),
+                                                    Percent_Alive = n()/nrow(Alive)*100)),
+                             Deceased %>% group_by(BMI_probable_category) %>%
+                               summarise (Count_Deceased = n(),
+                                          Percent_Deceased = n()/nrow(Deceased)*100))
+    fwrite(Group_Stats, str_c(stats_file_input, "BMI", stats_file_ending))
+  }
+  if (return.cholesterol){
+    loginfo("Creating cholesterol table...")
+    Group_Stats <- left_join(left_join(Cleaned_DF %>% group_by(Cholesterol_probable_category) %>%
+                                         summarise (Count_All = n(),
+                                                    Percent_All = n()/nrow(Cleaned_DF)*100),
+                                       Alive %>% group_by(Cholesterol_probable_category) %>%
+                                         summarise (Count_Alive = n(),
+                                                    Percent_Alive = n()/nrow(Alive)*100)),
+                             Deceased %>% group_by(Cholesterol_probable_category) %>%
+                               summarise (Count_Deceased = n(),
+                                          Percent_Deceased = n()/nrow(Deceased)*100))
+    fwrite(Group_Stats, str_c(stats_file_input, "Cholesterol", stats_file_ending))
+  }
+  if (return.flu){
+    loginfo("Creating flu table...")
+    Group_Stats <- left_join(left_join(Cleaned_DF %>% group_by(Flu_vaccined) %>%
+                                         summarise (Count_All = n(),
+                                                    Percent_All = n()/nrow(Cleaned_DF)*100),
+                                       Alive %>% group_by(Flu_vaccined) %>%
+                                         summarise (Count_Alive = n(),
+                                                    Percent_Alive = n()/nrow(Alive)*100)),
+                             Deceased %>% group_by(Flu_vaccined) %>%
+                               summarise (Count_Deceased = n(),
+                                          Percent_Deceased = n()/nrow(Deceased)*100))
+    fwrite(Group_Stats, str_c(stats_file_input, "Flu_Vaccination", stats_file_ending))
+  }
+}
+
 ####################################################################################################
 ####################################### Pulmonary functions  #######################################
 ####################################################################################################
+process8_pulmonary <- function(DF_to_fill = All_merged,
+                               pul_file = config$pul_rdata_file_name,
+                               path_dia_abn = str_c(config$data_dir, "Pulmonary_abnormalities/"),
+                               write_files = config$create_intermediates,
+                               output_file_header = config$intermediate_files_dir,
+                               output_file_ending = config$general_file_ending){
+  DF_to_fill <- DF_to_fill[,1:10]
+  load(pul_file)
+  pft.id <- data.frame(pft.id)
+  pul.id_update <- data.frame(Orig = matrix(unlist(pul.id), nrow=length(pul.id), byrow=T)) %>%
+    mutate(Count = str_count(Orig, "|"))
+}
