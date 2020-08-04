@@ -1318,6 +1318,217 @@ process6_Cholesterol_labs <- function(DF_to_fill = All_merged,
   rm(Optimal, Intermediate, High, Labs, Output_Columns)
   return(DF_to_fill)
 }
+
+process6_VitD_labs <- function(DF_to_fill = All_merged,
+                               input_file_header = config$rpdr_file_header,
+                               input_file_ending = config$rpdr_file_ending,
+                               path_lab_abn = str_c(config$data_dir, "Lab_abnormalities/"),
+                               output_file_ending = config$general_file_ending,
+                               strict = FALSE){
+  loginfo("Processing Vitamin D labs...")
+  Labs <- data.table(fread(str_c(input_file_header, "Lab", input_file_ending))) %>% arrange(EMPI)
+  if (!dir.exists(path_lab_abn)) {dir.create(path_lab_abn)}
+  logdebug(str_c("Note: All Lab abnormalites can be found at ", path_lab_abn))
+  
+  Labs <- Labs %>% filter(grepl("[Vv]itamin", Group_Id))
+  Labs %>% group_by(Group_Id) %>% summarise(n())
+  
+  # Cleanup Range Data for check
+  ## Part 1
+  Labs <- Labs %>% mutate(Reference_Range_gt = ifelse(grepl(">", Reference_Range),
+                                                      as.numeric(gsub(" *> *((\\d|\\.)+).*$", "\\1", Reference_Range)) + 1,
+                                                      NA),
+                          Reference_Range = ifelse(!is.na(Reference_Range_gt),
+                                                   str_c(Reference_Range_gt, "-1000000"),
+                                                   Reference_Range),
+                          Reference_Range_lt = ifelse(grepl("<", Reference_Range),
+                                                      as.numeric(gsub(" *< *((\\d|\\.)+).*$", "\\1", Reference_Range)) - 1,
+                                                      NA),
+                          Reference_Range = ifelse(!is.na(Reference_Range_lt),
+                                                   str_c("0-",Reference_Range_lt),
+                                                   Reference_Range),
+                          Reference_Range = ifelse(!grepl("-", Reference_Range),
+                                                   "",
+                                                   Reference_Range)) %>%
+    select(-c(Reference_Range_gt, Reference_Range_lt)) %>%
+    extract(Reference_Range, c("Reference_Range_Min", "Reference_Range_Max"),
+            regex = "(\\S+) *- *(\\S+)", remove = FALSE) %>%
+    mutate(Reference_Range_Min = as.numeric(Reference_Range_Min),
+           Reference_Range_Max = as.numeric(Reference_Range_Max))
+  Median_Range_Min <- median(Labs$Reference_Range_Min, na.rm = TRUE)
+  Median_Range_Max <- median(Labs$Reference_Range_Max, na.rm = TRUE)
+  Max_Range_Min <- max(Labs$Reference_Range_Min, na.rm = TRUE)
+  
+  if (strict){
+    loginfo("Skipping adjusting Reference_Range...")
+  } else {
+    loginfo("Deriving Reference_Range from Result_Text...")
+    ## Part 2a: Find a - b in text
+    Labs <- Labs %>%
+      mutate(Reference_Range2 = ifelse(Reference_Range == "" &
+                                         grepl(".*\\D{2}((\\d|\\.)+ *- *(\\d|\\.)+).*", Result_Text),
+                                       gsub(".*\\D{2}((\\d|\\.)+ *- *(\\d|\\.)+).*", "\\1", Result_Text),
+                                       "")) %>%
+      extract(Reference_Range2, c("Reference_Range2_Min", "Reference_Range2_Max"),
+              regex = "(\\S+) *- *(\\S+)", remove = FALSE) %>%
+      mutate(Reference_Range2_Min = as.numeric(Reference_Range2_Min),
+             Reference_Range2_Max = as.numeric(Reference_Range2_Max)) %>%
+      mutate(Reference_Range2 = ifelse(Reference_Range2_Min > Max_Range_Min*10,
+                                       NA, Reference_Range2)) %>%
+      mutate(Reference_Range = ifelse(Reference_Range == "" & !is.na(Reference_Range2),
+                                      Reference_Range2,
+                                      Reference_Range)) %>%
+      select(-(Reference_Range2:Reference_Range2_Max))
+    
+    ## Part 2b: Find > a in text
+    Labs <- Labs %>%
+      mutate(Reference_Range2 = ifelse(Reference_Range == "" & grepl(">", Result_Text),
+                                       as.numeric(gsub(".*> *((\\d|\\.)+).*", "\\1", Result_Text)) + 1,
+                                       NA),
+             Reference_Range2 = ifelse(!is.na(Reference_Range2),
+                                       str_c(Reference_Range2, "-1000000"),
+                                       "")) %>%
+      mutate(Reference_Range = ifelse(Reference_Range == "" & Reference_Range2 != "",
+                                      Reference_Range2,
+                                      Reference_Range)) %>%
+      select(-Reference_Range2)
+    
+    ## Part 2c: Find < a in text
+    Labs <- Labs %>%
+      mutate(Reference_Range2 = ifelse(Reference_Range == "" & grepl("<", Result_Text),
+                                       as.numeric(gsub(".*< *((\\d|\\.)+).*", "\\1", Result_Text)) - 1,
+                                       NA),
+             Reference_Range2 = ifelse(!is.na(Reference_Range2),
+                                       str_c("0-", Reference_Range2),
+                                       "")) %>%
+      mutate(Reference_Range = ifelse(Reference_Range == "" & Reference_Range2 != "",
+                                      Reference_Range2,
+                                      Reference_Range)) %>%
+      select(-Reference_Range2)
+    
+    ## Part 2d: Find a to b and convert to a - b
+    Labs <- Labs %>%
+      mutate(Reference_Range2 = ifelse(Reference_Range == "" & grepl("\\d to \\d", Result_Text),
+                                       gsub(".*\\D{2}((\\d|\\.)+) *to *((\\d|\\.)+).*", "\\1-\\3", Result_Text),
+                                       "")) %>%
+      mutate(Reference_Range = ifelse(Reference_Range == "" & Reference_Range2 != "",
+                                      Reference_Range2,
+                                      Reference_Range)) %>%
+      select(-Reference_Range2)
+    
+    ## All the remaining Reference_Range missing values cannot be filled with the available Result_Text
+    Labs <- Labs %>% 
+      extract(Reference_Range, c("Reference_Range_Min", "Reference_Range_Max"),
+              regex = "(\\S+) *- *(\\S+)", remove = FALSE) %>%
+      mutate(Reference_Range_Min = as.numeric(Reference_Range_Min),
+             Reference_Range_Max = as.numeric(Reference_Range_Max))
+  }
+  # Cleanup Results
+  Labs <- Labs %>% mutate(Result_Update = as.numeric(Result))
+  if (strict){
+    loginfo("Removing all non-numeric Results...")
+  } else {
+    loginfo("Adjusting partial non-numeric Results to numeric values...")
+    Labs <- Labs %>% mutate(Result_Update = ifelse(grepl(">", Result),
+                                                   as.numeric(gsub(".*>\\D*((\\d|\\.)+).*", "\\1", Result)) + 0.5,
+                                                   Result_Update),
+                            Result_Update = ifelse(grepl("<", Result),
+                                                   as.numeric(gsub(".*<\\D*((\\d|\\.)+).*", "\\1", Result)) - 0.5,
+                                                   Result_Update))
+    loginfo("Removing all remaining non-numeric Results...")
+  }
+  ## Get rid of invalid results
+  Labs <- Labs %>% filter(!is.na(Result_Update))
+  
+  # Cleanup Units
+  Labs <- Labs %>% mutate(Reference_Units = tolower(Reference_Units))
+  
+  # Cleanup Abnormality Flags
+  loginfo("Adjusting Abnormality Flags...")
+  Labs <- Labs %>% mutate(Abnormal_Flag = ifelse(Reference_Range != "",
+                                                 ifelse(Result_Update < Reference_Range_Min,
+                                                        "L",
+                                                        ifelse(Result_Update > Reference_Range_Max,
+                                                               "H",
+                                                               "")),
+                                                 ifelse(Result_Update < Median_Range_Min,
+                                                        "L",
+                                                        ifelse(Result_Update > Median_Range_Max,
+                                                               "H",
+                                                               ""))))
+  
+  # Cleanup Seq_Date_Time
+  ## Current plan: Drop time from object and just keep date as unclear if time is important/
+  ##               time is not available for all rows
+  Labs <- Labs %>%
+    extract(Seq_Date_Time, c("Seq_Date", "Seq_Time"),
+            regex = "(\\d{2}/\\d{2}/\\d{4}) (\\d{2}:\\d{2})", remove = FALSE) %>%
+    mutate(Seq_Date = ifelse(is.na(Seq_Time), Seq_Date_Time, Seq_Date),
+           Seq_Date = as.Date(Seq_Date, "%m/%d/%Y")) %>%
+    arrange(Seq_Date)
+  
+  # Generate Outputs
+  Output_Columns <- Labs %>% group_by(EMPI) %>% arrange(Seq_Date) %>%
+    summarise(Any_VitaminD_Results = "Yes",
+              Any_Total_VitaminD_Results = n(),
+              Any_VitaminD_Median_Result = median(Result_Update, na.rm = TRUE),
+              Any_VitaminD_Min_Result = min(Result_Update, na.rm = TRUE),
+              Any_VitaminD_Max_Result = max(Result_Update, na.rm = TRUE),
+              Any_VitaminD_Mean_Result = mean(Result_Update, na.rm = TRUE),
+              Any_VitaminD_All_Dates = paste(Seq_Date, collapse = ";"),
+              Any_VitaminD_All_Results_By_Date = paste(Result, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+  DF_to_fill <- DF_to_fill %>% mutate(Any_VitaminD_Results = ifelse(is.na(Any_VitaminD_Results),
+                                                                    "No",
+                                                                    Any_VitaminD_Results))
+  loginfo(str_c(nrow(Output_Columns), " subjects have any Vitamin D information available"))
+  
+  Output_Columns <- Labs %>% filter(Abnormal_Flag == "L") %>% group_by(EMPI) %>% arrange(Seq_Date) %>%
+    summarise(Low_VitaminD_Results = "Yes",
+              Low_Total_VitaminD_Results = n(),
+              Low_VitaminD_Median_Result = median(Result_Update, na.rm = TRUE),
+              Low_VitaminD_Min_Result = min(Result_Update, na.rm = TRUE),
+              Low_VitaminD_Max_Result = max(Result_Update, na.rm = TRUE),
+              Low_VitaminD_Mean_Result = mean(Result_Update, na.rm = TRUE),
+              Low_VitaminD_All_Dates = paste(Seq_Date, collapse = ";"),
+              Low_VitaminD_All_Results_By_Date = paste(Result, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+  DF_to_fill <- DF_to_fill %>% mutate(Low_VitaminD_Results = ifelse(is.na(Low_VitaminD_Results),
+                                                                    "No",
+                                                                    Low_VitaminD_Results))
+  loginfo(str_c(nrow(Output_Columns), " subjects have low Vitamin D information available"))
+  
+  Output_Columns <- Labs %>% filter(Abnormal_Flag == "") %>% group_by(EMPI) %>% arrange(Seq_Date) %>%
+    summarise(Optimal_VitaminD_Results = "Yes",
+              Optimal_Total_VitaminD_Results = n(),
+              Optimal_VitaminD_Median_Result = median(Result_Update, na.rm = TRUE),
+              Optimal_VitaminD_Min_Result = min(Result_Update, na.rm = TRUE),
+              Optimal_VitaminD_Max_Result = max(Result_Update, na.rm = TRUE),
+              Optimal_VitaminD_Mean_Result = mean(Result_Update, na.rm = TRUE),
+              Optimal_VitaminD_All_Dates = paste(Seq_Date, collapse = ";"),
+              Optimal_VitaminD_All_Results_By_Date = paste(Result, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+  DF_to_fill <- DF_to_fill %>% mutate(Optimal_VitaminD_Results = ifelse(is.na(Optimal_VitaminD_Results),
+                                                                        "No",
+                                                                        Optimal_VitaminD_Results))
+  loginfo(str_c(nrow(Output_Columns), " subjects have optimal Vitamin D information available"))
+  
+  Output_Columns <- Labs %>% filter(Abnormal_Flag == "H") %>% group_by(EMPI) %>% arrange(Seq_Date) %>%
+    summarise(High_VitaminD_Results = "Yes",
+              High_Total_VitaminD_Results = n(),
+              High_VitaminD_Median_Result = median(Result_Update, na.rm = TRUE),
+              High_VitaminD_Min_Result = min(Result_Update, na.rm = TRUE),
+              High_VitaminD_Max_Result = max(Result_Update, na.rm = TRUE),
+              High_VitaminD_Mean_Result = mean(Result_Update, na.rm = TRUE),
+              High_VitaminD_All_Dates = paste(Seq_Date, collapse = ";"),
+              High_VitaminD_All_Results_By_Date = paste(Result, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+  DF_to_fill <- DF_to_fill %>% mutate(High_VitaminD_Results = ifelse(is.na(High_VitaminD_Results),
+                                                                     "No",
+                                                                     High_VitaminD_Results))
+  loginfo(str_c(nrow(Output_Columns), " subjects have high Vitamin D information available"))
+  return(DF_to_fill)
+}
 ####################################################################################################
 ##################################### Health History functions #####################################
 ####################################################################################################
@@ -1658,6 +1869,110 @@ process_encounters <- function(DF_to_fill = All_merged,
 }
 
 ####################################################################################################
+####################################### Procedures functions #######################################
+####################################################################################################
+process_procedures <- function(DF_to_fill = All_merged,
+                               input_file_header = config$rpdr_file_header,
+                               input_file_ending = config$rpdr_file_ending,
+                               path_prc_abn = str_c(config$data_dir, "Prc_abnormalities/"),
+                               output_file_ending = config$general_file_ending){
+  loginfo("Processing Procedures data...")
+  Procedures <- data.table(fread(str_c(input_file_header, "Prc", input_file_ending))) %>% arrange(EMPI)
+  if (!dir.exists(path_prc_abn)) {dir.create(path_prc_abn)}
+  logdebug(str_c("Note: All procedure abnormalites can be found at ", path_prc_abn))
+  Procedures <- Procedures %>% mutate(Date = as.Date(Date, "%m/%d/%Y")) %>% arrange(EMPI, Date)
+  
+  Dates_of_Interest <- DF_to_fill %>% filter(Positive_Result == "Yes") %>%
+    extract(First_Positive_Test_Date, c("First_Positive_Test_Date", "First_Positive_Test_Time"),
+            regex = "(\\d{2}/\\d{2}/\\d{4}) (\\d{2}:\\d{2})", remove = FALSE) %>%
+    select(EMPI, First_Positive_Test_Date) %>%
+    mutate(First_Positive_Test_Date = as.Date(First_Positive_Test_Date, "%m/%d/%Y"),
+           Lower_Bound_Date = First_Positive_Test_Date - 7)
+  Procedures <- left_join(Procedures, Dates_of_Interest)
+  
+  vent <- Procedures %>% filter(grepl("[Vv]entilat", Procedure_Name))
+  
+  Mechanical <- Procedures %>% filter(grepl("mechanical ventilation", Procedure_Name))
+  Output_columns <- Mechanical %>% group_by(EMPI) %>%
+    summarise(Any_Mechanical_Ventilation = "Yes",
+              Any_Mechanical_Ventilation_Count = n(),
+              Any_Mechanical_Ventilation_Dates = paste(Date, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Any_Mechanical_Ventilation = ifelse(is.na(Any_Mechanical_Ventilation),
+                                               "No", Any_Mechanical_Ventilation))
+  
+  Output_columns <- Mechanical %>% filter(grepl("more", Procedure_Name)) %>% group_by(EMPI) %>%
+    summarise(Any_Mechanical_Ventilation_GTEq_96_Hours = "Yes",
+              Any_Mechanical_Ventilation_GTEq_96_Hours_Count = n(),
+              Any_Mechanical_Ventilation_GTEq_96_Hours_Dates = paste(Date, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Any_Mechanical_Ventilation = ifelse(is.na(Any_Mechanical_Ventilation_GTEq_96_Hours),
+                                               "No", Any_Mechanical_Ventilation_GTEq_96_Hours))
+  
+  Output_columns <- Mechanical %>% filter(grepl("less", Procedure_Name)) %>% group_by(EMPI) %>%
+    summarise(Any_Mechanical_Ventilation_LT_96_Hours = "Yes",
+              Any_Mechanical_Ventilation_LT_96_Hours_Count = n(),
+              Any_Mechanical_Ventilation_LT_96_Hours_Dates = paste(Date, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Any_Mechanical_Ventilation = ifelse(is.na(Any_Mechanical_Ventilation_LT_96_Hours),
+                                               "No", Any_Mechanical_Ventilation_LT_96_Hours))
+  
+  Output_columns <- Mechanical %>% filter(grepl("unspecified", Procedure_Name)) %>% group_by(EMPI) %>%
+    summarise(Any_Mechanical_Ventilation_Unknown_Hours = "Yes",
+              Any_Mechanical_Ventilation_Unknown_Hours_Count = n(),
+              Any_Mechanical_Ventilation_Unknown_Hours_Dates = paste(Date, collapse = ";"))
+  DF_to_fill <- left_join(DF_to_fill, Output_columns)
+  DF_to_fill <- DF_to_fill %>%
+    mutate(Any_Mechanical_Ventilation = ifelse(is.na(Any_Mechanical_Ventilation_Unknown_Hours),
+                                               "No", Any_Mechanical_Ventilation_Unknown_Hours))
+  
+  Mechanical <- Mechanical %>% filter(Date >= Lower_Bound_Date)
+  if (nrow(Mechanical)){
+    Output_columns <- Mechanical %>% group_by(EMPI) %>%
+      summarise(Mechanical_Ventilation_After_Covid = "Yes",
+                Mechanical_Ventilation_Count = n(),
+                Mechanical_Ventilation_After_Covid_Dates = paste(Date, collapse = ";"))
+    DF_to_fill <- left_join(DF_to_fill, Output_columns)
+    DF_to_fill <- DF_to_fill %>%
+      mutate(Mechanical_Ventilation_After_Covid = ifelse(is.na(Mechanical_Ventilation_After_Covid),
+                                                 "No", Mechanical_Ventilation_After_Covid))
+    
+    Output_columns <- Mechanical %>% filter(grepl("more", Procedure_Name)) %>% group_by(EMPI) %>%
+      summarise(Mechanical_Ventilation_After_Covid_GTEq_96_Hours = "Yes",
+                Mechanical_Ventilation_After_Covid_GTEq_96_Hours_Count = n(),
+                Mechanical_Ventilation_After_Covid_GTEq_96_Hours_Dates = paste(Date, collapse = ";"))
+    DF_to_fill <- left_join(DF_to_fill, Output_columns)
+    DF_to_fill <- DF_to_fill %>%
+      mutate(Mechanical_Ventilation_After_Covid = ifelse(is.na(Mechanical_Ventilation_After_Covid_GTEq_96_Hours),
+                                                 "No", Mechanical_Ventilation_After_Covid_GTEq_96_Hours))
+    
+    Output_columns <- Mechanical %>% filter(grepl("less", Procedure_Name)) %>% group_by(EMPI) %>%
+      summarise(Mechanical_Ventilation_After_Covid_LT_96_Hours = "Yes",
+                Mechanical_Ventilation_After_Covid_LT_96_Hours_Count = n(),
+                Mechanical_Ventilation_After_Covid_LT_96_Hours_Dates = paste(Date, collapse = ";"))
+    DF_to_fill <- left_join(DF_to_fill, Output_columns)
+    DF_to_fill <- DF_to_fill %>%
+      mutate(Mechanical_Ventilation_After_Covid = ifelse(is.na(Mechanical_Ventilation_After_Covid_LT_96_Hours),
+                                                 "No", Mechanical_Ventilation_After_Covid_LT_96_Hours))
+    
+    Output_columns <- Mechanical %>% filter(grepl("unspecified", Procedure_Name)) %>% group_by(EMPI) %>%
+      summarise(Mechanical_Ventilation_After_Covid_Unknown_Hours = "Yes",
+                Mechanical_Ventilation_After_Covid_Unknown_Hours_Count = n(),
+                Mechanical_Ventilation_After_Covid_Unknown_Hours_Dates = paste(Date, collapse = ";"))
+    DF_to_fill <- left_join(DF_to_fill, Output_columns)
+    DF_to_fill <- DF_to_fill %>%
+      mutate(Mechanical_Ventilation_After_Covid = ifelse(is.na(Mechanical_Ventilation_After_Covid_Unknown_Hours),
+                                                 "No", Mechanical_Ventilation_After_Covid_Unknown_Hours))
+  } else {
+    loginfo("No Mechanical Ventilation usage found after covid")
+  }
+  return(DF_to_fill)
+}
+
+####################################################################################################
 ########################################## Summary Stats  ##########################################
 ####################################################################################################
 create_summary_stats_files <- function(Cleaned_DF = All_merged,
@@ -1672,7 +1987,8 @@ create_summary_stats_files <- function(Cleaned_DF = All_merged,
                                        return.gender = TRUE,
                                        return.bmi = TRUE,
                                        return.cholesterol = TRUE,
-                                       return.flu = TRUE){
+                                       return.flu = TRUE,
+                                       return.VitD = FALSE){
   loginfo("Generate summaries...")
   stats_file_ending = ifelse(use.TS, str_c("_Stats_", TS, file_ending), str_c("_Stats", file_ending))
   stats_file_input = str_c(summary_stats_dir, additional_header)
@@ -1785,6 +2101,28 @@ create_summary_stats_files <- function(Cleaned_DF = All_merged,
                                summarise (Count_Deceased = n(),
                                           Percent_Deceased = n()/nrow(Deceased)*100))
     fwrite(Group_Stats, str_c(stats_file_input, "Flu_Vaccination", stats_file_ending))
+  }
+  if (return.VitD){
+    loginfo("Creating Vitamin D table...")
+    Group_Stats <- left_join(left_join(Cleaned_DF %>% group_by(Any_VitaminD_Results,
+                                                               Low_VitaminD_Results,
+                                                               Optimal_VitaminD_Results,
+                                                               High_VitaminD_Results) %>%
+                                         summarise (Count_All = n(),
+                                                    Percent_All = n()/nrow(Cleaned_DF)*100),
+                                       Alive %>% group_by(Any_VitaminD_Results,
+                                                          Low_VitaminD_Results,
+                                                          Optimal_VitaminD_Results,
+                                                          High_VitaminD_Results) %>%
+                                         summarise (Count_Alive = n(),
+                                                    Percent_Alive = n()/nrow(Alive)*100)),
+                             Deceased %>% group_by(Any_VitaminD_Results,
+                                                   Low_VitaminD_Results,
+                                                   Optimal_VitaminD_Results,
+                                                   High_VitaminD_Results) %>%
+                               summarise (Count_Deceased = n(),
+                                          Percent_Deceased = n()/nrow(Deceased)*100))
+    fwrite(Group_Stats, str_c(stats_file_input, "Vitamin_D", stats_file_ending))
   }
 }
 
