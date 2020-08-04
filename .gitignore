@@ -4,6 +4,10 @@
 .RData
 .Ruserdata
 ACTH/
+Covid_All/
+Covid_Plasma/
+Covid_VitD/
+General_Asthma/
 GWAS/
 Pegasus/
 RPDR.Rproj
