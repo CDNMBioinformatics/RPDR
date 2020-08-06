@@ -33,7 +33,7 @@ Add_Biobank_Files.R
   - get.data.range: Return the time in years between Date_First to Date_Most_Recent
 
 Clean_Diagnoses_File.R
-- Reads in Diagnoses RPDR file and adds cleaned *relevent* data to existing data frame
+- Reads in Diagnoses RPDR file and adds cleaned *relevant* data to existing data frame
 - Includes functionality:
   - Diagnoses_Of_Interest: REQUIRED list of Diagnoses of interest
     - ex: list(DiaGroup1 = c(Dia1, Dia2, Dia3), DiaGroup2 = c(Dia4))
@@ -42,6 +42,27 @@ Clean_Diagnoses_File.R
   - Group_Info: Group multiple diagnoses together and return information on existence, total diagnoses/date, and ordered dates of diagnoses
     - note multiple different diagnoses are on the same date, only 1 date is listed
   - write_files: Return the subfile of the selected diagnoses from Dia RPDR file
+
+Clean_Encounters_File.R
+
+Clean_Health_History_File.R
+- Reads in Health History file and adds cleaned *relevant* data to existing data frame
+- Includes functionality to examine BMI information:
+  - Return_BMI: TRUE if processing is required
+  - Specify parameters *Underweight_Normal*, *Normal_Overweight*, and *Overweight_Obese* to create categories:
+    - Underweight: [0 <= x < *Underweight_Normal*]
+    - Normal: [*Underweight_Normal* <= x < *Normal_Overweight*]
+    - Overweight: [*Normal_Overweight* <= x < *Overweight_Obese*]
+    - Obese: [*Overweight_Obese* <= x]
+- If Return_BMI is TRUE, returns:
+  - Generally: existence, number of values available, average, min, max, and median BMI, list all values by sorted by date, list all dates, and list the predicted category based on median
+  - Categorically: existence, number of values recorded, all values sorted by date, and all dates
+- Includes functionality to examine if influenza vaccine was administered
+  - Return_Influenza: TRUE if processing is required
+- If Return_Influenza is TRUE, returns:
+  - existence, number of vaccinations recorded, most recent date of vaccination, and sorted dates of vaccinations
+
+Clean_Labs_File.R
 
 Clean_Medications_File.R
 - Reads in Medications RPDR file and adds cleaned *relevant* data to existing data frame
@@ -52,7 +73,7 @@ Clean_Medications_File.R
     - Naming list items is only imporant if Group_Info = TRUE
   - Individial_Info: Return existence of medication, total prescriptions, first and last dates of prescription, all sorted prescription dates, the name and count of the most common specific prescription
   - Group_Info: Group multiple medications together and return information on existence, total prescription dates, first and last dates of prescription, ordered dates of prescriptions, the most common prescription type (ex Med1) and count, the most common specific prescription and count
-    - note multiple different diagnoses are on the same date, only 1 date is listed
+    - note if multiple different medications are on the same date, only 1 date is listed
     - note it is possible that the most common specifc prescription is not from the most common prescription group (see most common prescription for individual if you want that info from the most common group)
   - merged_group_name: If included, create merged info based on all medication groups
   - Daily_Dose_Info: Can calculate and add daily dose information based on available dosage/frequency information
@@ -60,4 +81,6 @@ Clean_Medications_File.R
   - write_files: Return the subfile of the selected medications from Med RPDR file
   - nebs: Return information of nebulizers
   
-  
+Clean_Procedures_File.R
+
+Create_Summary_Files.R
