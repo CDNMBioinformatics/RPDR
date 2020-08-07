@@ -19,7 +19,7 @@ start_processing <- function(input_file_header = config$rpdr_file_header,
   BiobankIDs <- fread(str_c(input_file_header, "Bib", input_file_ending))
   BiobankIDs <- BiobankIDs %>% select(Subject_Id, EMPI) %>% rename(Biobank_Subject_ID = Subject_Id)
   loginfo(str_c(nrow(BiobankIDs), " subjects processed"))
-  logwarning("if query was originally from RPDR, not all subjects may have Biobank Ids")
+  logwarn("if query was originally from RPDR, not all subjects may have Biobank Ids")
   
   loginfo("Generating merged output...")
   Merged_DF <- left_join(Demographics, BiobankIDs, by = "EMPI") %>%
