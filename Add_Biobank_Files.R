@@ -17,10 +17,11 @@ process_deidentified <- function(DF_to_fill = All_merged,
                                  clean.list = FALSE,
                                  get.date.range = FALSE){
   loginfo("Processing biobank file...")
-  Deidentified <- fread(input_file_name) %>%
-    mutate(Biobank_Subject_ID = as.numeric(Biobank_Subject_ID)) # Just in case it reads as character
+  Deidentified <- fread(input_file_name)
   # Remove non-word characters, remove duplicate, trailing, and leading spaces in names
   names(Deidentified) <- gsub("^_|_$", "", gsub("_+", "_", gsub("\\W", "_", names(Deidentified))))
+  # Just in case R reads column as characters instead of numerical
+  Deidentified <- Deidentified %>% mutate(Biobank_Subject_ID = as.numeric(Biobank_Subject_ID))
   if (PPV.NPV.only){
     loginfo("Select variables with PPV/NPV only")
     Deidentified <- Deidentified %>% select(Biobank_Subject_ID, contains("PPV"), contains("NPV"))
@@ -50,7 +51,6 @@ process_deidentified <- function(DF_to_fill = All_merged,
                 vars(contains("List")), ~gsub(" ", ";", .x),
                 vars(contains("List")), ~gsub(";$", "", .x),
                 vars(contains("List")), ~gsub("^$", NA, .x))
-    return(List_df)
   }
   if (get.date.range){
     loginfo("Create Range_Years for Date_First Date_Most_Recent pairs")
@@ -69,5 +69,5 @@ process_deidentified <- function(DF_to_fill = All_merged,
     }
     rm(Possible_Date_Columns, Possible_Pairs, Date_Pairs)
   }
-  DF_to_fill <- left_join(DF_to_fill, Deidentified, by = "EMPI")
+  DF_to_fill <- left_join(DF_to_fill, Deidentified, by = "Biobank_Subject_ID")
 }
