@@ -63,6 +63,15 @@ Clean_Health_History_File.R
   - existence, number of vaccinations recorded, most recent date of vaccination, and sorted dates of vaccinations
 
 Clean_Labs_File.R
+- process_ACTH_labs: Reads in Labs RPDR file and adds cleaned ACTH, Cortisol, and DHEA(s) laboratory data to existing data frame
+- process_IGE_IGG_labs: Reads in Labs RPDR file and adds cleaned IGE and IGG laboratory data to existing data frame
+- process_Covid_labs: Reads in Labs RPDR file and adds cleaned Covid19 testing laboratory data to existing data frame
+- process_Cholesterol_labs: Reads in Labs RPDR file and adds cleaned cholesterol laboratory data to existing data frame
+- process_VitD_labs: Reads in Labs RPDR file and adds cleaned Vitamin D laboratory data to existing data frame
+  - Generally and per category:returns existence, total number of results, median, min, max, and mean Vitamin D level, return sorted dates and values by sorted dates
+  - If strict variable is TRUE,
+    - removes all non numeric values (including of <x and >x values)
+    - doesn't update blank reference range if only included in notes column
 
 Clean_Medications_File.R
 - Reads in Medications RPDR file and adds cleaned *relevant* data to existing data frame
