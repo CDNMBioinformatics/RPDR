@@ -25,6 +25,9 @@ process_medications <- function(DF_to_fill = All_merged,
   loginfo("Processing medications file...")
   Medications <- fread(str_c(input_file_header, "Med", input_file_ending))
   if (!dir.exists(path_med_abn)) {dir.create(path_med_abn)}
+  if(write_files){
+    output_file_header <- str_c(output_file_header, "Med_")
+  }
   
   loginfo("Applying Med_Map...")
   Med_Map_df <- fread(str_c(general_path, "/Medication_Mapping.txt"))
