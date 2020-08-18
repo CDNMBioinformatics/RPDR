@@ -13,6 +13,7 @@ process_deidentified <- function(DF_to_fill = All_merged,
                                  Asthma.only = FALSE,
                                  Asthma.COPD.only = FALSE,
                                  Asthma.Tobacco.only = FALSE,
+                                 Plasma.only = FALSE,
                                  replace.existence.T.F = FALSE,
                                  clean.list = FALSE,
                                  get.date.range = FALSE){
@@ -38,6 +39,10 @@ process_deidentified <- function(DF_to_fill = All_merged,
     loginfo("Select variables with Asthma or Tobacco use only")
     Deidentified <- Deidentified %>% select(Biobank_Subject_ID, contains("Asthma"),
                                             contains("Tobacco"), contains("Smok"))
+  }
+  if (Plasma.only){
+    loginfo("Select variables with plasma only")
+    Deidentified <- Deidentified %>% select(Biobank_Subject_ID, contains("Plasma"))
   }
   if (replace.existence.T.F){
     loginfo("Replace 'Yes/No' with 1/0")
