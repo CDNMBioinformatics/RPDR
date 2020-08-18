@@ -4,16 +4,16 @@ require(stringr) # str_c
 require(tidyverse)
 require(logging)
 
-process7_physical <- function(DF_to_fill = All_merged,
-                              input_file_header = config$rpdr_file_header,
-                              input_file_ending = config$rpdr_file_ending,
-                              path_phy_abn = str_c(config$data_dir, "Phy_abnormalities/"),
-                              output_file_ending = config$general_file_ending,
-                              Return_BMI = TRUE,
-                              Underweight_Normal = 18.5,
-                              Normal_Overweight = 24.9,
-                              Overweight_Obese = 30,
-                              Return_Influenza = TRUE){
+process_physical <- function(DF_to_fill = All_merged,
+                             input_file_header = config$rpdr_file_header,
+                             input_file_ending = config$rpdr_file_ending,
+                             path_phy_abn = str_c(config$data_dir, "Phy_abnormalities/"),
+                             output_file_ending = config$general_file_ending,
+                             Return_BMI = TRUE,
+                             Underweight_Normal = config$BMI_params$Underweight_Normal,
+                             Normal_Overweight = config$BMI_params$Normal_Overweight,
+                             Overweight_Obese = config$BMI_params$Overweight_Obese,
+                             Return_Influenza = TRUE){
   loginfo("Processing Health History & Physical Findings data...")
   Phy <- data.table(fread(str_c(input_file_header, "Phy", input_file_ending))) %>% arrange(EMPI)
   if (!dir.exists(path_phy_abn)) {dir.create(path_phy_abn)}
@@ -21,7 +21,14 @@ process7_physical <- function(DF_to_fill = All_merged,
                  path_phy_abn))
   if(Return_BMI){
     BMI <- Phy %>% filter(grepl("BMI", Concept_Name))
-    
+    # Underweight =                  [0 <= x < Underweight_Normal]
+    # Normal      = [Underweight_Normal <= x < Normal_Overweight]
+    # Overweight  =  [Normal_Overweight <= x < Overweight_Obese]
+    # Obese       =   [Overweight_Obese <= x]
+    # These values are based off of https://www.cancer.org/cancer/cancer-causes/diet-physical-activity/body-weight-and-cancer-risk/adult-bmi.html
+    if(is.null(Underweight_Normal)){Underweight_Normal = 18.5}
+    if(is.null(Normal_Overweight)){Normal_Overweight = 25}
+    if(is.null(Overweight_Obese)){Overweight_Obese = 30}
     Phy_abn <- BMI[(duplicated(BMI)),]
     if (nrow(Phy_abn) > 0){
       logwarn(str_c(nrow(Phy_abn), " completely duplicated row(s) out of ", nrow(BMI), " removed"))
