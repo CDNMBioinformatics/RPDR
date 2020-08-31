@@ -19,6 +19,9 @@ process_physical <- function(DF_to_fill = All_merged,
   if (!dir.exists(path_phy_abn)) {dir.create(path_phy_abn)}
   logdebug(str_c("Note: All Health History & Physical Findings abnormalites can be found at ",
                  path_phy_abn))
+  # if(write_files){
+  #   output_file_header <- str_c(output_file_header, "Phy_")
+  # }
   if(Return_BMI){
     BMI <- Phy %>% filter(grepl("BMI", Concept_Name))
     # Underweight =                  [0 <= x < Underweight_Normal]
@@ -53,7 +56,8 @@ process_physical <- function(DF_to_fill = All_merged,
                 BMI_probable_category = ifelse(BMI_median < Underweight_Normal, "Underweight",
                                                ifelse(BMI_median < Normal_Overweight, "Normal",
                                                       ifelse(BMI_median < Overweight_Obese,
-                                                             "Overweight", "Obese"))))
+                                                             "Overweight", "Obese"))),
+                .groups = "drop")
     DF_to_fill <- left_join(DF_to_fill, Output_Columns)
     DF_to_fill <- DF_to_fill %>% mutate(BMI = ifelse(is.na(BMI), "No", BMI),
                                         BMI_number_recorded = ifelse(is.na(BMI_number_recorded),
@@ -63,7 +67,8 @@ process_physical <- function(DF_to_fill = All_merged,
       summarise(BMI_underweight = "Yes",
                 BMI_underweight_number_recorded = n(),
                 BMI_underweight_all_values = paste(Result, collapse = ";"),
-                BMI_underweight_all_dates = paste(Date, collapse = ";"))
+                BMI_underweight_all_dates = paste(Date, collapse = ";"),
+                .groups = "drop")
     DF_to_fill <- left_join(DF_to_fill, Output_Columns)
     DF_to_fill <- DF_to_fill %>%
       mutate(BMI_underweight = ifelse(is.na(BMI_underweight), "No", BMI_underweight),
@@ -74,7 +79,8 @@ process_physical <- function(DF_to_fill = All_merged,
       summarise(BMI_normal = "Yes",
                 BMI_normal_number_recorded = n(),
                 BMI_normal_all_values = paste(Result, collapse = ";"),
-                BMI_normal_all_dates = paste(Date, collapse = ";"))
+                BMI_normal_all_dates = paste(Date, collapse = ";"),
+                .groups = "drop")
     DF_to_fill <- left_join(DF_to_fill, Output_Columns)
     DF_to_fill <- DF_to_fill %>%
       mutate(BMI_normal = ifelse(is.na(BMI_normal), "No", BMI_normal),
@@ -85,7 +91,8 @@ process_physical <- function(DF_to_fill = All_merged,
       summarise(BMI_overweight = "Yes",
                 BMI_overweight_number_recorded = n(),
                 BMI_overweight_all_values = paste(Result, collapse = ";"),
-                BMI_overweight_all_dates = paste(Date, collapse = ";"))
+                BMI_overweight_all_dates = paste(Date, collapse = ";"),
+                .groups = "drop")
     DF_to_fill <- left_join(DF_to_fill, Output_Columns)
     DF_to_fill <- DF_to_fill %>%
       mutate(BMI_overweight = ifelse(is.na(BMI_overweight), "No", BMI_overweight),
@@ -96,7 +103,8 @@ process_physical <- function(DF_to_fill = All_merged,
       summarise(BMI_obese = "Yes",
                 BMI_obese_number_recorded = n(),
                 BMI_obese_all_values = paste(Result, collapse = ";"),
-                BMI_obese_all_dates = paste(Date, collapse = ";"))
+                BMI_obese_all_dates = paste(Date, collapse = ";"),
+                .groups = "drop")
     DF_to_fill <- left_join(DF_to_fill, Output_Columns)
     DF_to_fill <- DF_to_fill %>%
       mutate(BMI_obese = ifelse(is.na(BMI_obese), "No", BMI_obese),
@@ -125,7 +133,8 @@ process_physical <- function(DF_to_fill = All_merged,
       summarise(Flu_vaccined = "Yes",
                 Flu_vaccine_count  = n(),
                 Flu_vaccine_most_recent = last(Date),
-                Flu_vaccine_all_dates = paste(Date, collapse = ";"))
+                Flu_vaccine_all_dates = paste(Date, collapse = ";"),
+                .groups = "drop")
     DF_to_fill <- left_join(DF_to_fill, Output_Columns)
     DF_to_fill <- DF_to_fill %>%
       mutate(Flu_vaccined = ifelse(is.na(Flu_vaccined), "No", Flu_vaccined),
