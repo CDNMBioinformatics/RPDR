@@ -12,7 +12,28 @@ start_processing <- function(input_file_header = config$rpdr_file_header,
   loginfo("Begin cleaning RPDR data...")
   loginfo("Processing demographics file...")
   Demographics <- fread(str_c(input_file_header, "Dem", input_file_ending))
-  Demographics <- Demographics %>% select(EMPI, Gender, Race, Date_of_Birth, Age, Date_Of_Death, Vital_status)
+  Demographics <- Demographics %>% select(EMPI, Gender, Race, Date_of_Birth, Age, Date_Of_Death, Vital_status) %>%
+    mutate(Living = ifelse(grepl("Not reported as deceased", Vital_status), "Yes", "No"),
+           Age_Range = ifelse(Age < 10,
+                              "0-9",
+                              ifelse(Age < 20,
+                                     "10-19",
+                                     ifelse(Age < 30,
+                                            "20-29",
+                                            ifelse(Age < 40,
+                                                   "30-39",
+                                                   ifelse(Age < 50,
+                                                          "40-49",
+                                                          ifelse(Age < 60,
+                                                                 "50-59",
+                                                                 ifelse(Age < 70,
+                                                                        "60-69",
+                                                                        ifelse(Age < 80,
+                                                                               "70-79",
+                                                                               ifelse(Age < 90,
+                                                                                      "80-89",
+                                                                                      "90+"))))))))))
+  
   loginfo(str_c(nrow(Demographics), " subjects processed"))
 
   loginfo("Processing biobank ids file... ")
