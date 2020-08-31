@@ -15,7 +15,8 @@ Create_ACTH_Cortisol_DHEA_Output_Columns <- function(ACTH_Cortisol_DHEA_Group,
               MinResult = min(Result),
               MaxResult = max(Result),
               MedianResult = median(Result),
-              MeanResult = mean(Result)) %>%
+              MeanResult = mean(Result),
+              .groups = 'drop') %>%
     arrange(Seq_Time) %>% group_by(EMPI, Reference_Units, Seq_Date) %>%
     summarise(nResults_Per_Date = sum(nResults_Per_Time),
               nTimes_Per_Date = n(),
@@ -23,42 +24,51 @@ Create_ACTH_Cortisol_DHEA_Output_Columns <- function(ACTH_Cortisol_DHEA_Group,
               FirstMax = first(MaxResult),
               FirstMedian = first(MedianResult),
               FirstMean = first(MeanResult),
-              FirstTime = first(Seq_Time)) %>%
+              FirstTime = first(Seq_Time),
+              .groups = 'drop') %>%
     mutate(Seq_Date_Time = ifelse(is.na(FirstTime), as.character(Seq_Date), str_c(Seq_Date, " ", FirstTime))) %>% 
     group_by(EMPI, Reference_Units) %>%
     rename(!!as.symbol(str_c(Group_Header, "_Reference_Units")) := Reference_Units)
-  DF_to_fill <- left_join(DF_to_fill, OC_pregroup %>% summarise(), by = "EMPI")
+  DF_to_fill <- left_join(DF_to_fill, OC_pregroup %>% summarise(.groups = 'drop'), by = "EMPI")
   OC_pregroup <- OC_pregroup %>% group_by(EMPI) %>% arrange(Seq_Date_Time)
   
   Output_Columns <- OC_pregroup %>%
     summarise(!!as.symbol(str_c(Group_Header, "_nTotalDates")) := n(),
               !!as.symbol(str_c(Group_Header, "_nTotalDatesTimes")) := sum(nTimes_Per_Date),
               !!as.symbol(str_c(Group_Header, "_nTotalResults")) := sum(nResults_Per_Date),
-              !!as.symbol(str_c(Group_Header, "_All_Seq_Date_Times")) := paste(Seq_Date_Time, collapse = ";"))
+              !!as.symbol(str_c(Group_Header, "_All_Seq_Date_Times")) := paste(Seq_Date_Time, collapse = ";"),
+              .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
   Output_Columns <- OC_pregroup %>%
     summarise(!!as.symbol(str_c(Group_Header, "_Overall_Min_Result")) := min(FirstMin),
               !!as.symbol(str_c(Group_Header, "_Overall_Min_Result_Date_First")) := Seq_Date_Time[first(which(FirstMin == min(FirstMin)))],
               !!as.symbol(str_c(Group_Header, "_Overall_Min_Result_Date_Last")) := Seq_Date_Time[last(which(FirstMin == min(FirstMin)))],
-              !!as.symbol(str_c(Group_Header, "_All_Min_Results")) := paste(FirstMin, collapse = ";"))
+              !!as.symbol(str_c(Group_Header, "_All_Min_Results")) := paste(FirstMin, collapse = ";"),
+              .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
   Output_Columns <- OC_pregroup %>%
     summarise(!!as.symbol(str_c(Group_Header, "_Overall_Max_Result")) := max(FirstMax),
               !!as.symbol(str_c(Group_Header, "_Overall_Max_Result_Date_First")) := Seq_Date_Time[first(which(FirstMax == max(FirstMax)))],
               !!as.symbol(str_c(Group_Header, "_Overall_Max_Result_Date_Last")) := Seq_Date_Time[last(which(FirstMax == max(FirstMax)))],
-              !!as.symbol(str_c(Group_Header, "_All_Max_Results")) := paste(FirstMax, collapse = ";"))
+              !!as.symbol(str_c(Group_Header, "_All_Max_Results")) := paste(FirstMax, collapse = ";"),
+              .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
   Output_Columns <- OC_pregroup %>% filter(abs(median(FirstMedian) - FirstMedian) == median(FirstMedian) - FirstMedian) %>%
     arrange(EMPI, FirstMedian) %>%
     summarise(!!as.symbol(str_c(Group_Header, "_Overall_Median_Result")) := max(FirstMedian),
               !!as.symbol(str_c(Group_Header, "_Overall_Median_Result_Date_First_or_closest_below")) := Seq_Date_Time[first(which(FirstMedian == max(FirstMedian)))],
-              !!as.symbol(str_c(Group_Header, "_Overall_Median_Result_Date_Last_or_closest_below")) := Seq_Date_Time[last(which(FirstMedian == max(FirstMedian)))])
+              !!as.symbol(str_c(Group_Header, "_Overall_Median_Result_Date_Last_or_closest_below")) := Seq_Date_Time[last(which(FirstMedian == max(FirstMedian)))],
+              !!as.symbol(str_c(Group_Header, "_All_Median_Results")) := paste(FirstMedian, collapse = ";"),
+              .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
   # All Median is done separately because the previous computation dumps rows that we don't want dumped for the paste
   Output_Columns <- OC_pregroup %>%
-    summarise(!!as.symbol(str_c(Group_Header, "_All_Median_Results")) := paste(FirstMedian, collapse = ";"),
-              !!as.symbol(str_c(Group_Header, "_Overall_Mean_Result")) := mean(FirstMean),
-              !!as.symbol(str_c(Group_Header, "_All_Mean_Results")) := paste(FirstMean, collapse = ";"))
+    arrange(EMPI, FirstMean) %>%
+    summarise(!!as.symbol(str_c(Group_Header, "_Overall_Mean_Result")) := mean(FirstMean),
+              !!as.symbol(str_c(Group_Header, "_Overall_Mean_Result_Date_First_or_closest_below")) := Seq_Date_Time[first(which(FirstMean == max(FirstMean)))],
+              !!as.symbol(str_c(Group_Header, "_Overall_Mean_Result_Date_Last_or_closest_below")) := Seq_Date_Time[last(which(FirstMean == max(FirstMean)))],
+              !!as.symbol(str_c(Group_Header, "_All_Mean_Results")) := paste(FirstMean, collapse = ";"),
+              .groups = 'drop')
   
   DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
   loginfo(str_c(nrow(Output_Columns), " subjects have a ", Group_Header, " test performed with useful information"))
@@ -81,9 +91,12 @@ process_ACTH_labs <- function(DF_to_fill = All_merged,
   Labs <- data.table(fread(str_c(input_file_header, "Lab", input_file_ending))) %>% arrange(EMPI, Seq_Date_Time)
   if (!dir.exists(path_lab_abn)) {dir.create(path_lab_abn)}
   logdebug(str_c("Note: All Lab abnormalites can be found at ", path_lab_abn))
+  if(write_files){
+    output_file_header <- str_c(output_file_header, "Lab_")
+  }
   
   # Only care about ACTH, Cortisol, and/or DHEA(s) in this function
-  Labs <- Labs %>% filter(grepl("ACTH|Cortisol|DHEA", Group_Id))
+  Labs <- Labs %>% filter(grepl("ACTH|Cortisol($| |, P)|CRH|DHEA", Group_Id))
   
   # Clean data (1):
   # (A): Change "Less than x" to "< x" and "Greater than x" to "> x"; Get rid of an extra spacing
@@ -99,6 +112,7 @@ process_ACTH_labs <- function(DF_to_fill = All_merged,
   
   # Clean data (2)
   #   Change <0 to 0; Change all <x to x-min(x)/10; Change all >x to x + 0.11111
+  #   Remove the outliers that match the first criteria but are actually not valid
   Labs <- Labs %>%
     mutate(Result = gsub("<0((\\.|0)*)$", "0", Result),
            Result = gsub("(.*(\\d|\\.)+).*", "\\1", Result),
@@ -107,7 +121,7 @@ process_ACTH_labs <- function(DF_to_fill = All_merged,
            Result = as.numeric(Result),
            Result = ifelse(is.na(LessThanX), Result, LessThanX - min(LessThanX, na.rm = TRUE) / 10),
            Result = ifelse(is.na(GreaterThanX), Result, GreaterThanX + 1/9)) %>%
-    select(-c(LessThanX, GreaterThanX))
+    select(-c(LessThanX, GreaterThanX)) %>% filter(!is.na(Result))
   
   # Clean data (3)
   #   Remove duplicates
@@ -188,16 +202,19 @@ process_ACTH_labs <- function(DF_to_fill = All_merged,
     Labs <- Labs %>% filter((grepl("12.{0,1}am", Group_Id) & Seq_Time == "00:00") | !grepl("12.{0,1}am", Group_Id))
   }
   
-  Group_Id_list <- Labs %>% group_by(Group_Id) %>% summarise() %>% pull(Group_Id)
+  Group_Id_list <- Labs %>% group_by(Group_Id) %>% summarise(.groups = 'drop') %>% pull(Group_Id)
   unit_values <- c(dl = 1e-1, ml = 1e-3, ug = 1e-6, ng = 1e-9, pg = 1e-12)
   if (skip_ACTH) {Group_Id_list <- grep("^(?!ACTH).*$", Group_Id_list, value = TRUE, perl = TRUE)}
   # According to readings, cortisol levels in the 50-100 ug/dl correspond to cushings syndorm which is the max value we want to filter.
   cushings_threshold <- c(ug_dl = 1e2, ng_dl = 1e5, ug_ml = 1, ng_ml = 1e3)
   
   if(create_cortisol_group){
-    Cortisol_Group_Id_list <- ifelse(skip_ACTH,
-                                     grep("^Cortisol((?!ACTH).)*$", Group_Id_list, value = TRUE, perl = TRUE),
-                                     grep("Cortisol", Group_Id_list, value = TRUE))
+    if(skip_ACTH){
+      Cortisol_Group_Id_list <- grep("^Cortisol((?!ACTH).)*$", Group_Id_list, value = TRUE, perl = TRUE)
+    } else {
+      Cortisol_Group_Id_list <- grep("Cortisol", Group_Id_list, value = TRUE)
+    }
+    Original_Columns <- names(DF_to_fill)
   }
   
   for (Id in Group_Id_list){
@@ -205,13 +222,13 @@ process_ACTH_labs <- function(DF_to_fill = All_merged,
     if (strict) { header <- str_c(header, "_Strict")}
     Subgroup <- Labs %>% filter(Group_Id == Id) %>% group_by(EMPI)
     logdebug(Id)
-    logdebug(Subgroup %>% group_by(Reference_Units) %>% summarise(n = n()))
+    logdebug(Subgroup %>% group_by(Reference_Units) %>% summarise(n = n(), .groups = 'drop'))
     
     # Note any possible duplicates, but don't necessarily remove
-    nSubjects <- Subgroup %>% group_by(EMPI) %>% summarise(count = n()) %>% pull(count) %>% length()
+    nSubjects <- Subgroup %>% group_by(EMPI) %>% summarise(count = n(), .groups = 'drop') %>% pull(count) %>% length()
     logdebug(str_c("Number of Subjects: ", nSubjects))
     select_EMPIs <- Subgroup %>% arrange(EMPI) %>% group_by(EMPI, Seq_Date_Time) %>%
-      summarise(Count = n()) %>% filter(Count > 1) %>% pull(EMPI) %>% unique()
+      summarise(Count = n(), .groups = 'drop') %>% filter(Count > 1) %>% pull(EMPI) %>% unique()
     if (length(select_EMPIs)){
       path_duplicates <- str_c(path_lab_abn, "Duplicate_date_time_EMPIs/")
       if(!dir.exists(path_duplicates)) {dir.create(path_duplicates)}
@@ -229,12 +246,13 @@ process_ACTH_labs <- function(DF_to_fill = All_merged,
     # - priority to reference unit included in name over the majority number if different
     main_unit <- ifelse(grepl("^.*\\(([[:alpha:]]{2,3}/[[:alpha:]]{2})\\).*$", Id),
                         tolower(gsub("^.*\\(([[:alpha:]]{2,3}/[[:alpha:]]{2})\\).*$", "\\1", Id)),
-                        Subgroup %>% group_by(Reference_Units) %>% summarise(count = n()) %>%
+                        Subgroup %>% group_by(Reference_Units) %>%
+                          summarise(count = n(), .groups = 'drop') %>%
                           filter(count == max(count)) %>% pull(Reference_Units))
     c(main_unit_num, main_unit_den) %<-% str_split_fixed(main_unit, "/", n = 2)
     
     # Figure out if any reference range information is given as next few steps require for cleaning
-    ref_ranges_summary <- Subgroup %>% group_by(Reference_Range) %>% summarise() %>% pull()
+    ref_ranges_summary <- Subgroup %>% group_by(Reference_Range) %>% summarise(.groups = 'drop') %>% pull()
     if (length(ref_ranges_summary) == 1 && ref_ranges_summary == ""){
       logwarn(str_c("GroupId ", Id, " does not list reference range information in all ", nrow(Subgroup), " entries"))
       max_range = Subgroup %>% filter(Abnormal_Flag == "") %>% pull(Result) %>% max()
@@ -243,7 +261,8 @@ process_ACTH_labs <- function(DF_to_fill = All_merged,
       option2 <- "(^<((\\d|\\.)+)$)"                # if  <b given, select b [select \\2 of 1-3]
       max_range <- max(as.numeric(gsub(str_c(option1, option2, sep = "|"), "\\3\\7",
                                        Subgroup %>% filter(Reference_Units == main_unit) %>%
-                                         group_by(Reference_Range) %>% summarise() %>% pull())), na.rm = TRUE)
+                                         group_by(Reference_Range) %>%
+                                         summarise(.groups = 'drop') %>% pull())), na.rm = TRUE)
       rm(option1, option2)
     }
     rm(ref_ranges_summary)
@@ -335,16 +354,20 @@ process_ACTH_labs <- function(DF_to_fill = All_merged,
   if (create_cortisol_group){
     header <- "All_Cortisol"
     if (strict) { header <- str_c(header, "_Strict")}
-    logdebug(str_c("Number of Subjects: ", Cortisol_group %>% group_by(EMPI) %>% summarise(count = n()) %>% pull(count) %>% length()))
+    logdebug(str_c("Number of Subjects: ", Cortisol_group %>% group_by(EMPI) %>%
+                     summarise(count = n(), .groups = 'drop') %>% pull(count) %>% length()))
     # Cortisol should all be the same unit (usually ug/dl) but if that is not the case, change them to whichever unit is the most common
-    if (Cortisol_group %>% group_by(Reference_Units) %>% summarise() %>% pull(Reference_Units) %>% length() > 1){
-      logdebug(Cortisol_group %>% group_by(Reference_Units) %>% summarise(n = n()))
+    if (Cortisol_group %>% group_by(Reference_Units) %>%
+        summarise(.groups = 'drop') %>% pull(Reference_Units) %>% length() > 1){
+      logdebug(Cortisol_group %>% group_by(Reference_Units) %>% summarise(n = n(), .groups = 'drop'))
       # Find the main reference
-      main_unit <- Cortisol_group %>% group_by(Reference_Units) %>% summarise(count = n()) %>%
+      main_unit <- Cortisol_group %>% group_by(Reference_Units) %>%
+        summarise(count = n(), .groups = 'drop') %>%
         filter(count == max(count)) %>% pull(Reference_Units)
       c(main_unit_num, main_unit_den) %<-% str_split_fixed(main_unit, "/", n = 2)
       # Figure out if any reference range information is given as next few steps require for cleaning
-      ref_ranges_summary <- Cortisol_group %>% group_by(Reference_Range) %>% summarise() %>% pull()
+      ref_ranges_summary <- Cortisol_group %>% group_by(Reference_Range) %>%
+        summarise(.groups = 'drop') %>% pull()
       if (length(ref_ranges_summary) == 1 && ref_ranges_summary == ""){
         logwarn(str_c("GroupId ", Id, " does not list reference range information in all ", nrow(Cortisol_group), " entries"))
         max_range = Cortisol_group %>% filter(Abnormal_Flag == "") %>% pull(Result) %>% max()
@@ -353,7 +376,7 @@ process_ACTH_labs <- function(DF_to_fill = All_merged,
         option2 <- "(^<((\\d|\\.)+)$)"                # if  <b given, select b [select \\2 of 1-3]
         max_range <- max(as.numeric(gsub(str_c(option1, option2, sep = "|"), "\\3\\7",
                                          Cortisol_group %>% filter(Reference_Units == main_unit) %>%
-                                           group_by(Reference_Range) %>% summarise() %>% pull())), na.rm = TRUE)
+                                           group_by(Reference_Range) %>% summarise(.groups = 'drop') %>% pull())), na.rm = TRUE)
         rm(option1, option2)
       }
       rm(ref_ranges_summary)
@@ -411,7 +434,7 @@ process_ACTH_labs <- function(DF_to_fill = All_merged,
       fwrite(Cortisol_group, str_c(output_file_header, header, output_file_ending))
     }
     DF_to_fill <- Create_ACTH_Cortisol_DHEA_Output_Columns(Cortisol_group, header, DF_to_fill)
-    
+    DF_to_fill <- DF_to_fill %>% select(Original_Columns, starts_with(header), everything())
     rm(Cortisol_group, header)
   }
   rm(Labs)
@@ -503,7 +526,9 @@ process_IGE_IGG_labs <- function(DF_to_fill = All_merged,
   # Clean data (7)
   #   Remove additional result from time point
   empis_with_mult_times <- Labs %>% filter(EMPI %in% (Labs %>% group_by(EMPI, Seq_Date_Time, Group_Id) %>%
-                                                        summarise(Count = n()) %>% filter(Count > 1) %>% group_by(EMPI) %>% summarise() %>% pull())) %>%
+                                                        summarise(Count = n(), .groups = 'drop') %>%
+                                                        filter(Count > 1) %>% group_by(EMPI) %>%
+                                                        summarise(.groups = 'drop') %>% pull())) %>%
     arrange(EMPI, Group_Id, Seq_Date_Time)
   relevant_info <- empis_with_mult_times %>% select(EMPI, Seq_Date_Time, Group_Id)
   Lab_abn <- empis_with_mult_times[duplicated(relevant_info)| duplicated(relevant_info, fromLast = TRUE), ]
@@ -519,13 +544,15 @@ process_IGE_IGG_labs <- function(DF_to_fill = All_merged,
   for (ID in Group_Id_list){
     Group <- Labs %>% filter(Group_Id == ID)
     Output_Columns <- Group %>% group_by(EMPI, Seq_Date_Time, Reference_Units) %>%
-      summarise(mean_duplicates = mean(Result)) %>%
+      summarise(mean_duplicates = mean(Result),
+                .groups = 'drop') %>%
       group_by(EMPI, Reference_Units) %>%
       summarise(!!as.symbol(str_c(ID, "_nTotalValues")) := n(),
                 !!as.symbol(str_c(ID, "_Mean")) := mean(mean_duplicates),
                 !!as.symbol(str_c(ID, "_SD")) := sd(mean_duplicates),
                 !!as.symbol(str_c(ID, "_All_Seq_Date_Times")) := paste(Seq_Date_Time, collapse = ";"),
-                !!as.symbol(str_c(ID, "_All_Results")) := paste(mean_duplicates, collapse = ";")) %>%
+                !!as.symbol(str_c(ID, "_All_Results")) := paste(mean_duplicates, collapse = ";"),
+                .groups = 'drop') %>%
       rename(!!as.symbol(str_c(ID, "_Reference_Units")) := Reference_Units)
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
   }
@@ -577,7 +604,8 @@ process_Covid_labs <- function(DF_to_fill = All_merged,
                                        "First_Test_Date" = first(Seq_Date_Time),
                                        "First_Test_Result" = first(Result_Updated),
                                        "All_Test_Dates" = paste(Seq_Date_Time, collapse = ";"),
-                                       "Result_Order" = paste(Result_Updated, collapse = ";"))
+                                       "Result_Order" = paste(Result_Updated, collapse = ";"),
+                                       .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
   DF_to_fill <- DF_to_fill %>% mutate(Tested = ifelse(is.na(Tested), "No", Tested),
                                       Number_Of_Total_Tests = ifelse(is.na(Number_Of_Total_Tests),
@@ -586,7 +614,8 @@ process_Covid_labs <- function(DF_to_fill = All_merged,
   Output_Columns <- Subgroup %>% summarise("Positive_Result" = "Yes",
                                            "Number_Of_Total_Positive_Tests" = n(),
                                            "First_Positive_Test_Date" = first(Seq_Date_Time),
-                                           "All_Positive_Test_Dates" = paste(Seq_Date_Time, collapse = ";"))
+                                           "All_Positive_Test_Dates" = paste(Seq_Date_Time, collapse = ";"),
+                                           .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
   DF_to_fill <- DF_to_fill %>% mutate(Positive_Result = ifelse(is.na(Positive_Result), "No", Positive_Result),
                                       Number_Of_Total_Positive_Tests = ifelse(is.na(Number_Of_Total_Positive_Tests),
@@ -595,7 +624,8 @@ process_Covid_labs <- function(DF_to_fill = All_merged,
   Output_Columns <- Subgroup %>% summarise("Negative_Result" = "Yes",
                                            "Number_Of_Total_Negative_Tests" = n(),
                                            "First_Negative_Test_Date" = first(Seq_Date_Time),
-                                           "All_Negative_Test_Dates" = paste(Seq_Date_Time, collapse = ";"))
+                                           "All_Negative_Test_Dates" = paste(Seq_Date_Time, collapse = ";"),
+                                           .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
   DF_to_fill <- DF_to_fill %>% mutate(Negative_Result = ifelse(is.na(Negative_Result), "No", Negative_Result),
                                       Number_Of_Total_Negative_Tests = ifelse(is.na(Number_Of_Total_Negative_Tests),
@@ -660,7 +690,8 @@ process_Cholesterol_labs <- function(DF_to_fill = All_merged,
               Cholesterol_probable_category = ifelse(Cholesterol_median < Optimal_Intermediate,
                                                      "Optimal",
                                                      ifelse(Cholesterol_median < Intermediate_High,
-                                                            "Intermediate", "High")))
+                                                            "Intermediate", "High")),
+              .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns)
   DF_to_fill <- DF_to_fill %>%
     mutate(Cholesterol = ifelse(is.na(Cholesterol), "No", Cholesterol),
@@ -671,7 +702,8 @@ process_Cholesterol_labs <- function(DF_to_fill = All_merged,
     summarise(Cholesterol_optimal = "Yes",
               Cholesterol_optimal_number_recorded = n(),
               Cholesterol_optimal_values = paste(Result, collapse = ";"),
-              Cholesterol_optimal_dates = paste(Seq_Date_Time, collapse = ";"))
+              Cholesterol_optimal_dates = paste(Seq_Date_Time, collapse = ";"),
+              .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns)
   DF_to_fill <- DF_to_fill %>%
     mutate(Cholesterol_optimal = ifelse(is.na(Cholesterol_optimal), "No", Cholesterol_optimal),
@@ -682,7 +714,8 @@ process_Cholesterol_labs <- function(DF_to_fill = All_merged,
     summarise(Cholesterol_intermediate = "Yes",
               Cholesterol_intermediate_number_recorded = n(),
               Cholesterol_intermediate_values = paste(Result, collapse = ";"),
-              Cholesterol_intermediate_dates = paste(Seq_Date_Time, collapse = ";"))
+              Cholesterol_intermediate_dates = paste(Seq_Date_Time, collapse = ";"),
+              .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns)
   DF_to_fill <- DF_to_fill %>%
     mutate(Cholesterol_intermediate = ifelse(is.na(Cholesterol_intermediate), "No", Cholesterol_intermediate),
@@ -693,7 +726,8 @@ process_Cholesterol_labs <- function(DF_to_fill = All_merged,
     summarise(Cholesterol_high = "Yes",
               Cholesterol_high_number_recorded = n(),
               Cholesterol_high_values = paste(Result, collapse = ";"),
-              Cholesterol_high_dates = paste(Seq_Date_Time, collapse = ";"))
+              Cholesterol_high_dates = paste(Seq_Date_Time, collapse = ";"),
+              .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns)
   DF_to_fill <- DF_to_fill %>%
     mutate(Cholesterol_high = ifelse(is.na(Cholesterol_high), "No", Cholesterol_high),
@@ -715,7 +749,7 @@ process_VitD_labs <- function(DF_to_fill = All_merged,
   logdebug(str_c("Note: All Lab abnormalites can be found at ", path_lab_abn))
   
   Labs <- Labs %>% filter(grepl("[Vv]itamin", Group_Id))
-  Labs %>% group_by(Group_Id) %>% summarise(n())
+  Labs %>% group_by(Group_Id) %>% summarise(n(), .groups = 'drop')
   
   # Cleanup Range Data for check
   ## Part 1
@@ -860,7 +894,8 @@ process_VitD_labs <- function(DF_to_fill = All_merged,
               Any_VitaminD_Max_Result = max(Result_Update, na.rm = TRUE),
               Any_VitaminD_Mean_Result = mean(Result_Update, na.rm = TRUE),
               Any_VitaminD_All_Dates = paste(Seq_Date, collapse = ";"),
-              Any_VitaminD_All_Results_By_Date = paste(Result, collapse = ";"))
+              Any_VitaminD_All_Results_By_Date = paste(Result, collapse = ";"),
+              .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns)
   DF_to_fill <- DF_to_fill %>% mutate(Any_VitaminD_Results = ifelse(is.na(Any_VitaminD_Results),
                                                                     "No",
@@ -875,7 +910,8 @@ process_VitD_labs <- function(DF_to_fill = All_merged,
               Low_VitaminD_Max_Result = max(Result_Update, na.rm = TRUE),
               Low_VitaminD_Mean_Result = mean(Result_Update, na.rm = TRUE),
               Low_VitaminD_All_Dates = paste(Seq_Date, collapse = ";"),
-              Low_VitaminD_All_Results_By_Date = paste(Result, collapse = ";"))
+              Low_VitaminD_All_Results_By_Date = paste(Result, collapse = ";"),
+              .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns)
   DF_to_fill <- DF_to_fill %>% mutate(Low_VitaminD_Results = ifelse(is.na(Low_VitaminD_Results),
                                                                     "No",
@@ -890,7 +926,8 @@ process_VitD_labs <- function(DF_to_fill = All_merged,
               Optimal_VitaminD_Max_Result = max(Result_Update, na.rm = TRUE),
               Optimal_VitaminD_Mean_Result = mean(Result_Update, na.rm = TRUE),
               Optimal_VitaminD_All_Dates = paste(Seq_Date, collapse = ";"),
-              Optimal_VitaminD_All_Results_By_Date = paste(Result, collapse = ";"))
+              Optimal_VitaminD_All_Results_By_Date = paste(Result, collapse = ";"),
+              .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns)
   DF_to_fill <- DF_to_fill %>% mutate(Optimal_VitaminD_Results = ifelse(is.na(Optimal_VitaminD_Results),
                                                                         "No",
@@ -905,7 +942,8 @@ process_VitD_labs <- function(DF_to_fill = All_merged,
               High_VitaminD_Max_Result = max(Result_Update, na.rm = TRUE),
               High_VitaminD_Mean_Result = mean(Result_Update, na.rm = TRUE),
               High_VitaminD_All_Dates = paste(Seq_Date, collapse = ";"),
-              High_VitaminD_All_Results_By_Date = paste(Result, collapse = ";"))
+              High_VitaminD_All_Results_By_Date = paste(Result, collapse = ";"),
+              .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns)
   DF_to_fill <- DF_to_fill %>% mutate(High_VitaminD_Results = ifelse(is.na(High_VitaminD_Results),
                                                                      "No",
