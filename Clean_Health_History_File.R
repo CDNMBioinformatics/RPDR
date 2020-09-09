@@ -13,7 +13,8 @@ process_physical <- function(DF_to_fill = All_merged,
                              Underweight_Normal = config$BMI_params$Underweight_Normal,
                              Normal_Overweight = config$BMI_params$Normal_Overweight,
                              Overweight_Obese = config$BMI_params$Overweight_Obese,
-                             Return_Influenza = TRUE){
+                             Return_Influenza = TRUE,
+                             Return_Smoker = TRUE){
   loginfo("Processing Health History & Physical Findings data...")
   Phy <- data.table(fread(str_c(input_file_header, "Phy", input_file_ending))) %>% arrange(EMPI)
   if (!dir.exists(path_phy_abn)) {dir.create(path_phy_abn)}
@@ -58,7 +59,7 @@ process_physical <- function(DF_to_fill = All_merged,
                                                       ifelse(BMI_median < Overweight_Obese,
                                                              "Overweight", "Obese"))),
                 .groups = "drop")
-    DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>% mutate(BMI = ifelse(is.na(BMI), "No", BMI),
                                         BMI_number_recorded = ifelse(is.na(BMI_number_recorded),
                                                                      0, BMI_number_recorded))
@@ -69,7 +70,7 @@ process_physical <- function(DF_to_fill = All_merged,
                 BMI_underweight_all_values = paste(Result, collapse = ";"),
                 BMI_underweight_all_dates = paste(Date, collapse = ";"),
                 .groups = "drop")
-    DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>%
       mutate(BMI_underweight = ifelse(is.na(BMI_underweight), "No", BMI_underweight),
              BMI_underweight_number_recorded = ifelse(is.na(BMI_underweight_number_recorded),
@@ -81,7 +82,7 @@ process_physical <- function(DF_to_fill = All_merged,
                 BMI_normal_all_values = paste(Result, collapse = ";"),
                 BMI_normal_all_dates = paste(Date, collapse = ";"),
                 .groups = "drop")
-    DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>%
       mutate(BMI_normal = ifelse(is.na(BMI_normal), "No", BMI_normal),
              BMI_normal_number_recorded = ifelse(is.na(BMI_normal_number_recorded),
@@ -93,7 +94,7 @@ process_physical <- function(DF_to_fill = All_merged,
                 BMI_overweight_all_values = paste(Result, collapse = ";"),
                 BMI_overweight_all_dates = paste(Date, collapse = ";"),
                 .groups = "drop")
-    DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>%
       mutate(BMI_overweight = ifelse(is.na(BMI_overweight), "No", BMI_overweight),
              BMI_overweight_number_recorded = ifelse(is.na(BMI_overweight_number_recorded),
@@ -105,7 +106,7 @@ process_physical <- function(DF_to_fill = All_merged,
                 BMI_obese_all_values = paste(Result, collapse = ";"),
                 BMI_obese_all_dates = paste(Date, collapse = ";"),
                 .groups = "drop")
-    DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>%
       mutate(BMI_obese = ifelse(is.na(BMI_obese), "No", BMI_obese),
              BMI_obese_number_recorded = ifelse(is.na(BMI_obese_number_recorded),
@@ -135,11 +136,38 @@ process_physical <- function(DF_to_fill = All_merged,
                 Flu_vaccine_most_recent = last(Date),
                 Flu_vaccine_all_dates = paste(Date, collapse = ";"),
                 .groups = "drop")
-    DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>%
       mutate(Flu_vaccined = ifelse(is.na(Flu_vaccined), "No", Flu_vaccined),
              Flu_vaccine_count = ifelse(is.na(Flu_vaccine_count), 0, Flu_vaccine_count))
     rm(Output_Columns, Flu)
+  }
+  if(Return_Smoker){
+    Smoker = Phy %>% filter(Concept_Name %in% c("Smoking Quit Date",
+                                                "Smoking Start Date",
+                                                "Smoking Tobacco Use-Current Every Day Smoker",
+                                                "Smoking Tobacco Use-Current Some Day Smoker",
+                                                "Smoking Tobacco Use-Former Smoker",
+                                                "Smoking Tobacco Use-Heavy Tobacco Smoker",
+                                                "Smoking Tobacco Use-Light Tobacco Smoker",
+                                                "Smoking Tobacco Use-Smoker, Current Status Unknown"))
+    Phy_abn <- Smoker[(duplicated(Smoker)),]
+    if (nrow(Phy_abn) > 0){
+      logwarn(str_c(nrow(Phy_abn), " completely duplicated row(s) out of ", nrow(Smoker), " removed"))
+      fwrite(Phy_abn, str_c(path_phy_abn, "Abnormality_Smoker_Duplicate_rows", output_file_ending))
+      Smoker <- Smoker %>% unique()
+    }
+    rm(Phy_abn)
+    Smoker <- Smoker %>% mutate(Date = mdy(Date))
+    Output_Columns <- Smoker %>% group_by(EMPI) %>% arrange(Date) %>%
+      summarise(Smoker_Former_or_Current = "Yes",
+                Smoker_Former_or_Current_First_Date = first(Date),
+                Smoker_Former_or_Current_Most_Recent_Date = last(Date),
+                .groups = "drop")
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+    DF_to_fill <- DF_to_fill %>%
+      mutate(Smoker_Former_or_Current = ifelse(is.na(Smoker_Former_or_Current), "No", Smoker_Former_or_Current))
+    rm(Output_Columns, Smoker)
   }
   return(DF_to_fill)
 }
