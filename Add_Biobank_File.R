@@ -4,9 +4,6 @@ require(stringr) # str_c
 require(tidyverse)
 require(logging)
 
-####################################################################################################
-#################################### Deidentification functions ####################################
-####################################################################################################
 process_deidentified <- function(DF_to_fill = All_merged,
                                  input_file_name = config$biobank_file_name,
                                  PPV.NPV.only = FALSE,
@@ -16,13 +13,18 @@ process_deidentified <- function(DF_to_fill = All_merged,
                                  Plasma.only = FALSE,
                                  replace.existence.T.F = FALSE,
                                  clean.list = FALSE,
-                                 get.date.range = FALSE){
+                                 get.date.range = FALSE,
+                                 subset_ids){
   loginfo("Processing biobank file...")
   Deidentified <- fread(input_file_name)
   # Remove non-word characters, remove duplicate, trailing, and leading spaces in names
   names(Deidentified) <- gsub("^_|_$", "", gsub("_+", "_", gsub("\\W", "_", names(Deidentified))))
   # Just in case R reads column as characters instead of numerical
   Deidentified <- Deidentified %>% mutate(Biobank_Subject_ID = as.numeric(Biobank_Subject_ID))
+  if(!missing(subset_ids)){
+    loginfo(str_c("Selecting subset of ids from ", deparse(substitute(subset_ids))))
+    Deidentified <- Deidentified %>% filter(Biobank_Subject_ID %in% subset_ids)
+  }
   if (PPV.NPV.only){
     loginfo("Select variables with PPV/NPV only")
     Deidentified <- Deidentified %>% select(Biobank_Subject_ID, contains("PPV"), contains("NPV"))
