@@ -3,6 +3,7 @@ require(dplyr) # mutate, filter, select, ...
 require(stringr) # str_c
 require(tidyverse)
 require(logging)
+library(openxlsx)
 
 process_medications <- function(DF_to_fill = All_merged,
                                 input_file_header = config$rpdr_file_header,
@@ -31,7 +32,7 @@ process_medications <- function(DF_to_fill = All_merged,
   }
   
   loginfo("Applying Med_Map...")
-  Med_Map_df <- fread(str_c(general_path, "/Medication_Mapping.txt"))
+  Med_Map_df <- read.xlsx(str_c(general_path, "/Medication_Mapping.xlsx"))
   logdebug("Available folders and number of medication groups:")
   logdebug(t(Med_Map_df %>% group_by(Medication_Biobank_Folder) %>%
                summarise(Count = n(),
@@ -41,6 +42,7 @@ process_medications <- function(DF_to_fill = All_merged,
                               Medication_Biobank_Folder = character(),
                               Medication_GWAS_Group = character(),
                               Medication_Pegasus_Group = character(),
+                              ICS_or_ICS_LABA = character(),
                               Search_Term = character(),
                               Ignore.case = logical(),
                               Perl = logical())
@@ -66,7 +68,8 @@ process_medications <- function(DF_to_fill = All_merged,
                                   Medication_Name = character(),
                                   Medication_Biobank_Folder = character(),
                                   Medication_GWAS_Group = character(),
-                                  Medication_Pegasus_Group = character())
+                                  Medication_Pegasus_Group = character(),
+                                  ICS_or_ICS_LABA = character())
   for (mri in Med_Row_ids){
     Med_subgroup <- Medications_condensed %>% filter(grepl(Relevant_Meds[mri,]$Search_Term,
                                                            Medication,
@@ -75,7 +78,8 @@ process_medications <- function(DF_to_fill = All_merged,
       mutate(Medication_Name  = Relevant_Meds[mri,]$Medication_Name,
              Medication_Biobank_Folder = Relevant_Meds[mri,]$Medication_Biobank_Folder,
              Medication_GWAS_Group = Relevant_Meds[mri,]$Medication_GWAS_Group,
-             Medication_Pegasus_Group = Relevant_Meds[mri,]$Medication_Pegasus_Group)
+             Medication_Pegasus_Group = Relevant_Meds[mri,]$Medication_Pegasus_Group,
+             ICS_or_ICS_LABA = Relevant_Meds[mri,]$ICS_or_ICS_LABA)
     Med_all_subgroups <- rbind(Med_all_subgroups, Med_subgroup)
     rm(Med_subgroup)
   }
@@ -152,16 +156,16 @@ process_medications <- function(DF_to_fill = All_merged,
     Group <- Medications %>%
       filter(grepl(Grouping_Name, !!(as.symbol(Group_Column))),
              Medication_Name %in% Medications_Of_Interest[[Grouping_Name]])
-    Output_Columns <- Group %>% group_by(EMPI) %>% select(EMPI, Medication_Name) %>% unique() %>%
-      summarise(!!(as.symbol(Group_Header)) := "Yes",
-                .groups = 'drop')
     if (Group_Info){
+      Output_Columns <- Group %>% group_by(EMPI) %>% select(EMPI, Medication_Name) %>% unique() %>%
+        summarise(!!(as.symbol(Group_Header)) := "Yes",
+                  .groups = 'drop')
       DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
       DF_to_fill <- DF_to_fill %>%
         mutate(!!(as.symbol(Group_Header)) := ifelse(is.na(!!(as.symbol(Group_Header))), "No", "Yes"))
+      loginfo(str_c(nrow(Output_Columns), " subjects were prescribed any ", Grouping_Name))
+      rm(Output_Columns)
     }
-    loginfo(str_c(nrow(Output_Columns), " subjects were prescribed any ", Grouping_Name))
-    rm(Output_Columns)
     if(Individual_Info){
       # Look for the individual prescriptions
       for (Med_Name in Medications_Of_Interest[[Grouping_Name]]){
