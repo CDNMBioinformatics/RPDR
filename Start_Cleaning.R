@@ -8,7 +8,8 @@ require(logging)
 
 start_processing <- function(input_file_header = config$rpdr_file_header,
                              input_file_ending = config$rpdr_file_ending,
-                             include.identifiable = FALSE){
+                             include.identifiable = FALSE,
+                             subset_ids){
   loginfo("Begin cleaning RPDR data...")
   loginfo("Processing demographics file...")
   Demographics <- fread(str_c(input_file_header, "Dem", input_file_ending))
@@ -66,6 +67,11 @@ start_processing <- function(input_file_header = config$rpdr_file_header,
     Merged_DF <- left_join(Merged_DF, Identifiable, by = "EMPI")
     rm(Identifiable)
   }
+  if(!missing(subset_ids)){
+    loginfo(str_c("Selecting subset of ids from ", deparse(substitute(subset_ids))))
+    Merged_DF <- Merged_DF %>% filter(Biobank_Subject_ID %in% subset_ids)
+  } else {loginfo("Use full list of")}
+  
   loginfo("Merged output complete")
   return(Merged_DF)
 }
