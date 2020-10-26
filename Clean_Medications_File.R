@@ -18,8 +18,7 @@ process_medications <- function(DF_to_fill = All_merged,
                                 output_file_header = config$intermediate_files_dir,
                                 output_file_ending = config$general_file_ending,
                                 merged_group_name,
-                                nebs = FALSE,
-                                cutoff_variable){
+                                nebs = FALSE){
   if (missing(Medications_Of_Interest)){
     logerror("No list of Medications were specified. Process stopped.")
     return(DF_to_fill)
@@ -352,6 +351,21 @@ process_medications_date_cutoff <- function(DF_to_fill_cutoff,
     logerror("No list of Medications were specified. Process stopped.")
     return(DF_to_fill_cutoff)
   }
+  # Usually this is put in the function definition but because it gets used in compare, needs to be defined here
+  if (missing(DF_to_fill_cutoff)) {DF_to_fill_cutoff = All_merged}
+  if (missing(input_file_header_cutoff)) {input_file_header_cutoff = config$rpdr_file_header}
+  if (missing(input_file_ending_cutoff)) {input_file_ending_cutoff = config$rpdr_file_ending}
+  if (missing(path_med_abn_cutoff)) {path_med_abn_cutoff = str_c(config$data_dir, "Medication_abnormalities/")}
+  if (missing(Group_Column_cutoff)) {Group_Column_cutoff = config$medication_group}
+  if (missing(Individual_Info_cutoff)) {Individual_Info_cutoff = TRUE}
+  if (missing(Group_Info_cutoff)) {Group_Info_cutoff = TRUE}
+  if (missing(Daily_Dose_Info_cutoff)) {Daily_Dose_Info_cutoff = FALSE}
+  if (missing(write_files_cutoff)) {write_files_cutoff = config$create_intermediates}
+  if (missing(output_file_header_cutoff)) {output_file_header_cutoff = config$intermediate_files_dir}
+  if (missing(output_file_ending_cutoff)) {output_file_ending_cutoff = config$general_file_ending}
+  if (missing(nebs_cutoff)) {nebs_cutoff = FALSE}
+  if (missing(restrict_to_before_cutoff)) {restrict_to_before_cutoff = FALSE}
+  
   loginfo("Processing medications file...")
   Medications <- fread(str_c(input_file_header_cutoff, "Med", input_file_ending_cutoff))
   if (!dir.exists(path_med_abn_cutoff)) {dir.create(path_med_abn_cutoff)}
@@ -422,11 +436,16 @@ process_medications_date_cutoff <- function(DF_to_fill_cutoff,
   Medications <- Medications %>% filter(EMPI %in% DF_to_fill_cutoff$EMPI)
   Medications <- Medications %>% mutate(Medication_Date = mdy(Medication_Date)) %>%
     arrange(EMPI, Medication_Date)
-  EMPI_Date_Limit <- DF_to_fill_cutoff %>% select(EMPI, date_variable_cutoff) %>%
-    rename(Cutoff_Date_Time = date_variable_cutoff) %>%
-    extract(Cutoff_Date_Time, c("Cutoff_Date", "Cutoff_Time"),
-            regex = "(\\d{4}-\\d{2}-\\d{2}) (\\d{2}:\\d{2})", remove = FALSE) %>%
-    mutate(Cutoff_Date = ifelse(is.na(Cutoff_Time), Cutoff_Date_Time, Cutoff_Date)) %>% select(EMPI, Cutoff_Date)
+  if (!sum(str_count(DF_to_fill_cutoff %>% pull(date_variable_cutoff)) == 10) == nrow(DF_to_fill_cutoff)){
+    EMPI_Date_Limit <- DF_to_fill_cutoff %>% select(EMPI, date_variable_cutoff) %>%
+      rename(Cutoff_Date_Time = date_variable_cutoff) %>%
+      extract(Cutoff_Date_Time, c("Cutoff_Date", "Cutoff_Time"),
+              regex = "(\\d{4}-\\d{2}-\\d{2}) (\\d{2}:\\d{2})", remove = FALSE) %>%
+      mutate(Cutoff_Date = ifelse(is.na(Cutoff_Time), Cutoff_Date_Time, Cutoff_Date)) %>% select(EMPI, Cutoff_Date)
+  } else {
+    EMPI_Date_Limit <- DF_to_fill_cutoff %>% select(EMPI, date_variable_cutoff) %>%
+      rename(Cutoff_Date = date_variable_cutoff)
+  }
   # Restrict Medications to only before or only after
   Medications <- left_join(Medications, EMPI_Date_Limit)
   time_str = ifelse(restrict_to_before_cutoff, "before", "after")
@@ -442,48 +461,49 @@ process_medications_date_cutoff <- function(DF_to_fill_cutoff,
   logdebug(str_c(Original_row_length, " medications reduced to ", New_row_length, " medications."))
   rm(time_str, Original_row_length, New_row_length)
   
-  # Clean up Additional_Info and generate Daily Dosage and Notes
-  # - Get MCG units (if ML: get MG from medication; if MG: convert to MCG) or PUFF count
-  # - Get FREQ
-  # - Note PRN
-  # - Calculate Daily Dosages
-  # - write Notes
-  Medications <- Medications %>% mutate(Additional_Info = gsub("PUFFS", "PUFF", Additional_Info, ignore.case = TRUE),
-                                        Additional_Info = gsub("mcg", "MCG", Additional_Info, ignore.case = TRUE),
-                                        Additional_Info = gsub("ml", "ML", Additional_Info, ignore.case = TRUE),
-                                        Additional_Info = gsub(" of fluti", "", Additional_Info),
-                                        Additional_Info = gsub("Inhl", "INH", Additional_Info, ignore.case = TRUE),
-                                        Additional_Info = gsub("Nebu", "NEB", Additional_Info, ignore.case = TRUE),
-                                        DOSE_MCG = as.numeric(gsub("^.*DOSE=((\\d|\\.)+) MCG.*$", "\\1", Additional_Info)),
-                                        DOSE_MG = as.numeric(gsub("^.*DOSE=((\\d|\\.)+) MG.*$", "\\1", Additional_Info)),
-                                        DOSE_ML = as.numeric(gsub("^.*DOSE=((\\d|\\.)+) ML.*$", "\\1", Additional_Info)),
-                                        DOSE_MG_ML = ifelse(is.na(DOSE_ML), NA, Medication),
-                                        DOSE_MG_ML_mg = as.numeric(gsub("^.* ((\\d|\\.)+) *mg.*$", "\\1", DOSE_MG_ML, ignore.case = TRUE)),
-                                        DOSE_MG_ML_ml = as.numeric(gsub("^.*/ *((\\d|\\.)*) *ml.*$", "\\1", DOSE_MG_ML, ignore.case = TRUE)),
-                                        DOSE_MG_ML_ml = ifelse(!is.na(DOSE_ML) & is.na(DOSE_MG_ML_ml), 1, DOSE_MG_ML_ml),
-                                        DOSE_MG = ifelse(!(is.na(DOSE_ML)), DOSE_ML*DOSE_MG_ML_mg/DOSE_MG_ML_ml, DOSE_MG),
-                                        DOSE_MCG = ifelse(!(is.na(DOSE_MG)), DOSE_MG*1000, DOSE_MCG),
-                                        DOSE_PUFF = as.numeric(gsub("^.*DOSE=((\\d|\\.)*) (INHALATION|PUFF|SPRAY).*$", "\\1", Additional_Info)),
-                                        FREQ = NA,
-                                        FREQ = ifelse(grepl("Daily|Nightly|Once|QAM|QD|QNOON|QPM|Q24", Additional_Info), 1, FREQ),
-                                        FREQ = ifelse(grepl("BID|Q12H", Additional_Info), 2, FREQ),
-                                        FREQ = ifelse(grepl("QAC|TID|Q8H", Additional_Info), 3, FREQ),
-                                        FREQ = ifelse(grepl("4x Daily|QID|Q6H", Additional_Info), 4, FREQ),
-                                        FREQ = ifelse(grepl("Q4H", Additional_Info), 6, FREQ),
-                                        FREQ = ifelse(grepl("Q3H", Additional_Info), 8, FREQ),
-                                        FREQ = ifelse(grepl("Q2H", Additional_Info), 12, FREQ),
-                                        FREQ = ifelse(grepl("Q1H", Additional_Info), 24, FREQ),
-                                        PRN = ifelse(grepl("PRN", Additional_Info), TRUE, FALSE),
-                                        DAILY_DOSE_MCG = ifelse(is.na(DOSE_MCG), NA, DOSE_MCG * ifelse(is.na(FREQ), 1, FREQ)),
-                                        DAILY_DOSE_PUFF = ifelse(is.na(DOSE_PUFF), NA, DOSE_PUFF * ifelse(is.na(FREQ), 1, FREQ)),
-                                        DAILY_DOSE = ifelse(!is.na(DAILY_DOSE_MCG), str_c("MCG: ", DAILY_DOSE_MCG), NA),
-                                        DAILY_DOSE = ifelse(!is.na(DAILY_DOSE_PUFF), str_c("Puffs: ", DAILY_DOSE_PUFF), DAILY_DOSE),
-                                        DAILY_DOSE = ifelse(is.na(DAILY_DOSE) & !is.na(FREQ), str_c("FREQ: ", FREQ), DAILY_DOSE),
-                                        NOTES = ifelse(PRN, "Prescribed as needed", ""),
-                                        NOTES = ifelse(is.na(DAILY_DOSE) | grepl("FREQ", DAILY_DOSE), str_c(NOTES, ifelse(NOTES == "", "", "; "), "Unknown dosage"), NOTES), 
-                                        NOTES = ifelse(is.na(FREQ), str_c(NOTES, ifelse(NOTES == "", "", "; "), "Unknown frequency"), NOTES)) %>%
-    select(-c(DOSE_MCG, DOSE_MG, DOSE_ML, DOSE_MG_ML, DOSE_MG_ML_mg, DOSE_MG_ML_ml, DOSE_PUFF, FREQ, PRN))
-  
+  if (Daily_Dose_Info_cutoff){
+    # Clean up Additional_Info and generate Daily Dosage and Notes
+    # - Get MCG units (if ML: get MG from medication; if MG: convert to MCG) or PUFF count
+    # - Get FREQ
+    # - Note PRN
+    # - Calculate Daily Dosages
+    # - write Notes
+    Medications <- Medications %>% mutate(Additional_Info = gsub("PUFFS", "PUFF", Additional_Info, ignore.case = TRUE),
+                                          Additional_Info = gsub("mcg", "MCG", Additional_Info, ignore.case = TRUE),
+                                          Additional_Info = gsub("ml", "ML", Additional_Info, ignore.case = TRUE),
+                                          Additional_Info = gsub(" of fluti", "", Additional_Info),
+                                          Additional_Info = gsub("Inhl", "INH", Additional_Info, ignore.case = TRUE),
+                                          Additional_Info = gsub("Nebu", "NEB", Additional_Info, ignore.case = TRUE),
+                                          DOSE_MCG = as.numeric(gsub("^.*DOSE=((\\d|\\.)+) MCG.*$", "\\1", Additional_Info)),
+                                          DOSE_MG = as.numeric(gsub("^.*DOSE=((\\d|\\.)+) MG.*$", "\\1", Additional_Info)),
+                                          DOSE_ML = as.numeric(gsub("^.*DOSE=((\\d|\\.)+) ML.*$", "\\1", Additional_Info)),
+                                          DOSE_MG_ML = ifelse(is.na(DOSE_ML), NA, Medication),
+                                          DOSE_MG_ML_mg = as.numeric(gsub("^.* ((\\d|\\.)+) *mg.*$", "\\1", DOSE_MG_ML, ignore.case = TRUE)),
+                                          DOSE_MG_ML_ml = as.numeric(gsub("^.*/ *((\\d|\\.)*) *ml.*$", "\\1", DOSE_MG_ML, ignore.case = TRUE)),
+                                          DOSE_MG_ML_ml = ifelse(!is.na(DOSE_ML) & is.na(DOSE_MG_ML_ml), 1, DOSE_MG_ML_ml),
+                                          DOSE_MG = ifelse(!(is.na(DOSE_ML)), DOSE_ML*DOSE_MG_ML_mg/DOSE_MG_ML_ml, DOSE_MG),
+                                          DOSE_MCG = ifelse(!(is.na(DOSE_MG)), DOSE_MG*1000, DOSE_MCG),
+                                          DOSE_PUFF = as.numeric(gsub("^.*DOSE=((\\d|\\.)*) (INHALATION|PUFF|SPRAY).*$", "\\1", Additional_Info)),
+                                          FREQ = NA,
+                                          FREQ = ifelse(grepl("Daily|Nightly|Once|QAM|QD|QNOON|QPM|Q24", Additional_Info), 1, FREQ),
+                                          FREQ = ifelse(grepl("BID|Q12H", Additional_Info), 2, FREQ),
+                                          FREQ = ifelse(grepl("QAC|TID|Q8H", Additional_Info), 3, FREQ),
+                                          FREQ = ifelse(grepl("4x Daily|QID|Q6H", Additional_Info), 4, FREQ),
+                                          FREQ = ifelse(grepl("Q4H", Additional_Info), 6, FREQ),
+                                          FREQ = ifelse(grepl("Q3H", Additional_Info), 8, FREQ),
+                                          FREQ = ifelse(grepl("Q2H", Additional_Info), 12, FREQ),
+                                          FREQ = ifelse(grepl("Q1H", Additional_Info), 24, FREQ),
+                                          PRN = ifelse(grepl("PRN", Additional_Info), TRUE, FALSE),
+                                          DAILY_DOSE_MCG = ifelse(is.na(DOSE_MCG), NA, DOSE_MCG * ifelse(is.na(FREQ), 1, FREQ)),
+                                          DAILY_DOSE_PUFF = ifelse(is.na(DOSE_PUFF), NA, DOSE_PUFF * ifelse(is.na(FREQ), 1, FREQ)),
+                                          DAILY_DOSE = ifelse(!is.na(DAILY_DOSE_MCG), str_c("MCG: ", DAILY_DOSE_MCG), NA),
+                                          DAILY_DOSE = ifelse(!is.na(DAILY_DOSE_PUFF), str_c("Puffs: ", DAILY_DOSE_PUFF), DAILY_DOSE),
+                                          DAILY_DOSE = ifelse(is.na(DAILY_DOSE) & !is.na(FREQ), str_c("FREQ: ", FREQ), DAILY_DOSE),
+                                          NOTES = ifelse(PRN, "Prescribed as needed", ""),
+                                          NOTES = ifelse(is.na(DAILY_DOSE) | grepl("FREQ", DAILY_DOSE), str_c(NOTES, ifelse(NOTES == "", "", "; "), "Unknown dosage"), NOTES), 
+                                          NOTES = ifelse(is.na(FREQ), str_c(NOTES, ifelse(NOTES == "", "", "; "), "Unknown frequency"), NOTES)) %>%
+      select(-c(DOSE_MCG, DOSE_MG, DOSE_ML, DOSE_MG_ML, DOSE_MG_ML_mg, DOSE_MG_ML_ml, DOSE_PUFF, FREQ, PRN))
+  }  
   if ("Medication_Date_Detail" %in% names(Medications)){
     Med_abn <- Medications %>% filter(Medication_Date_Detail == "Removed")
     if (nrow(Med_abn) > 0){
