@@ -40,8 +40,7 @@ process_physical <- function(DF_to_fill = All_merged,
       BMI <- BMI %>% unique()
     }
     rm(Phy_abn)
-    BMI <- BMI %>% mutate(Result = as.numeric(Result),
-                          Date = mdy(Date))
+    BMI <- BMI %>% mutate(Result = as.numeric(Result))
     loginfo(str_c("Using ", Underweight_Normal, ", ", Normal_Overweight,", and ",
                   Overweight_Obese, " as thresholds between Underweight, Normal, Overweight, and Obese"))
     
@@ -197,7 +196,7 @@ process_physical_date <- function(DF_to_fill = All_merged,
   loginfo("Restricting prescription by cutoff...")
   # Restrict ids to only the ones in the reduced id list
   Phy <- Phy %>% filter(EMPI %in% DF_to_fill$EMPI)
-  Phy <- Phy %>% mutate(Date = mdy(Date)) %>% arrange(EMPI, Date)
+  Phy <- Phy %>% arrange(EMPI, Date)
   if (!sum(str_count(DF_to_fill %>% pull(Date_Column)) == 10) == nrow(DF_to_fill)){
     EMPI_Date_Limit <- DF_to_fill %>% select(EMPI, Date_Column) %>%
       rename(Cutoff_Date_Time = Date_Column) %>%
