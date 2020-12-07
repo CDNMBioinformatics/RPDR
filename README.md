@@ -14,6 +14,8 @@ General code and functions for processing/cleaning RPDR data lives here as well 
 
 - How to run analysis that cleaned RPDR data for Covid Vitamin D study: https://changit.bwh.harvard.edu/resta/RPDR_Covid_VitD
 
+- How to run analysis that cleaned RPDR data for Covid Positive study: https://changit.bwh.harvard.edu/resta/RPDR_Covid_Positive
+
 ## Script Descriptions
 
 Start_Cleaning.R
