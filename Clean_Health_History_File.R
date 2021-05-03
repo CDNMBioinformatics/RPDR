@@ -14,7 +14,8 @@ process_physical <- function(DF_to_fill = All_merged,
                              Normal_Overweight = config$BMI_params$Normal_Overweight,
                              Overweight_Obese = config$BMI_params$Overweight_Obese,
                              Return_Influenza = TRUE,
-                             Return_Smoker = TRUE){
+                             Return_Smoker = TRUE,
+                             Return_Blood_Pressure = TRUE){
   loginfo("Processing Health History & Physical Findings data...")
   Phy <- data.table(fread(str_c(input_file_header, "Phy", input_file_ending))) %>% arrange(EMPI)
   if (!dir.exists(path_phy_abn)) {dir.create(path_phy_abn)}
@@ -165,6 +166,121 @@ process_physical <- function(DF_to_fill = All_merged,
     DF_to_fill <- DF_to_fill %>%
       mutate(Smoker_Former_or_Current = ifelse(is.na(Smoker_Former_or_Current), "No", Smoker_Former_or_Current))
     rm(Output_Columns, Smoker)
+  }
+  if (Return_Blood_Pressure){
+    BP <- Phy %>% filter(grepl("Blood [Pp]", Concept_Name))
+    readings <- BP %>% group_by(EMPI, Date) %>% summarise(count = n(),
+                                                          results = paste(Result, collapse = ";"))
+    readings_pure <- BP %>% filter(grepl("^\\d", Result)) %>% group_by(EMPI, Date) %>% summarise(count = n(),
+                                                                                                 results = paste(Result, collapse = ";"))
+    BP %>% filter(grepl("^\\d+[^/]\\d+$", Result))
+    Phy %>% filter(grepl("Dias|Syst", Concept_Name)) %>% group_by(Concept_Name, Code) %>% summarise(n())
+    BP <- Phy %>% filter(grepl("Blood [Pp]|Systolic/Diastolic", Concept_Name),
+                         grepl("^\\d+/\\d+$", Result)) %>%
+      separate(Result, c("Systolic", "Diastolic"), sep = "/", remove = FALSE) %>%
+      mutate(Systolic = as.numeric(Systolic),
+             Diastolic = as.numeric(Diastolic)) %>%
+      mutate(Pulse_Pressure = Systolic - Diastolic,
+             PP_Check = round(Pulse_Pressure/Systolic, 2)) %>% # This should be around 1/3
+      # if BP is 5digits/2 digits it should actual first3digits/last2digits and the /2 digits is a different metric that got clumped in
+      mutate(Diastolic = ifelse(floor(log10(Systolic)) + 1 > 4,
+                                Systolic %% 100,
+                                Diastolic),
+             Systolic = ifelse(floor(log10(Systolic)) + 1 > 4,
+                               floor(Systolic/100),
+                               Systolic)) %>%
+      # A Diastolic less that 10 is not a thing (You are very likely dead at that point). Probably lost a zero along the way.
+      mutate(Diastolic = ifelse(floor(log10(Diastolic)) + 1 == 1,
+                                Diastolic*10,
+                                Diastolic)) %>%
+      # A Systolic more than 300 is not a thing (you are definitely dead at that point). Probably a weird truncation.
+      mutate(Systolic = ifelse(floor(log10(Systolic)) + 1 > 3,
+                               floor(Systolic/10),
+                               Systolic)) %>%
+      # Systolic should be greater than Diastolic
+      mutate(Diastolic = ifelse(Pulse_Pressure < 0 & Diastolic >= 200,
+                                Diastolic/10,
+                                Diastolic),
+             Systolic = ifelse(Pulse_Pressure < 0 & Systolic <= 50,
+                               Systolic*10,
+                               Systolic)) %>%
+      mutate(Pulse_Pressure = Systolic - Diastolic,
+             PP_Check = round(Pulse_Pressure/Systolic, 2)) %>% # This should be around 1/3
+      # If at this point there's still values that have a negative Pulse_Pressure, it's an entry error that's not easily fixable
+      filter(Pulse_Pressure > 0) %>%
+      mutate(Category = ifelse(Systolic < 120 & Diastolic < 80,
+                               "Normal",
+                               ifelse(Systolic < 130 & Diastolic < 80,
+                                      "Elevated",
+                                      ifelse ((Systolic >= 30 & Systolic < 140) | (Diastolic >= 80 & Diastolic < 90),
+                                              "High Blood Pressure: Stage 1",
+                                              ifelse((Systolic >= 140 & Systolic < 180) | (Diastolic >= 90 & Diastolic < 120),
+                                                     "High Blood Pressure: Stage 2",
+                                                     ifelse(Systolic >= 180 | Diastolic >= 120,
+                                                            "Hypertensive Crisis",
+                                                            "Other"))))))
+    Output_Columns <- BP %>% group_by(EMPI, Category) %>% arrange(Date) %>%
+      summarise(n())
+    Output_Columns <- BP %>% group_by(EMPI) %>% arrange(Date) %>%
+      summarise(BP = "Yes",
+                BP_number_recorded = n())
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+    DF_to_fill <- DF_to_fill %>% mutate(BP = ifelse(is.na(BP), "No", BP),
+                                        BP_number_recorded = ifelse(is.na(BP_number_recorded),
+                                                                     0, BP_number_recorded))
+    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == "Normal") %>%
+      summarise(BP_Normal = "Yes",
+                BP_Normal_number_recorded = n())
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+    DF_to_fill <- DF_to_fill %>% mutate(BP_Normal = ifelse(is.na(BP_Normal), "No", BP_Normal),
+                                        BP_Normal_number_recorded = ifelse(is.na(BP_Normal_number_recorded),
+                                                                    0, BP_Normal_number_recorded))
+    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == "Elevated") %>%
+      summarise(BP_Elevated = "Yes",
+                BP_Elevated_number_recorded = n())
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+    DF_to_fill <- DF_to_fill %>% mutate(BP_Elevated = ifelse(is.na(BP_Elevated), "No", BP_Elevated),
+                                        BP_Elevated_number_recorded = ifelse(is.na(BP_Elevated_number_recorded),
+                                                                           0, BP_Elevated_number_recorded))
+    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == "High Blood Pressure: Stage 1") %>%
+      summarise(BP_High_Blood_Pressure_Stage_1 = "Yes",
+                BP_High_Blood_Pressure_Stage_1_number_recorded = n())
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+    DF_to_fill <- DF_to_fill %>% mutate(BP_High_Blood_Pressure_Stage_1 = ifelse(is.na(BP_High_Blood_Pressure_Stage_1), "No", BP_High_Blood_Pressure_Stage_1),
+                                        BP_High_Blood_Pressure_Stage_1_number_recorded = ifelse(is.na(BP_High_Blood_Pressure_Stage_1_number_recorded),
+                                                                           0, BP_High_Blood_Pressure_Stage_1_number_recorded))
+    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == "High Blood Pressure: Stage 2") %>%
+      summarise(BP_High_Blood_Pressure_Stage_2 = "Yes",
+                BP_High_Blood_Pressure_Stage_2_number_recorded = n())
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+    DF_to_fill <- DF_to_fill %>% mutate(BP_High_Blood_Pressure_Stage_2 = ifelse(is.na(BP_High_Blood_Pressure_Stage_2), "No", BP_High_Blood_Pressure_Stage_2),
+                                        BP_High_Blood_Pressure_Stage_2_number_recorded = ifelse(is.na(BP_High_Blood_Pressure_Stage_2_number_recorded),
+                                                                                                0, BP_High_Blood_Pressure_Stage_2_number_recorded))
+    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == "Hypertensive Crisis") %>%
+      summarise(BP_Hypertensive_Crisis = "Yes",
+                BP_Hypertensive_Crisis_number_recorded = n())
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+    DF_to_fill <- DF_to_fill %>% mutate(BP_Hypertensive_Crisis = ifelse(is.na(BP_Hypertensive_Crisis), "No", BP_Hypertensive_Crisis),
+                                        BP_Hypertensive_Crisis_number_recorded = ifelse(is.na(BP_Hypertensive_Crisis_number_recorded),
+                                                                                                0, BP_Hypertensive_Crisis_number_recorded))
+    Output_Columns <- DF_to_fill %>% filter(BP == "Yes") %>%
+      mutate(BP_largest_count = pmax(BP_Normal_number_recorded,
+                                    BP_Elevated_number_recorded,
+                                    BP_High_Blood_Pressure_Stage_1_number_recorded,
+                                    BP_High_Blood_Pressure_Stage_2_number_recorded,
+                                    BP_Hypertensive_Crisis_number_recorded,
+                                    na.rm = TRUE),
+             BP_probable_category = ifelse(BP_largest_count == BP_Normal_number_recorded,
+                                           "Normal",
+                                           ifelse(BP_largest_count == BP_Elevated_number_recorded,
+                                                  "Elevated",
+                                                  ifelse(BP_largest_count == BP_High_Blood_Pressure_Stage_1_number_recorded,
+                                                         "High Blood Pressure: Stage 1",
+                                                         ifelse(BP_largest_count == BP_High_Blood_Pressure_Stage_2_number_recorded,
+                                                                "High Blood Pressure: Stage 2",
+                                                                "Hypertensive Crisis")))))
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns)
+    rm(BP, Output_Columns)
   }
   return(DF_to_fill)
 }
