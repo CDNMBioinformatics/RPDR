@@ -1,0 +1,977 @@
+Medication,Medication_Name,Additional_Info,FREQ,Dose_By_Name_MCG,Dose_By_Puff_MCG,Dose_By_Information
+Beclomethasone 80 mcg inhaler,Beclomethasone dipropionate,,,80,80,80
+Beclomethasone dipr(qvar) 40 mcg aer wadap 7.3 gm,Beclomethasone dipropionate,,,40,40,80
+Beclomethasone dipr(qvar) 80 mcg aer wadap 7.3 gm,Beclomethasone dipropionate,,,80,80,80
+Beclomethasone dipropionate - LMR 3836,Beclomethasone dipropionate,,,,,120
+Beclomethasone dipropionate - LMR 3836,Beclomethasone dipropionate,DOSE=0.04 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,80,80
+Beclomethasone dipropionate - LMR 3836,Beclomethasone dipropionate,DOSE=0.04 MG; DOSETYPE=R; FREQ=TID; ROUTE=INH,3,,120,120
+Beclomethasone dipropionate - LMR 3836,Beclomethasone dipropionate,DOSE=0.08 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,160,160
+Beclomethasone dipropionate 40 mcg aer w/adap 8.7gm aer w/adap,Beclomethasone dipropionate,,,40,40,80
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,,,40,40,80
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=1 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,40,80,80
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,40,80,80
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,40,40,40
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=1 PUFF; FREQ=PRN; ROUTE=Inhl,,40,40,40
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=1 PUFF; FREQ=QAM; ROUTE=Inhl,1,40,40,40
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=1 PUFF; ROUTE=Inhl,,40,40,40
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=2 PUFF; FREQ=BID PRN;,2,40,160,160
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=2 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,40,160,160
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=2 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,40,160,160
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,40,160,160
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=2 PUFF; FREQ=Daily PRN; ROUTE=Inhl,1,40,80,80
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,40,80,80
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=2 PUFF; FREQ=PRN; ROUTE=Inhl,,40,80,80
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=2 PUFF; FREQ=See Admin Instructions; ROUTE=Inhl,,40,80,80
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=2 PUFF; ROUTE=Inhl,,40,80,80
+Beclomethasone Dipropionate 40 mcg/Actuation Aerosol Inhaler,Beclomethasone dipropionate,DOSE=3 PUFF; FREQ=BID; ROUTE=Inhl,2,40,240,240
+Beclomethasone dipropionate 80 mcg aer w/adap 8.7gm aer w/adap,Beclomethasone dipropionate,,,80,80,80
+Beclomethasone dipropionate oral inhalation 40 mcg/puff - LMR 71,Beclomethasone dipropionate,,,40,40,80
+Beclomethasone dipropionate oral inhalation 40 mcg/puff - LMR 71,Beclomethasone dipropionate,DOSE=0.08 MG; FREQ=BID; ROUTE=INH,2,40,160,160
+Beclomethasone dipropionate oral inhalation 40 mcg/puff - LMR 71,Beclomethasone dipropionate,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,40,80,80
+Beclomethasone dipropionate oral inhalation 40 mcg/puff - LMR 71,Beclomethasone dipropionate,DOSE=1 PUFFS; DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,40,40,40
+Beclomethasone dipropionate oral inhalation 40 mcg/puff - LMR 71,Beclomethasone dipropionate,DOSE=1 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,40,40,40
+Beclomethasone dipropionate oral inhalation 40 mcg/puff - LMR 71,Beclomethasone dipropionate,DOSE=1 PUFFS; FREQ=BID; ROUTE=INH,2,40,80,80
+Beclomethasone dipropionate oral inhalation 40 mcg/puff - LMR 71,Beclomethasone dipropionate,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,40,160,160
+Beclomethasone dipropionate oral inhalation 40 mcg/puff - LMR 71,Beclomethasone dipropionate,DOSE=2 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,40,80,80
+Beclomethasone dipropionate oral inhalation 40 mcg/puff - LMR 71,Beclomethasone dipropionate,DOSE=2 PUFFS; DOSETYPE=R; FREQ=QPM; ROUTE=INH,1,40,80,80
+Beclomethasone dipropionate oral inhalation 40 mcg/puff - LMR 71,Beclomethasone dipropionate,DOSE=2 PUFFS; DOSETYPE=R; FREQ=TID; ROUTE=INH,3,40,240,240
+Beclomethasone dipropionate oral inhalation 40 mcg/puff - LMR 71,Beclomethasone dipropionate,DOSE=2 PUFFS; FREQ=BID; ROUTE=INH,2,40,160,160
+Beclomethasone dipropionate oral inhalation 40 mcg/puff - LMR 71,Beclomethasone dipropionate,DOSE=2 PUFFS; FREQ=QD; ROUTE=INH,1,40,80,80
+Beclomethasone dipropionate oral inhalation 40 mcg/puff - LMR 71,Beclomethasone dipropionate,DOSE=2 PUFFS; FREQ=TID; ROUTE=INH,3,40,240,240
+Beclomethasone dipropionate oral inhalation 40 mcg/puff - LMR 71,Beclomethasone dipropionate,FREQ=BID; ROUTE=INH,2,40,80,80
+Beclomethasone dipropionate oral inhalation 80 mcg/puff - LMR 4638,Beclomethasone dipropionate,,,80,80,160
+Beclomethasone dipropionate oral inhalation 80 mcg/puff - LMR 4638,Beclomethasone dipropionate,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,80,160,160
+Beclomethasone dipropionate oral inhalation 80 mcg/puff - LMR 4638,Beclomethasone dipropionate,DOSE=1 PUFFS; DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,80,80,80
+Beclomethasone dipropionate oral inhalation 80 mcg/puff - LMR 4638,Beclomethasone dipropionate,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,80,320,320
+Beclomethasone dipropionate oral inhalation 80 mcg/puff - LMR 4638,Beclomethasone dipropionate,DOSE=2 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,80,160,160
+Beclomethasone dipropionate oral inhalation 80 mcg/puff - LMR 4638,Beclomethasone dipropionate,DOSE=2 PUFFS; DOSETYPE=R; ROUTE=INH,,80,160,160
+Beclomethasone dipropionate oral inhalation 80 mcg/puff - LMR 4638,Beclomethasone dipropionate,DOSE=2 PUFFS; FREQ=BID; ROUTE=INH,2,80,320,320
+Beclomethasone dipropionate oral inhalation 80 mcg/puff - LMR 4638,Beclomethasone dipropionate,DOSE=4 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,80,640,640
+Beclomethasone dipropionate oral inhalation 80 mcg/puff - LMR 4638,Beclomethasone dipropionate,DOSE=80 PUFFS; FREQ=BID; ROUTE=INH,2,80,160,160
+Beclomethasone inhaler-oncall,Beclomethasone dipropionate,,,,,80
+Qvar 40 mcg/Actuation Metered Aerosol Oral Inhaler,Beclomethasone dipropionate,,,40,40,80
+Qvar 80 mcg/Actuation Metered Aerosol Oral Inhaler,Beclomethasone dipropionate,,,80,80,80
+Qvar-oncall,Beclomethasone dipropionate,,,,,80
+Betamet acet/betamet na ph 12mg vial 2ml vial,Betamethasone,,,6000,6000,6000
+Betamet acet/betamet na ph 6 mg/ml vial 5ml vial,Betamethasone,,,6000,6000,6000
+Betamethasone Acetate And Sodium Phos 6 mg/ml Suspension For Injection,Betamethasone,,,6000,6000,12000
+Betamethasone Acetate And Sodium Phos 6 mg/ml Suspension For Injection,Betamethasone,DOSE=1 MG; FREQ=Once; ROUTE=Syno,1,6000,1000,1000
+Betamethasone Acetate And Sodium Phos 6 mg/ml Suspension For Injection,Betamethasone,DOSE=12 MG; FREQ=Daily; ROUTE=IM,1,6000,12000,12000
+Betamethasone Acetate And Sodium Phos 6 mg/ml Suspension For Injection,Betamethasone,DOSE=12 MG; FREQ=Daily; ROUTE=See Adm Inst,1,6000,12000,12000
+Betamethasone Acetate And Sodium Phos 6 mg/ml Suspension For Injection,Betamethasone,DOSE=12 MG; FREQ=Once; ROUTE=IAtc,1,6000,12000,12000
+Betamethasone Acetate And Sodium Phos 6 mg/ml Suspension For Injection,Betamethasone,DOSE=12 MG; FREQ=Once; ROUTE=IM,1,6000,12000,12000
+Betamethasone Acetate And Sodium Phos 6 mg/ml Suspension For Injection,Betamethasone,DOSE=12 MG; FREQ=Q24H; ROUTE=IM,1,6000,12000,12000
+Betamethasone Acetate And Sodium Phos 6 mg/ml Suspension For Injection,Betamethasone,DOSE=30 MG; FREQ=Once; ROUTE=IAtc,1,6000,30000,30000
+Betamethasone Acetate And Sodium Phos 6 mg/ml Suspension For Injection,Betamethasone,DOSE=6 MG; FREQ=Once; ROUTE=See Adm Inst,1,6000,6000,6000
+Betamethasone Acetate And Sodium Phos 6 mg/ml Suspension For Injection,Betamethasone,FREQ=Code/Trauma/Sedation Med;,,6000,6000,6000
+Betamethasone soluspan - LMR 78,Betamethasone,,,,,6000
+Budesonide - LMR 3748,Budesonide,,,,,
+Budesonide - LMR 3748,Budesonide,DOSE=3 MG; DOSETYPE=R; FREQ=QD; ROUTE=PO,1,,,
+Budesonide - LMR 3748,Budesonide,DOSE=3 MG; FREQ=QD; ROUTE=PO,1,,,
+Budesonide - LMR 3748,Budesonide,DOSE=6 MG; DOSETYPE=R; FREQ=QD; ROUTE=PO,1,,,
+Budesonide - LMR 3748,Budesonide,DOSE=9 MG; DOSETYPE=R; FREQ=QAM; ROUTE=PO,1,,,
+Budesonide - LMR 3748,Budesonide,DOSE=9 MG; DOSETYPE=R; FREQ=QD; ROUTE=PO,1,,,
+Budesonide - LMR 3748,Budesonide,DOSE=9 MG; FREQ=QAM; ROUTE=PO,1,,,
+Budesonide - LMR 3748,Budesonide,DOSE=9 MG; FREQ=QD; ROUTE=PO,1,,,
+Budesonide - LMR 3748,Budesonide,DOSETYPE=R; FREQ=QD; ROUTE=PO,1,,,
+Budesonide - LMR 3748,Budesonide,FREQ=QD; ROUTE=PO,1,,,
+Budesonide 0.25 mg/2 ml Suspension For Nebulization,Budesonide,,,125,125,250
+Budesonide 0.25 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.25 MG; FREQ=BID PRN; ROUTE=Nebu,2,125,250,250
+Budesonide 0.25 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.25 MG; FREQ=BID RESP; ROUTE=Nebu,2,125,250,250
+Budesonide 0.25 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.25 MG; FREQ=BID; ROUTE=Nebu,2,125,250,250
+Budesonide 0.25 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.25 MG; FREQ=BID; ROUTE=Oral,2,125,250,250
+Budesonide 0.25 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.25 MG; FREQ=Daily PRN;,1,125,125,125
+Budesonide 0.25 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.25 MG; FREQ=Daily PRN; ROUTE=Nebu,1,125,125,125
+Budesonide 0.25 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.25 MG; FREQ=Daily; ROUTE=Nebu,1,125,125,125
+Budesonide 0.25 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.25 MG; FREQ=Once; ROUTE=Nebu,1,125,125,125
+Budesonide 0.25 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.25 MG; FREQ=TID; ROUTE=Nebu,3,125,375,375
+Budesonide 0.25 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=BID; ROUTE=Nebu,2,125,500,500
+Budesonide 0.25 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=1 MG; FREQ=Daily; ROUTE=Nebu,1,125,500,500
+Budesonide 0.25 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=1 VIAL; ROUTE=Inhl,,125,125,125
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,,,250,250,500
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.25 MG; FREQ=BID RESP; ROUTE=Nebu,2,250,500,500
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.25 MG; FREQ=BID; ROUTE=Nebu,2,250,500,500
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.25 MG; FREQ=Daily PRN; ROUTE=Nebu,1,250,250,250
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=4x Daily; ROUTE=Nebu,4,250,1000,1000
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=BID Diuretic; ROUTE=Nebu,2,250,500,500
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=BID PRN; ROUTE=Inhl,2,250,500,500
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=BID PRN; ROUTE=Nebu,2,250,500,500
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=BID RESP; ROUTE=Nebu,2,250,500,500
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=BID; ROUTE=Inhl,2,250,500,500
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=BID; ROUTE=Nasl,2,250,500,500
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=BID; ROUTE=Nebu,2,250,500,500
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=Daily PRN; ROUTE=Nebu,1,250,250,250
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=Daily RESP; ROUTE=Nebu,1,250,250,250
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=Daily; ROUTE=Inhl,1,250,250,250
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=Daily; ROUTE=Nebu,1,250,250,250
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=Q12H PRN; ROUTE=Nebu,2,250,500,500
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=Q8H; ROUTE=Nebu,3,250,750,750
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.75 MG; FREQ=BID RESP; ROUTE=Nebu,2,250,750,750
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.75 MG; FREQ=BID; ROUTE=Nebu,2,250,750,750
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=1 MG; FREQ=BID; ROUTE=Nebu,2,250,1000,1000
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=1 mL; FREQ=BID; ROUTE=Nebu,2,250,500,500
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=1 mL; FREQ=Daily; ROUTE=Nebu,1,250,250,250
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=1 mL; FREQ=PRN; ROUTE=Nebu,,250,250,250
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=1 mL; FREQ=See Admin Instructions; ROUTE=Nebu,,250,250,250
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=2 MG; FREQ=Daily; ROUTE=Nebu,1,250,1000,1000
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=2 mL; FREQ=BID PRN; ROUTE=Nebu,2,250,1000,1000
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=2 mL; FREQ=BID; ROUTE=Inhl,2,250,1000,1000
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=2 mL; FREQ=BID; ROUTE=Nebu,2,250,1000,1000
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=2 mL; FREQ=Daily; ROUTE=Nebu,1,250,500,500
+Budesonide 0.5 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=500 MCG; FREQ=BID; ROUTE=Inhl,2,250,1000,1000
+Budesonide 0.5mg ampul-neb 2ml vial,Budesonide,,,250,250,250
+Budesonide 0.5mg ampul-neb.2 ml,Budesonide,,,250,250,250
+Budesonide 0.6 mg Intranasal Solution Cmpd,Budesonide,,,300,300,300
+Budesonide 0.6 mg Intranasal Solution Cmpd,Budesonide,DOSE=1 SPRAY; FREQ=Daily; ROUTE=Intranasal,1,300,300,300
+Budesonide 0.6 mg Intranasal Solution Cmpd,Budesonide,DOSE=1 SPRAY; ROUTE=Intranasal,,300,300,300
+Budesonide 1 mg/2 ml Suspension For Nebulization,Budesonide,,,500,500,2000
+Budesonide 1 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=0.5 MG; FREQ=BID; ROUTE=Nebu,2,500,1000,1000
+Budesonide 1 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=1 MG; FREQ=BID Diuretic; ROUTE=Nebu,2,500,2000,2000
+Budesonide 1 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=1 MG; FREQ=BID; ROUTE=Nebu,2,500,2000,2000
+Budesonide 1 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=1 MG; FREQ=Daily; ROUTE=Nebu,1,500,1000,1000
+Budesonide 1 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=1 mL; FREQ=See Admin Instructions; ROUTE=Nebu,,500,500,500
+Budesonide 1 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=2 MG; FREQ=BID; ROUTE=Nebu,2,500,2000,2000
+Budesonide 1 mg/2 ml Suspension For Nebulization,Budesonide,DOSE=4 mL; FREQ=BID; ROUTE=Nebu,2,500,2000,2000
+Budesonide 180 mcg aer pow ba 1 ea canister,Budesonide,,,180,180,180
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,,,180,180,360
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=1 PUFF;,,180,180,180
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=1 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,180,360,360
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,180,360,360
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,180,180,180
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=1 PUFF; FREQ=PRN; ROUTE=Inhl,,180,180,180
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=1 PUFF; FREQ=TID; ROUTE=Inhl,3,180,540,540
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=1 PUFF; ROUTE=Inhl,,180,180,180
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=180 PUFF;,,180,180,180
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=180 PUFF; FREQ=BID; ROUTE=Inhl,2,180,360,360
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=2 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,180,720,720
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=2 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,180,720,720
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,180,720,720
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,180,360,360
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=2 PUFF; FREQ=Nightly; ROUTE=Inhl,1,180,360,360
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=2 PUFF; FREQ=QPM; ROUTE=Inhl,1,180,360,360
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=2 PUFF; FREQ=TID; ROUTE=Inhl,3,180,1080,1080
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=2 PUFF; ROUTE=Inhl,,180,360,360
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=3 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,180,1080,1080
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=3 PUFF; FREQ=BID; ROUTE=Inhl,2,180,1080,1080
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=4 PUFF; FREQ=BID; ROUTE=Inhl,2,180,1440,1440
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,PUFF; FREQ=BID; ROUTE=Inhl,2,180,360,360
+Budesonide 180 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,PUFF; FREQ=See Admin Instructions; ROUTE=Inhl,,180,180,180
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,,,90,90,180
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=1 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,90,180,180
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,90,180,180
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,90,90,90
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=1 PUFF; FREQ=PRN; ROUTE=Inhl,,90,90,90
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=2 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,90,360,360
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=2 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,90,360,360
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,90,360,360
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,90,180,180
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=2 PUFF; FREQ=QOD; ROUTE=Inhl,0.5,90,90,90
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=3 PUFF; FREQ=BID; ROUTE=Inhl,2,90,540,540
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,DOSE=4 PUFF; FREQ=BID; ROUTE=Inhl,2,90,720,720
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,FREQ=BID; ROUTE=Inhl,2,90,180,180
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,PUFF; FREQ=BID; ROUTE=Inhl,2,90,180,180
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,PUFF; FREQ=Daily; ROUTE=Inhl,1,90,90,90
+Budesonide 90 mcg/Actuation Breath Activated Powder Inhaler,Budesonide,ROUTE=Inhl,,90,90,90
+Budesonide inh powder 180 mcg,Budesonide,,,180,180,180
+Budesonide inhalation powder 9,Budesonide,,,,,360
+Budesonide Inhl,Budesonide,,,,,360
+Budesonide Inhl,Budesonide,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,,,360
+Budesonide nebulizer susp - LMR 4113,Budesonide,,,,,500
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=0.25 MG; DOSETYPE=R; FREQ=BID; ROUTE=NEB,2,,500,500
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=0.25 MG; DOSETYPE=R; FREQ=QD; ROUTE=NEB,1,,250,250
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=0.25 MG; DOSETYPE=R; FREQ=QPM; ROUTE=NEB,1,,250,250
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=0.25 MG; FREQ=BID; ROUTE=NEB,2,,500,500
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=0.25 MG; FREQ=QD; ROUTE=NEB,1,,250,250
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=0.25 MG; FREQ=UD; ROUTE=NEB,,,250,250
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=0.5 MG; DOSETYPE=R; FREQ=BID; ROUTE=NEB,2,,1000,1000
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=0.5 MG; DOSETYPE=R; FREQ=QD; ROUTE=NEB,1,,500,500
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=0.5 MG; DOSETYPE=R; FREQ=QID; ROUTE=NEB,4,,2000,2000
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=0.5 MG; DOSETYPE=R; FREQ=TID; ROUTE=NEB,3,,1500,1500
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=0.5 MG; DOSETYPE=R; ROUTE=NEB,,,500,500
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=0.5 MG; FREQ=BID; ROUTE=INH,2,,1000,1000
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=0.5 MG; FREQ=BID; ROUTE=NEB,2,,1000,1000
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=0.5 MG; FREQ=QD; ROUTE=NEB,1,,500,500
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=1 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,2000,2000
+Budesonide nebulizer susp - LMR 4113,Budesonide,DOSE=1 MG; DOSETYPE=R; FREQ=BID; ROUTE=NEB,2,,2000,2000
+Budesonide nebulizer susp - LMR 4113,Budesonide,FREQ=QD; ROUTE=NEB,1,,,500
+Budesonide nebulizer suspension-oncall,Budesonide,,,,,500
+Budesonide oral inhaler (pulmicort) - LMR 2895,Budesonide,,,,,400
+Budesonide oral inhaler (pulmicort) - LMR 2895,Budesonide,DOSE=0.2 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,400,400
+Budesonide oral inhaler (pulmicort) - LMR 2895,Budesonide,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,,400
+Budesonide oral inhaler (pulmicort) - LMR 2895,Budesonide,DOSE=1 PUFFS; FREQ=BID; ROUTE=INH,2,,,400
+Budesonide oral inhaler (pulmicort) - LMR 2895,Budesonide,DOSE=2 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,,,400
+Budesonide oral inhaler (pulmicort) - LMR 2895,Budesonide,DOSE=2 PUFFS; FREQ=QD; ROUTE=INH,1,,,400
+Budesonide oral inhaler (pulmicort) - LMR 2895,Budesonide,FREQ=BID; ROUTE=INH,2,,,400
+Budesonide/formoterol fumarate 80 -4.5 mcg hfa aer ad 6.9gm aer w/adap,Budesonide,,,80,80,80
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,,,180,180,360
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=0.18 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,180,360,360
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=0.18 MG; DOSETYPE=R; FREQ=QHS; ROUTE=INH,1,180,180,180
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=0.18 MG; FREQ=BID; ROUTE=INH,2,180,360,360
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=0.36 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,180,720,720
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=0.36 MG; DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,180,360,360
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=0.36 MG; FREQ=BID; ROUTE=INH,2,180,720,720
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=0.36 MG; FREQ=QAM; ROUTE=INH,1,180,360,360
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=0.54 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,180,1080,1080
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=0.72 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,180,1440,1440
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=0.72 MG; DOSETYPE=R; FREQ=UD; ROUTE=INH,,180,720,720
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=0.72 MG; FREQ=UD; ROUTE=INH,,180,720,720
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,180,360,360
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=1 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,180,180,180
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=1 PUFFS; FREQ=BID; ROUTE=INH,2,180,360,360
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,180,720,720
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=2 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,180,360,360
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=2 PUFFS; FREQ=BID; ROUTE=INH,2,180,720,720
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=2 PUFFS; FREQ=QD; ROUTE=INH,1,180,360,360
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=2 PUFFS; FREQ=QHS; ROUTE=INH,1,180,360,360
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=3 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,180,1080,1080
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=3 PUFFS; FREQ=BID; ROUTE=INH,2,180,1080,1080
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=4 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,180,1440,1440
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=4 PUFFS; FREQ=BID; ROUTE=INH,2,180,1440,1440
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSE=6 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,180,2160,2160
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSETYPE=R; FREQ=QD; ROUTE=INH,1,180,180,180
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,DOSETYPE=R; ROUTE=INH,,180,180,180
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,FREQ=BID; ROUTE=INH,2,180,360,360
+Pulmicort flexhaler 180 mcg (budesonide inhalation powder 180 mcg) - LMR 5913,Budesonide,ROUTE=INH,,180,180,180
+Pulmicort Flexhaler 180 mcg/Actuation Breath Activated,Budesonide,,,180,180,180
+Pulmicort flexhaler 90 mcg (budesonide inhalation powder 90 mcg) - LMR 5914,Budesonide,,,90,90,180
+Pulmicort flexhaler 90 mcg (budesonide inhalation powder 90 mcg) - LMR 5914,Budesonide,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,90,180,180
+Pulmicort flexhaler 90 mcg (budesonide inhalation powder 90 mcg) - LMR 5914,Budesonide,DOSE=1 PUFFS; DOSETYPE=R; ROUTE=INH,,90,90,90
+Pulmicort flexhaler 90 mcg (budesonide inhalation powder 90 mcg) - LMR 5914,Budesonide,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,90,360,360
+Pulmicort flexhaler 90 mcg (budesonide inhalation powder 90 mcg) - LMR 5914,Budesonide,DOSE=2 PUFFS; FREQ=BID; ROUTE=INH,2,90,360,360
+Pulmicort flexhaler 90 mcg (budesonide inhalation powder 90 mcg) - LMR 5914,Budesonide,DOSETYPE=R; ROUTE=INH,,90,90,90
+Pulmicort Flexhaler 90 mcg/Actuation Breath Activated,Budesonide,,,90,90,90
+Pulmicort flexhaler-oncall,Budesonide,,,,,180
+Pulmicort Inhl,Budesonide,,,,,180
+Pulmicort Inhl,Budesonide,DOSE=1 PUFF; FREQ=PRN; ROUTE=Inhl,,,,180
+Pulmicort Inhl,Budesonide,DOSE=180 MCG; ROUTE=Inhl,,,180,180
+Pulmicort Inhl,Budesonide,FREQ=Daily; ROUTE=Inhl,1,,,180
+Pulmicort Inhl,Budesonide,ROUTE=Inhl,,,,180
+Pulmicort respules .25 mg/2ml 2ml ea,Budesonide,,,125,125,125
+Pulmicort respules 0.25 mg/ml suspension,Budesonide,,,250,250,250
+Pulmicort respules-oncall,Budesonide,,,,,250
+Pulmicort turbuhaler 200 mcg/inh aerosol with adapter,Budesonide,,,200,200,200
+Pulmicort-oncall,Budesonide,,,,,180
+Budesonide and formoterol-oncall,Budesonide/formoterol,,,,,320
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,,,160,160,320
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=1 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,160,320,320
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=1 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,160,320,320
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,160,320,320
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=1 PUFF; FREQ=Daily PRN; ROUTE=Inhl,1,160,160,160
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,160,160,160
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=1 PUFF; FREQ=PRN; ROUTE=Inhl,,160,160,160
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,160,640,640
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,160,640,640
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,160,640,640
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=BID; ROUTE=Oral,2,160,640,640
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=Daily PRN; ROUTE=Inhl,1,160,320,320
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,160,320,320
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=PRN; ROUTE=Inhl,,160,320,320
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=QOD; ROUTE=Inhl,0.5,160,160,160
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=See Admin Instructions; ROUTE=Inhl,,160,320,320
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; ROUTE=Inhl,,160,320,320
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,FREQ=BID; ROUTE=Inhl,2,160,320,320
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,FREQ=PRN;,,160,160,160
+Budesonide-Formoterol Hfa 160 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,PUFF; FREQ=BID; ROUTE=Inhl,2,160,320,320
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,,,80,80,160
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=1 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,80,160,160
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,80,160,160
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,80,80,80
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=160 PUFF; FREQ=BID; ROUTE=Inhl,2,80,320,320
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,80,320,320
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,80,320,320
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,80,320,320
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=Daily PRN; ROUTE=Inhl,1,80,160,160
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,80,160,160
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=PRN; ROUTE=Inhl,,80,160,160
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=QAM; ROUTE=Inhl,1,80,160,160
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,DOSE=80 MCG; FREQ=BID; ROUTE=Inhl,2,80,160,160
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,FREQ=BID PRN;,2,80,160,160
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,FREQ=BID; ROUTE=Inhl,2,80,160,160
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,FREQ=Daily PRN;,1,80,80,80
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,PUFF; FREQ=BID PRN; ROUTE=Inhl,2,80,160,160
+Budesonide-Formoterol Hfa 80 mcg-4.5 mcg/Actuation Aerosol Inhaler,Budesonide/formoterol,PUFF; FREQ=BID; ROUTE=Inhl,2,80,160,160
+Budesonide/formoterol fumarate 160 mcg-4.5 mcg/actuationmg hfa aer ad 6gm aer w/adap,Budesonide/formoterol,,,160,160,160
+Id-Budesonide/Formoterol (2015p001889) Inhalation 160/4.5 mcg,Budesonide/formoterol,,,160,160,160
+Symbicort 160 mcg-4.5 mcg/Actuation Hfa Aerosol Inhaler,Budesonide/formoterol,,,160,160,160
+Symbicort 160 mcg-4.5 mcg/Actuation Hfa Aerosol Inhaler,Budesonide/formoterol,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,160,640,640
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,,,160,160,320
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,160,320,320
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,DOSE=1 PUFFS; FREQ=BID; ROUTE=INH,2,160,320,320
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,DOSE=2 INHALATION; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,160,640,640
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,DOSE=2 INHALATION; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,160,320,320
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,DOSE=2 INHALATION; FREQ=QD; ROUTE=INH,1,160,320,320
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,160,640,640
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,DOSE=2 PUFFS; DOSETYPE=R; FREQ=PRN; ROUTE=INH,,160,320,320
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,DOSE=2 PUFFS; DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,160,320,320
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,DOSE=2 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,160,320,320
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,DOSE=2 PUFFS; DOSETYPE=R; FREQ=QPM; ROUTE=INH,1,160,320,320
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,DOSE=2 PUFFS; DOSETYPE=R; ROUTE=INH,,160,320,320
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,DOSE=2 PUFFS; FREQ=BID; ROUTE=INH,2,160,640,640
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,DOSE=4 PUFFS; DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,160,640,640
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,DOSETYPE=R; FREQ=BID; ROUTE=INH,2,160,320,320
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,DOSETYPE=R; ROUTE=INH,,160,160,160
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,FREQ=BID; ROUTE=INH,2,160,320,320
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,FREQ=UD; ROUTE=INH,,160,160,160
+Symbicort 160/4.5 (budesonide/formoterol 160/4.5)- lmr 6011,Budesonide/formoterol,ROUTE=INH,,160,160,160
+Symbicort 80 mcg-4.5 mcg/Actuation Hfa Aerosol Inhaler,Budesonide/formoterol,,,80,80,160
+Symbicort 80/4.5 (budesonide/formoterol 80/4.5)- lmr 6010,Budesonide/formoterol,,,80,80,160
+Symbicort 80/4.5 (budesonide/formoterol 80/4.5)- lmr 6010,Budesonide/formoterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,80,160,160
+Symbicort 80/4.5 (budesonide/formoterol 80/4.5)- lmr 6010,Budesonide/formoterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,80,160,160
+Symbicort 80/4.5 (budesonide/formoterol 80/4.5)- lmr 6010,Budesonide/formoterol,DOSE=1 PUFFS; FREQ=BID; ROUTE=INH,2,80,160,160
+Symbicort 80/4.5 (budesonide/formoterol 80/4.5)- lmr 6010,Budesonide/formoterol,DOSE=1 PUFFS; ROUTE=INH,,80,80,80
+Symbicort 80/4.5 (budesonide/formoterol 80/4.5)- lmr 6010,Budesonide/formoterol,DOSE=2 INHALATION; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,80,320,320
+Symbicort 80/4.5 (budesonide/formoterol 80/4.5)- lmr 6010,Budesonide/formoterol,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,80,320,320
+Symbicort 80/4.5 (budesonide/formoterol 80/4.5)- lmr 6010,Budesonide/formoterol,DOSE=2 PUFFS; DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,80,160,160
+Symbicort 80/4.5 (budesonide/formoterol 80/4.5)- lmr 6010,Budesonide/formoterol,DOSE=2 PUFFS; FREQ=BID; ROUTE=INH,2,80,320,320
+Symbicort 80/4.5 (budesonide/formoterol 80/4.5)- lmr 6010,Budesonide/formoterol,FREQ=BID; ROUTE=INH,2,80,160,160
+Symbicort Inhl,Budesonide/formoterol,,,,,160
+Symbicort Inhl,Budesonide/formoterol,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,,,160
+Symbicort Inhl,Budesonide/formoterol,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,,,160
+Symbicort Inhl,Budesonide/formoterol,DOSE=84.5 MCG; ROUTE=Inhl,,,80,160
+Symbicort Inhl,Budesonide/formoterol,FREQ=BID; ROUTE=Inhl,2,,,160
+Symbicort Inhl,Budesonide/formoterol,ROUTE=Inhl,,,,160
+Symbicort-oncall,Budesonide/formoterol,,,,,160
+Alvesco 160 mcg/Actuation Aerosol Inhaler,Ciclesonide,,,160,160,160
+Ciclesonide 50 mcg Nasal Spray,Ciclesonide,,,50,50,100
+Ciclesonide 50 mcg Nasal Spray,Ciclesonide,DOSE=2 SPRAY; FREQ=Daily; ROUTE=Each Nare,1,50,100,100
+Ciclesonide 50 mcg Nasal Spray,Ciclesonide,DOSE=2 SPRAY; FREQ=PRN; ROUTE=Each Nare,,50,100,100
+Ciclesonide Hfa 160 mcg/Actuation Aerosol Inhaler,Ciclesonide,,,160,160,640
+Ciclesonide Hfa 160 mcg/Actuation Aerosol Inhaler,Ciclesonide,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,160,320,320
+Ciclesonide Hfa 160 mcg/Actuation Aerosol Inhaler,Ciclesonide,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,160,320,320
+Ciclesonide Hfa 160 mcg/Actuation Aerosol Inhaler,Ciclesonide,DOSE=3 PUFF; FREQ=BID; ROUTE=Inhl,2,160,960,960
+Ciclesonide Hfa 160 mcg/Actuation Aerosol Inhaler,Ciclesonide,DOSE=4 PUFF; FREQ=BID; ROUTE=Inhl,2,160,1280,1280
+Ciclesonide Hfa 160 mcg/Actuation Aerosol Inhaler,Ciclesonide,DOSE=6 PUFF; FREQ=BID; ROUTE=Inhl,2,160,1920,1920
+Ciclesonide Hfa 160 mcg/Actuation Aerosol Inhaler,Ciclesonide,FREQ=Daily; ROUTE=Inhl,1,160,160,160
+Ciclesonide Hfa 80 mcg/Actuation Aerosol Inhaler,Ciclesonide,DOSE=2 PUFF; FREQ=Daily PRN; ROUTE=Inhl,1,80,160,160
+Dexamethasone sod phospha,Dexamethasone,,,,,4000
+Dexamethasone sod phosphate 4 mg/ml vial 1ml vial,Dexamethasone,,,4000,4000,4000
+Aerobid 250 mcg/inh aerosol with adapter,Flunisolide,,,250,250,250
+Aerobid-oncall,Flunisolide,,,,,250
+Flunisolide (aerobid) - LMR 308,Flunisolide,,,,,1000
+Flunisolide (aerobid) - LMR 308,Flunisolide,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,,1000
+Flunisolide (aerobid) - LMR 308,Flunisolide,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=NA,2,,,1000
+Flunisolide (aerobid) - LMR 308,Flunisolide,DOSE=2 PUFFS; FREQ=BID; ROUTE=INH,2,,,1000
+Flunisolide (aerobid) - LMR 308,Flunisolide,DOSETYPE=R; ROUTE=INH,,,,1000
+Flunisolide inhaler-oncall,Flunisolide,,,,,500
+Flunisolide-oncall,Flunisolide,,,,,500
+Arnuity Ellipta 100 mcg/Actuation Powder For Inhalation,Fluticasone,FREQ=Daily; ROUTE=Inhl,1,100,100,100
+Flovent 110 mcg/inh aerosol with adapter,Fluticasone,,,110,110,110
+Flovent 220 mcg/inh aerosol with adapter,Fluticasone,,,220,220,440
+Flovent 44 mcg/inh aerosol with adapter,Fluticasone,,,44,44,88
+Flovent diskus (fluticasone propionate 100 mcg diskus) - LMR 7018,Fluticasone,,,100,100,250
+Flovent diskus (fluticasone propionate 100 mcg diskus) - LMR 7018,Fluticasone,DOSE=1 INHALATION; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,100,200,200
+Flovent diskus (fluticasone propionate 100 mcg diskus) - LMR 7018,Fluticasone,DOSE=1 INHALATION; FREQ=BID; ROUTE=INH,2,100,200,200
+Flovent diskus (fluticasone propionate 100 mcg diskus) - LMR 7018,Fluticasone,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,100,400,400
+Flovent diskus (fluticasone propionate 250 mcg diskus) - LMR 7019,Fluticasone,,,250,250,250
+Flovent diskus (fluticasone propionate 250 mcg diskus) - LMR 7019,Fluticasone,DOSE=1 INHALATION; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,250,500,500
+Flovent diskus (fluticasone propionate 250 mcg diskus) - LMR 7019,Fluticasone,DOSE=1 INHALATION; DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,250,250,250
+Flovent diskus (fluticasone propionate 250 mcg diskus) - LMR 7019,Fluticasone,DOSE=1 INHALATION; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,250,250,250
+Flovent diskus (fluticasone propionate 250 mcg diskus) - LMR 7019,Fluticasone,DOSE=1 INHALATION; DOSETYPE=R; ROUTE=INH,,250,250,250
+Flovent diskus (fluticasone propionate 250 mcg diskus) - LMR 7019,Fluticasone,DOSE=1 INHALATION; FREQ=BID; ROUTE=INH,2,250,500,500
+Flovent diskus (fluticasone propionate 250 mcg diskus) - LMR 7019,Fluticasone,DOSE=2 INHALATION; FREQ=QD; ROUTE=INH,1,250,500,500
+Flovent diskus (fluticasone propionate 250 mcg diskus) - LMR 7019,Fluticasone,DOSE=2 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,250,500,500
+Flovent diskus (fluticasone propionate 250 mcg diskus) - LMR 7019,Fluticasone,DOSETYPE=R; ROUTE=INH,,250,250,250
+Flovent Diskus 100 mcg/Actuation Powder For Inhalation,Fluticasone,,,100,100,100
+Flovent Diskus 250 mcg/Actuation Powder For Inhalation,Fluticasone,,,250,250,250
+Flovent Diskus 50 mcg/Actuation Powder For Inhalation,Fluticasone,,,50,50,100
+Flovent Diskus Inhl,Fluticasone,,,,,250
+Flovent Diskus Inhl,Fluticasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,,,250
+Flovent Diskus Inhl,Fluticasone,FREQ=BID; ROUTE=Inhl,2,,,250
+Flovent Diskus Inhl,Fluticasone,FREQ=PRN; ROUTE=Inhl,,,,100
+Flovent diskus-oncall,Fluticasone,,,,,250
+Flovent Hfa 110 mcg/Actuation Aerosol Inhaler,Fluticasone,,,110,110,110
+Flovent Hfa 110 mcg/Actuation Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,110,220,220
+Flovent Hfa 220 mcg/Actuation Aerosol Inhaler,Fluticasone,,,220,220,220
+Flovent Hfa 220 mcg/Actuation Aerosol Inhaler,Fluticasone,DOSE=220 MCG; FREQ=PRN; ROUTE=Oral,,220,220,220
+Flovent Hfa 220 mcg/Actuation Aerosol Inhaler,Fluticasone,FREQ=BID PRN;,2,220,440,440
+Flovent Hfa 44 mcg/Actuation Aerosol Inhaler,Fluticasone,,,44,44,88
+Flovent Hfa Inhl,Fluticasone,,,,,220
+Flovent Hfa Inhl,Fluticasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,,,220
+Flovent Hfa Inhl,Fluticasone,DOSE=2 PUFF; FREQ=PRN; ROUTE=Inhl,,,,220
+Flovent Hfa Inhl,Fluticasone,DOSE=2 PUFF; FREQ=QAM; ROUTE=Inhl,1,,,220
+Flovent Hfa Inhl,Fluticasone,DOSE=220 MCG; FREQ=BID; ROUTE=Swish & Swal,2,,440,440
+Flovent Hfa Inhl,Fluticasone,DOSE=88 MCG; FREQ=BID PRN; ROUTE=Inhl,2,,176,176
+Flovent Hfa Inhl,Fluticasone,FREQ=PRN; ROUTE=Inhl,,,,88
+Flovent Hfa Inhl,Fluticasone,ROUTE=Inhl,,,,220
+Flovent hfa-oncall,Fluticasone,,,,,100
+Flovent inhaler-oncall,Fluticasone,,,,,100
+Flovent-oncall,Fluticasone,,,,,100
+Fluticasone 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,,,100,100,150
+Fluticasone 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=1 PUFF; FREQ=BID Diuretic; ROUTE=Inhl,2,100,200,200
+Fluticasone 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,100,200,200
+Fluticasone 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,100,100,100
+Fluticasone 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=1 PUFF; ROUTE=Inhl,,100,100,100
+Fluticasone 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=100 EA; FREQ=Continuous PRN; ROUTE=Inhl,,100,100,100
+Fluticasone 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=100 MCG; FREQ=BID; ROUTE=Inhl,2,100,200,200
+Fluticasone 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=100 MCG; FREQ=Daily; ROUTE=Inhl,1,100,100,100
+Fluticasone 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=2 PUFF; FREQ=BID Diuretic; ROUTE=Inhl,2,100,400,400
+Fluticasone 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,100,400,400
+Fluticasone 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,100,200,200
+Fluticasone 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=50 MCG; FREQ=BID; ROUTE=Inhl,2,100,100,100
+Fluticasone 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,PUFF; FREQ=Daily; ROUTE=Inhl,1,100,100,100
+Fluticasone 100 salmetero,Fluticasone,,,100,100,100
+Fluticasone 110 mcg inhaler,Fluticasone,,,110,110,110
+Fluticasone 110 mcg inhaler 12,Fluticasone,,,110,110,110
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,,,110,110,220
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,110,220,220
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,110,220,220
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,110,220,220
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=Daily PRN; ROUTE=Inhl,1,110,110,110
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=Daily;,1,110,110,110
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,110,110,110
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=Nightly PRN; ROUTE=Inhl,1,110,110,110
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=Nightly; ROUTE=Inhl,1,110,110,110
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=PRN; ROUTE=Inhl,,110,110,110
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; ROUTE=Inhl,,110,110,110
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=110 MCG; FREQ=BID; ROUTE=Inhl,2,110,220,220
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,110,440,440
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,110,440,440
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,110,440,440
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=Daily PRN; ROUTE=Inhl,1,110,220,220
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,110,220,220
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=Once PRN; ROUTE=Inhl,1,110,220,220
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=PRN; ROUTE=Inhl,,110,220,220
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=See Admin Instructions; ROUTE=Inhl,,110,220,220
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; ROUTE=Inhl,,110,220,220
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=3 PUFF; FREQ=BID; ROUTE=Inhl,2,110,660,660
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=4 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,110,880,880
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=4 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,110,880,880
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=4 PUFF; FREQ=BID; ROUTE=Inhl,2,110,880,880
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,FREQ=BID PRN;,2,110,220,220
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,FREQ=BID; ROUTE=Inhl,2,110,220,220
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,FREQ=Daily PRN;,1,110,110,110
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,FREQ=PRN;,,110,110,110
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,PUFF; FREQ=BID; ROUTE=Inhl,2,110,220,220
+Fluticasone 110 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,ROUTE=Inhl,,110,110,110
+Fluticasone 220 mcg inhaler,Fluticasone,,,220,220,220
+Fluticasone 220 mcg inhaler 12,Fluticasone,,,220,220,220
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,,,220,220,440
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=BID PRN;,2,220,440,440
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,220,440,440
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,220,440,440
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,220,440,440
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=BID; ROUTE=Oral,2,220,440,440
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=Daily PRN; ROUTE=Inhl,1,220,220,220
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,220,220,220
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=Daily; ROUTE=Oral,1,220,220,220
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=Nightly; ROUTE=Inhl,1,220,220,220
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=PRN; ROUTE=Inhl,,220,220,220
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=QAM; ROUTE=Inhl,1,220,220,220
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=See Admin Instructions; ROUTE=Inhl,,220,220,220
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; ROUTE=Inhl,,220,220,220
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF;,,220,440,440
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=4x Daily; ROUTE=Inhl,4,220,1760,1760
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,220,880,880
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,220,880,880
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,220,880,880
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,220,440,440
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=PRN; ROUTE=Inhl,,220,440,440
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=Q6H; ROUTE=Inhl,4,220,1760,1760
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=QAM; ROUTE=Inhl,1,220,440,440
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; ROUTE=Inhl,,220,440,440
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=220 MCG; FREQ=BID; ROUTE=Inhl,2,220,440,440
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=4 PUFF; FREQ=BID; ROUTE=Inhl,2,220,1760,1760
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=440 MCG; FREQ=BID; ROUTE=Inhl,2,220,880,880
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=6 PUFF; FREQ=BID; ROUTE=Inhl,2,220,2640,2640
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,FREQ=PRN;,,220,220,220
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,PUFF; FREQ=BID; ROUTE=Inhl,2,220,440,440
+Fluticasone 220 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,ROUTE=Inhl,,220,220,220
+Fluticasone 250 mcg/Actuation Blister Powder For Inhalation,Fluticasone,,,250,250,500
+Fluticasone 250 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=1 Blister; FREQ=BID PRN; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=1 PUFF; FREQ=BID PRN;,2,250,500,500
+Fluticasone 250 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,250,250,250
+Fluticasone 250 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,250,1000,1000
+Fluticasone 250 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=250 MCG; FREQ=BID; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 mcg/Actuation Blister Powder For Inhalation,Fluticasone,FREQ=BID; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 salmetero,Fluticasone,,,250,0,250
+Fluticasone 44 mcg inhaler,Fluticasone,,,44,0,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,,,44,0,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,44,88,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,44,88,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,44,88,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,44,44,44
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=4x Daily PRN; ROUTE=Inhl,4,44,352,352
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=BID PRN;,2,44,176,176
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,44,176,176
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,44,176,176
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,44,176,176
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=Daily PRN;,1,44,88,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=Daily PRN; ROUTE=Inhl,1,44,88,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=Daily;,1,44,88,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,44,88,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=PRN; ROUTE=Inhl,,44,88,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=Q6H PRN; ROUTE=Inhl,4,44,352,352
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=QAM; ROUTE=Inhl,1,44,88,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=2 PUFF; FREQ=See Admin Instructions; ROUTE=Inhl,,44,88,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,DOSE=3 PUFF; FREQ=BID; ROUTE=Inhl,2,44,264,264
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,FREQ=PRN;,,44,44,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,FREQ=PRN; ROUTE=Inhl,,44,44,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,PUFF; FREQ=BID; ROUTE=Inhl,2,44,88,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,PUFF; FREQ=See Admin Instructions; ROUTE=Inhl,,44,44,88
+Fluticasone 44 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone,ROUTE=Inhl,,44,44,88
+Fluticasone 50 mcg/Actuation Blister Powder For Inhalation,Fluticasone,,,50,,100
+Fluticasone 50 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,50,100,100
+Fluticasone 50 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=2 PUFF; FREQ=Daily; ROUTE=Each Nare,1,50,100,100
+Fluticasone 50 mcg/Actuation Blister Powder For Inhalation,Fluticasone,ROUTE=Inhl,,50,0,100
+Fluticasone 500 salmetero,Fluticasone,,,500,0,300
+Fluticasone Furoate 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,100,100,100
+Fluticasone Furoate 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=100 MCG; FREQ=Daily; ROUTE=Inhl,1,100,100,100
+Fluticasone Furoate 100 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=2 PUFF; FREQ=PRN;,,100,200,200
+Fluticasone Furoate 200 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=1 PUFF; FREQ=Before Breakfast; ROUTE=Inhl,1,200,200,200
+Fluticasone Furoate 200 mcg/Actuation Blister Powder For Inhalation,Fluticasone,DOSE=200 MCG; FREQ=Daily; ROUTE=Inhl,1,200,200,200
+Fluticasone hfa inhaler-oncall,Fluticasone,,,,,250
+Fluticasone inh 110 mcg,Fluticasone,,,110,110,110
+Fluticasone inh 220 mcg,Fluticasone,,,220,220,220
+Fluticasone inhaled-oncall,Fluticasone,,,,,220
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,,,,,220
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.044 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,88,88
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.05 MG; DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,,50,50
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.088 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,176,176
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.088 MG; DOSETYPE=R; FREQ=TID; ROUTE=INH,3,,264,264
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.11 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,220,220
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.11 MG; DOSETYPE=R; FREQ=BID; ROUTE=NEB,2,,220,220
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.11 MG; DOSETYPE=R; FREQ=QHS; ROUTE=INH,1,,110,110
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.11 MG; DOSETYPE=R; FREQ=QID; ROUTE=INH,4,,440,440
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.11 MG; FREQ=BID; ROUTE=INH,2,,220,220
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.22 MG; DOSETYPE=R; FREQ=BID; ROUTE=AER,2,,440,440
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.22 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,440,440
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.22 MG; DOSETYPE=R; FREQ=BID; ROUTE=NEB,2,,440,440
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.22 MG; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,,220,220
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.22 MG; DOSETYPE=R; FREQ=QID; ROUTE=INH,4,,880,880
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.22 MG; FREQ=BID; ROUTE=AER,2,,440,440
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.22 MG; FREQ=BID; ROUTE=INH,2,,440,440
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.44 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,880,880
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.66 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,1320,1320
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=0.88 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,1760,1760
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,,88
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=110 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=AER,2,,220,220
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,,220
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSE=2 PUFFS; FREQ=BID; ROUTE=INH,2,,,220
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,,88
+Fluticasone propionate (flovent inhaler) - LMR 1341,Fluticasone,FREQ=BID; ROUTE=INH,2,,,88
+Fluticasone propionate 110 mcg aer w/adap 12gm aer w/adap,Fluticasone,,,110,110,110
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,,,110,110,220
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=0.11 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,110,220,220
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=0.11 MG; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,110,110,110
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=0.11 MG; FREQ=BID; ROUTE=INH,2,110,220,220
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=0.22 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,110,440,440
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=0.22 MG; FREQ=BID; ROUTE=INH,2,110,440,440
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=0.44 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,110,880,880
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,110,220,220
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=1 PUFFS; DOSETYPE=R; ROUTE=INH,,110,110,110
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=1 PUFFS; FREQ=BID; ROUTE=INH,2,110,220,220
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,110,440,440
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=2 PUFFS; DOSETYPE=R; FREQ=PRN; ROUTE=INH,,110,220,220
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=2 PUFFS; DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,110,220,220
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=2 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,110,220,220
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=2 PUFFS; DOSETYPE=R; FREQ=QPM; ROUTE=INH,1,110,220,220
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=2 PUFFS; DOSETYPE=R; FREQ=UD; ROUTE=INH,,110,220,220
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=2 PUFFS; DOSETYPE=R; ROUTE=INH,,110,220,220
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=2 PUFFS; FREQ=BID; ROUTE=INH,2,110,440,440
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=2 PUFFS; FREQ=QPM; ROUTE=INH,1,110,220,220
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=2 PUFFS; FREQ=UD; ROUTE=INH,,110,220,220
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=2 PUFFS; ROUTE=INH,,110,220,220
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=3 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,110,330,330
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=4 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,110,880,880
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSE=4 PUFFS; FREQ=BID; ROUTE=INH,2,110,880,880
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSETYPE=R; FREQ=BID; ROUTE=INH,2,110,220,220
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSETYPE=R; FREQ=PRN; ROUTE=INH,,110,110,110
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,DOSETYPE=R; ROUTE=INH,,110,110,110
+Fluticasone propionate 110 mcg oral inhaler - LMR 4797,Fluticasone,FREQ=BID; ROUTE=INH,2,110,220,220
+Fluticasone propionate 12gm a,Fluticasone,,,,,110
+Fluticasone propionate 220 mcg aer w/adap 12gm aer w/adap,Fluticasone,,,220,220,220
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,,,220,220,440
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=0.22 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,220,440,440
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=0.22 MG; DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,220,220,220
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=0.22 MG; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,220,220,220
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=0.22 MG; FREQ=BID; ROUTE=INH,2,220,440,440
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=0.44 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,220,880,880
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=0.44 MG; FREQ=BID; ROUTE=INH,2,220,880,880
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=0.88 MG; FREQ=BID; ROUTE=INH,2,220,1760,1760
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,220,440,440
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=1 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,220,220,220
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=1 PUFFS; DOSETYPE=R; FREQ=UD; ROUTE=INH,,220,220,220
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=1 PUFFS; DOSETYPE=R; ROUTE=INH,,220,220,220
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=1 PUFFS; FREQ=BID; ROUTE=INH,2,220,440,440
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=1 PUFFS; FREQ=QD; ROUTE=INH,1,220,220,220
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=1 PUFFS; FREQ=UD; ROUTE=INH,,220,220,220
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,220,880,880
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=2 PUFFS; DOSETYPE=R; ROUTE=INH,,220,440,440
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=2 PUFFS; FREQ=BID; ROUTE=INH,2,220,880,880
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=2 PUFFS; FREQ=QD; ROUTE=INH,1,220,440,440
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSE=4 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,220,1760,1760
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,DOSETYPE=R; FREQ=BID; ROUTE=INH,2,220,440,440
+Fluticasone propionate 220 mcg oral inhaler - LMR 4798,Fluticasone,FREQ=BID; ROUTE=INH,2,220,440,440
+Fluticasone propionate 44 mcg aer w/adap 10.6gm aer w/adap,Fluticasone,,,44,44,88
+Fluticasone propionate 44 mcg oral inhaler - LMR 4796,Fluticasone,,,44,44,132
+Fluticasone propionate 44 mcg oral inhaler - LMR 4796,Fluticasone,DOSE=0.044 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,44,88,88
+Fluticasone propionate 44 mcg oral inhaler - LMR 4796,Fluticasone,DOSE=0.088 MG; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,44,176,176
+Fluticasone propionate 44 mcg oral inhaler - LMR 4796,Fluticasone,DOSE=0.088 MG; FREQ=BID; ROUTE=INH,2,44,176,176
+Fluticasone propionate 44 mcg oral inhaler - LMR 4796,Fluticasone,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,44,88,88
+Fluticasone propionate 44 mcg oral inhaler - LMR 4796,Fluticasone,DOSE=1 PUFFS; FREQ=BID; ROUTE=INH,2,44,88,88
+Fluticasone propionate 44 mcg oral inhaler - LMR 4796,Fluticasone,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,44,176,176
+Fluticasone propionate 44 mcg oral inhaler - LMR 4796,Fluticasone,DOSE=2 PUFFS; FREQ=BID; ROUTE=INH,2,44,176,176
+Fluticasone propionate 44 mcg oral inhaler - LMR 4796,Fluticasone,DOSE=2 PUFFS; FREQ=UD; ROUTE=INH,,44,88,88
+Fluticasone propionate 50 mcg spray 16gm aer w/adap,Fluticasone,,,50,50,100
+Fluticasone propionate 50 mcg spray susp 16gm aer w/adap,Fluticasone,,,50,50,100
+Fluticasone-oncall,Fluticasone,,,,,100
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,,,,,100
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=1 SPRAY; DOSETYPE=R; FREQ=BID; ROUTE=NA,2,,,200
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=1 SPRAY; DOSETYPE=R; FREQ=QAM; ROUTE=NA,1,,,100
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=1 SPRAY; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,,,100
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=1 SPRAY; DOSETYPE=R; FREQ=QD; ROUTE=NA,1,,,100
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=1 SPRAY; DOSETYPE=R; FREQ=UD; ROUTE=NA,,,,100
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=1 SPRAY; DOSETYPE=R; ROUTE=NA,,,,100
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=1 SPRAY; FREQ=PRN; ROUTE=NA,,,,100
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=1 SPRAY; FREQ=QAM; ROUTE=NA,1,,,100
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=1 SPRAY; FREQ=QD; ROUTE=NA,1,,,100
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=1 SPRAY; FREQ=UD; ROUTE=NA,,,,100
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=2 SPRAY; DOSETYPE=R; FREQ=BID; ROUTE=NA,2,,,200
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=2 SPRAY; DOSETYPE=R; FREQ=QD; ROUTE=NA,1,,,200
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=2 SPRAY; DOSETYPE=R; ROUTE=NA,,,,200
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=2 SPRAY; FREQ=BID; ROUTE=NA,2,,,200
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=2 SPRAY; FREQ=QD; ROUTE=NA,1,,,200
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSE=2 SPRAY; ROUTE=NA,,,,200
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,DOSETYPE=R; ROUTE=NA,,,,100
+Veramyst (fluticasone furoate) - LMR 6049,Fluticasone,ROUTE=NA,,,,100
+100/50 fluticasone/salmeterol,Fluticasone/salmeterol,,,100,100,100
+250/50 fluticasone/salmeterol,Fluticasone/salmeterol,,,250,250,250
+500/50 fluticasone/salmeterol,Fluticasone/salmeterol,,,500,500,500
+Advair Diskus 100 mcg-50 mcg/Dose Powder For Inhalation,Fluticasone/salmeterol,,,100,100,100
+Advair Diskus 100 mcg-50 mcg/Dose Powder For Inhalation,Fluticasone/salmeterol,DOSE=100 mcg of fluti; FREQ=BID; ROUTE=Inhl,2,100,200,200
+Advair diskus 100/50 oral inhaler,Fluticasone/salmeterol,,,100,100,100
+Advair Diskus 250 mcg-50 mcg/Dose Powder For Inhalation,Fluticasone/salmeterol,,,250,250,250
+Advair Diskus 250 mcg-50 mcg/Dose Powder For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,250,500,500
+Advair Diskus 250 mcg-50 mcg/Dose Powder For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; ROUTE=Inhl,,250,250,250
+Advair diskus 250/50 oral inhaler,Fluticasone/salmeterol,,,250,250,250
+Advair Diskus 500 mcg-50 mcg/Dose Powder For Inhalation,Fluticasone/salmeterol,,,500,500,500
+Advair Diskus 500 mcg-50 mcg/Dose Powder For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,500,1000,1000
+Advair Diskus 500 mcg-50 mcg/Dose Powder For Inhalation,Fluticasone/salmeterol,DOSE=500 mcg of fluti; FREQ=BID; ROUTE=Inhl,2,500,1000,1000
+Advair diskus 500/50 oral inhaler,Fluticasone/salmeterol,,,500,500,500
+Advair Diskus Inhl,Fluticasone/salmeterol,,,,,250
+Advair Diskus Inhl,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=PRN; ROUTE=Inhl,,,,250
+Advair Diskus Inhl,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=PRN; ROUTE=Inhl,,,,250
+Advair Diskus Inhl,Fluticasone/salmeterol,FREQ=Daily; ROUTE=Inhl,1,,,250
+Advair Diskus Inhl,Fluticasone/salmeterol,ROUTE=Inhl,,,,250
+Advair diskus-oncall,Fluticasone/salmeterol,,,,,250
+Advair Hfa 115 mcg-21 mcg/Actuation Aerosol Inhaler,Fluticasone/salmeterol,,,115,115,115
+Advair hfa 115/21 inhalation aerosol (fluticasone propionate/salmeterol 115/21)- lmr 6000,Fluticasone/salmeterol,,,115,115,115
+Advair hfa 115/21 inhalation aerosol (fluticasone propionate/salmeterol 115/21)- lmr 6000,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,115,230,230
+Advair hfa 115/21 inhalation aerosol (fluticasone propionate/salmeterol 115/21)- lmr 6000,Fluticasone/salmeterol,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,115,460,460
+Advair hfa 115/21 inhalation aerosol (fluticasone propionate/salmeterol 115/21)- lmr 6000,Fluticasone/salmeterol,DOSE=2 PUFFS; FREQ=BID; ROUTE=INH,2,115,460,460
+Advair Hfa 230 mcg-21 mcg/Actuation Aerosol Inhaler,Fluticasone/salmeterol,,,230,230,230
+Advair hfa 230/21 inhalation aerosol (fluticasone propionate/salmeterol 230/21)- lmr 6001,Fluticasone/salmeterol,,,230,230,230
+Advair hfa 230/21 inhalation aerosol (fluticasone propionate/salmeterol 230/21)- lmr 6001,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,230,460,460
+Advair hfa 230/21 inhalation aerosol (fluticasone propionate/salmeterol 230/21)- lmr 6001,Fluticasone/salmeterol,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,230,920,920
+Advair hfa 230/21 inhalation aerosol (fluticasone propionate/salmeterol 230/21)- lmr 6001,Fluticasone/salmeterol,DOSE=2 PUFFS; FREQ=BID; ROUTE=INH,2,230,920,920
+Advair hfa 230/21 inhalation aerosol (fluticasone propionate/salmeterol 230/21)- lmr 6001,Fluticasone/salmeterol,DOSETYPE=R; FREQ=BID; ROUTE=INH,2,230,460,460
+Advair hfa 230/21 inhalation aerosol (fluticasone propionate/salmeterol 230/21)- lmr 6001,Fluticasone/salmeterol,FREQ=BID; ROUTE=INH,2,230,460,460
+Advair hfa 4521 inhalation aerosol (fluticasone propionatesalmeterol 4521)- lmr 5999,Fluticasone/salmeterol,,,45,45,90
+Advair hfa 4521 inhalation aerosol (fluticasone propionatesalmeterol 4521)- lmr 5999,Fluticasone/salmeterol,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,45,180,180
+Advair Hfa Inhl,Fluticasone/salmeterol,,,,,250
+Advair Hfa Inhl,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,,,250
+Advair Hfa Inhl,Fluticasone/salmeterol,DOSE=115 ug; FREQ=BID; ROUTE=Inhl,2,,230,230
+Advair Hfa Inhl,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,,,500
+Advair Hfa Inhl,Fluticasone/salmeterol,DOSE=500 MCG; FREQ=BID; ROUTE=Inhl,2,,1000,1000
+Advair Hfa Inhl,Fluticasone/salmeterol,FREQ=BID; ROUTE=Inhl,2,,,250
+Advair Hfa Inhl,Fluticasone/salmeterol,ROUTE=Inhl,,,,250
+Advair hfa-oncall,Fluticasone/salmeterol,,,,,250
+Advair-oncall,Fluticasone/salmeterol,,,,,250
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,,,100,100,200
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,100,200,200
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,100,200,200
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,100,100,100
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=PRN; ROUTE=Inhl,,100,100,100
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=Q12H; ROUTE=Inhl,2,100,200,200
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=See Admin Instructions; ROUTE=Inhl,,100,100,100
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=100 mcg of fluti; FREQ=Before Breakfast; ROUTE=Inhl,1,100,100,100
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=100 mcg of fluti; FREQ=BID PRN;,2,100,200,200
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=100 mcg of fluti; FREQ=BID PRN; ROUTE=Inhl,2,100,200,200
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=100 mcg of fluti; FREQ=BID RESP; ROUTE=Inhl,2,100,200,200
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=100 mcg of fluti; FREQ=BID; ROUTE=Inhl,2,100,200,200
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=100 mcg of fluti; FREQ=Daily PRN; ROUTE=Inhl,1,100,100,100
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=100 mcg of fluti; FREQ=Daily; ROUTE=Inhl,1,100,100,100
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=100 mcg of fluti; FREQ=Nightly; ROUTE=Inhl,1,100,100,100
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=100 mcg of fluti; FREQ=Q12H; ROUTE=Inhl,2,100,200,200
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=100 mcg of fluti; FREQ=QAM; ROUTE=Inhl,1,100,100,100
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=100 mcg of fluti; ROUTE=Inhl,,100,100,100
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=200 mcg of fluti; FREQ=BID; ROUTE=Inhl,2,100,400,400
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=250 mcg of fluti;,,100,250,250
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=500 mcg of fluti; FREQ=BID; ROUTE=Inhl,2,100,1000,1000
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,FREQ=BID;,2,100,200,200
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,FREQ=BID; ROUTE=Inhl,2,100,200,200
+Fluticasone 100 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,ROUTE=Inhl,,100,100,100
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,,,250,250,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 INHALER; FREQ=BID; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 mcg of fluti; FREQ=BID; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=Before Breakfast; ROUTE=Inhl,1,250,250,250
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID PRN; ROUTE=Oral,2,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID;,2,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=Daily PRN; ROUTE=Inhl,1,250,250,250
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=Daily;,1,250,250,250
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,250,250,250
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=Daily; ROUTE=Oral,1,250,250,250
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=Nightly PRN; ROUTE=Inhl,1,250,250,250
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=Nightly; ROUTE=Inhl,1,250,250,250
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=Once PRN; ROUTE=Inhl,1,250,250,250
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=PRN; ROUTE=Inhl,,250,250,250
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=Q12H PRN; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=Q12H SCH; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=Q12H; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=QAM; ROUTE=Inhl,1,250,250,250
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; ROUTE=Inhl,,250,250,250
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,250,1000,1000
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=Daily PRN;,1,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=250 mcg of fluti; FREQ=BID; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=250 mcg of fluti; FREQ=Daily RESP; ROUTE=Inhl,1,250,250,250
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=250 mcg of fluti; FREQ=Daily; ROUTE=Inhl,1,250,250,250
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=250 mcg of fluti; FREQ=Q12H PRN; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=250 mcg of fluti; FREQ=Q12H; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=500 mcg of fluti;,,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,FREQ=BID; ROUTE=Inhl,2,250,500,500
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,FREQ=Daily PRN;,1,250,250,250
+Fluticasone 250 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,ROUTE=Inhl,,250,250,250
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,,,500,500,1000
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 EA; FREQ=BID; ROUTE=Inhl,2,500,1000,1000
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 INHALER; FREQ=BID; ROUTE=Inhl,2,500,1000,1000
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,500,1000,1000
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID;,2,500,1000,1000
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,500,1000,1000
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,500,500,500
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=PRN; ROUTE=Inhl,,500,500,500
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=Q12H; ROUTE=Inhl,2,500,1000,1000
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=QAM; ROUTE=Inhl,1,500,500,500
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=See Admin Instructions; ROUTE=Inhl,,500,500,500
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=1 PUFF; ROUTE=Inhl,,500,500,500
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,500,2000,2000
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=BID; ROUTE=Oral,2,500,2000,2000
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,500,1000,1000
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=QAM; ROUTE=Inhl,1,500,1000,1000
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=500 mcg of fluti; FREQ=BID; ROUTE=Inhl,2,500,1000,1000
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=500 mcg of fluti; FREQ=Daily; ROUTE=Inhl,1,500,500,500
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=500 mcg of fluti; FREQ=Once; ROUTE=Inhl,1,500,500,500
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=500 mcg of fluti; FREQ=Q12H; ROUTE=Inhl,2,500,1000,1000
+Fluticasone 500 mcg-Salmeterol 50 mcg/Dose Blistr Powdr For Inhalation,Fluticasone/salmeterol,DOSE=5500 mcg of fluti; FREQ=BID; ROUTE=Inhl,2,500,1000,1000
+Fluticasone and salmeterol dry powder inhaler-oncall,Fluticasone/salmeterol,,,,,100
+Fluticasone and salmeterol hfa inhaler-oncall,Fluticasone/salmeterol,,,,,100
+Fluticasone and salmeterol-oncall,Fluticasone/salmeterol,,,,,100
+Fluticasone prop/salmeterol 100/50 mcg inhalant 60 ea,Fluticasone/salmeterol,,,100,100,100
+Fluticasone prop/salmeterol 100/50 mcg inhaler 1 ea dispenser,Fluticasone/salmeterol,,,100,100,100
+Fluticasone prop/salmeterol 250/50 mcg inhalant 60 ea,Fluticasone/salmeterol,,,250,250,250
+Fluticasone prop/salmeterol 250/50 mcg inhaler 1 ea dispenser,Fluticasone/salmeterol,,,250,250,250
+Fluticasone prop/salmeterol 500/50 mcg inhalant 60 ea,Fluticasone/salmeterol,,,500,500,500
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,,,100,100,200
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,100,200,200
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,100,100,100
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,100,100,100
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=QID; ROUTE=INH,4,100,400,400
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=TID; ROUTE=INH,3,100,300,300
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; ROUTE=INH,,100,100,100
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSE=1 INHALATION; FREQ=BID; ROUTE=INH,2,100,200,200
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,100,200,200
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=NEB,2,100,200,200
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,100,100,100
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,100,100,100
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSE=1 PUFFS; FREQ=BID; ROUTE=INH,2,100,200,200
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSE=1 PUFFS; FREQ=UD; ROUTE=INH,,100,100,100
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSE=2 INHALATION; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,100,400,400
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,100,400,400
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSETYPE=R; FREQ=BID; ROUTE=INH,2,100,200,200
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,100,100,100
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,DOSETYPE=R; ROUTE=INH,,100,100,100
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,FREQ=BID; ROUTE=INH,2,100,200,200
+Fluticasone propionate/salmeterol 100/50 - LMR 3622,Fluticasone/salmeterol,ROUTE=INH,,100,100,100
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,,,250,250,250
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,250,500,500
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,250,250,250
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,250,250,250
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=QHS; ROUTE=INH,1,250,250,250
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=QID; ROUTE=INH,4,250,1000,1000
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; ROUTE=INH,,250,250,250
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 INHALATION; FREQ=BID; ROUTE=INH,2,250,500,500
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 INHALATION; FREQ=QD; ROUTE=INH,1,250,250,250
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 INHALATION; FREQ=UD; ROUTE=INH,,250,250,250
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,250,500,500
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=NA,2,250,500,500
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=NEB,2,250,500,500
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,250,250,250
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,250,250,250
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=QPM; ROUTE=INH,1,250,250,250
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 PUFFS; FREQ=BID; ROUTE=INH,2,250,500,500
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 PUFFS; FREQ=PRN; ROUTE=INH,,250,250,250
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=1 PUFFS; FREQ=QD; ROUTE=INH,1,250,250,250
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=2 INHALATION; DOSETYPE=O; FREQ=BID; ROUTE=INH,2,250,1000,1000
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=2 INHALATION; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,250,1000,1000
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,250,1000,1000
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSE=2 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,250,500,500
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSETYPE=R; FREQ=BID; ROUTE=INH,2,250,500,500
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,DOSETYPE=R; ROUTE=INH,,250,250,250
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,FREQ=BID; ROUTE=INH,2,250,500,500
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,FREQ=QD; ROUTE=INH,1,250,250,250
+Fluticasone propionate/salmeterol 250/50 (advair diskus 250/50)- lmr 3623,Fluticasone/salmeterol,ROUTE=INH,,250,250,250
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,,,500,500,1000
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,500,1000,1000
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,500,500,500
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=QPM; ROUTE=INH,1,500,500,500
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=UD; ROUTE=INH,,500,500,500
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=1 INHALATION; DOSETYPE=R; ROUTE=INH,,500,500,500
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=1 INHALATION; FREQ=BID; ROUTE=INH,2,500,1000,1000
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,500,1000,1000
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=NEB,2,500,1000,1000
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=QAM; ROUTE=INH,1,500,500,500
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=1 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,500,500,500
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=1 PUFFS; FREQ=BID; ROUTE=INH,2,500,1000,1000
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=1 PUFFS; FREQ=QD; ROUTE=INH,1,500,500,500
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=2 @; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,500,2000,2000
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=2 INHALATION; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,500,2000,2000
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=2 PUFFS; DOSETYPE=O; FREQ=BID; ROUTE=INH,2,500,2000,2000
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,500,2000,2000
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSE=2 PUFFS; FREQ=BID; ROUTE=INH,2,500,2000,2000
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSETYPE=R; FREQ=BID; ROUTE=INH,2,500,1000,1000
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,DOSETYPE=V; FREQ=BID; ROUTE=INH,2,500,1000,1000
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,FREQ=BID; ROUTE=INH,2,500,1000,1000
+Fluticasone propionate/salmeterol 500/50 (advair diskus 500/50)- lmr 3624,Fluticasone/salmeterol,ROUTE=INH,,500,500,500
+Fluticasone salmeterol 500,Fluticasone/salmeterol,,,500,500,500
+Fluticasone-Salmeterol 115 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,,,115,115,230
+Fluticasone-Salmeterol 115 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,115,230,230
+Fluticasone-Salmeterol 115 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,115,460,460
+Fluticasone-Salmeterol 115 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=Daily PRN; ROUTE=Inhl,1,115,230,230
+Fluticasone-Salmeterol 115 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=Daily;,1,115,230,230
+Fluticasone-Salmeterol 115 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,115,230,230
+Fluticasone-Salmeterol 115 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=PRN; ROUTE=Inhl,,115,230,230
+Fluticasone-Salmeterol 115 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=Q12H; ROUTE=Inhl,2,115,460,460
+Fluticasone-Salmeterol 115 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=230 mcg/tx fluti; FREQ=BID; ROUTE=Inhl,2,115,460,460
+Fluticasone-Salmeterol 230 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,,,240,240,920
+Fluticasone-Salmeterol 230 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,240,480,480
+Fluticasone-Salmeterol 230 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,240,960,960
+Fluticasone-Salmeterol 230 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,240,960,960
+Fluticasone-Salmeterol 230 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=PRN; ROUTE=Inhl,,240,480,480
+Fluticasone-Salmeterol 230 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=Q12H; ROUTE=Inhl,2,240,960,960
+Fluticasone-Salmeterol 230 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=460 mcg/tx fluti; FREQ=BID; ROUTE=Inhl,2,240,920,920
+Fluticasone-Salmeterol 230 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,FREQ=BID; ROUTE=Inhl,2,240,480,480
+Fluticasone-Salmeterol 45 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,,,45,45,135
+Fluticasone-Salmeterol 45 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,45,90,90
+Fluticasone-Salmeterol 45 mcg-21 mcg/Actuation Hfa Aerosol Inhaler,Fluticasone/salmeterol,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,45,180,180
+Fluticasone/salmeterol 1 each,Fluticasone/salmeterol,,,,,100
+Fluticasone/salmeterol 100/50,Fluticasone/salmeterol,,,100,100,100
+Fluticasone/salmeterol 100mg disk wdev 14 ea blist pack,Fluticasone/salmeterol,,,100,100,100
+Fluticasone/salmeterol 250 mcg-50 mcg/dosemg disk w/dev 14 ea blist pack,Fluticasone/salmeterol,,,250,250,250
+Fluticasone/salmeterol 250/50,Fluticasone/salmeterol,,,250,250,250
+Fluticasone/salmeterol 500 mcg-50 mcgdosemg disk wdev 14 ea blist pack,Fluticasone/salmeterol,,,500,500,500
+Fluticasone/salmeterol 500/50,Fluticasone/salmeterol,,,500,500,500
+Breo ellipta (fluticasone furoate and vilanterol inhalation) - LMR 9355,Fluticasone/vilanterol,,,100,100,100
+Breo ellipta (fluticasone furoate and vilanterol inhalation) - LMR 9355,Fluticasone/vilanterol,DOSE=1 INHALATION; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,100,100,100
+Breo Ellipta 100 mcg-25 mcg/Dose Powder For Inhalation,Fluticasone/vilanterol,,,100,100,100
+Breo Ellipta 200 mcg-25 mcg/Dose Powder For Inhalation,Fluticasone/vilanterol,,,200,200,200
+Breo Ellipta Inhl,Fluticasone/vilanterol,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,100,100,100
+Breo Ellipta Inhl,Fluticasone/vilanterol,DOSE=1 PUFF; FREQ=QAM; ROUTE=Inhl,1,100,100,100
+Breo Ellipta Inhl,Fluticasone/vilanterol,FREQ=Daily; ROUTE=Inhl,1,100,100,100
+Breo Ellipta Inhl,Fluticasone/vilanterol,FREQ=QAM; ROUTE=Inhl,1,100,100,100
+Breo Ellipta Inhl,Fluticasone/vilanterol,ROUTE=Inhl,,100,100,100
+Fluticasone 100 mcg-Vilanterol 25 mcg/Dose Powder For Inhalation,Fluticasone/vilanterol,DOSE=1 INHALER; FREQ=Daily; ROUTE=Inhl,1,100,100,100
+Fluticasone 100 mcg-Vilanterol 25 mcg/Dose Powder For Inhalation,Fluticasone/vilanterol,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,100,200,200
+Fluticasone 100 mcg-Vilanterol 25 mcg/Dose Powder For Inhalation,Fluticasone/vilanterol,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,100,100,100
+Fluticasone 100 mcg-Vilanterol 25 mcg/Dose Powder For Inhalation,Fluticasone/vilanterol,DOSE=1 PUFF; FREQ=Daily; ROUTE=Oral,1,100,100,100
+Fluticasone 100 mcg-Vilanterol 25 mcg/Dose Powder For Inhalation,Fluticasone/vilanterol,DOSE=1 PUFF; ROUTE=Inhl,,100,100,100
+Fluticasone 100 mcg-Vilanterol 25 mcg/Dose Powder For Inhalation,Fluticasone/vilanterol,FREQ=Daily; ROUTE=Inhl,1,100,100,100
+Fluticasone 200 mcg-Vilanterol 25 mcg/Dose Powder For Inhalation,Fluticasone/vilanterol,,,200,200,200
+Fluticasone 200 mcg-Vilanterol 25 mcg/Dose Powder For Inhalation,Fluticasone/vilanterol,DOSE=1 INHALER; FREQ=Nightly; ROUTE=Inhl,1,200,200,200
+Fluticasone 200 mcg-Vilanterol 25 mcg/Dose Powder For Inhalation,Fluticasone/vilanterol,DOSE=1 PUFF; FREQ=Before Breakfast; ROUTE=Inhl,1,200,200,200
+Fluticasone 200 mcg-Vilanterol 25 mcg/Dose Powder For Inhalation,Fluticasone/vilanterol,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,200,200,200
+Fluticasone 200 mcg-Vilanterol 25 mcg/Dose Powder For Inhalation,Fluticasone/vilanterol,DOSE=1 Units/min; FREQ=Daily; ROUTE=Inhl,1,200,200,200
+Fluticasone 200 mcg-Vilanterol 25 mcg/Dose Powder For Inhalation,Fluticasone/vilanterol,FREQ=Daily; ROUTE=Inhl,1,200,200,200
+Fluticasone 200 mcg-Vilanterol 25 mcg/Dose Powder For Inhalation,Fluticasone/vilanterol,ROUTE=Inhl,,200,200,200
+Dulera (mometasone furoateformoterol fumarate inhaler) - LMR 7587,Formoterol/mometasone,,,,,100
+Dulera (mometasone furoateformoterol fumarate inhaler) - LMR 7587,Formoterol/mometasone,DOSE=1 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,,,100
+Dulera (mometasone furoateformoterol fumarate inhaler) - LMR 7587,Formoterol/mometasone,DOSE=2 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,,200
+Dulera (mometasone furoateformoterol fumarate inhaler) - LMR 7587,Formoterol/mometasone,DOSE=2 PUFFS; FREQ=BID; ROUTE=INH,2,,,200
+Dulera (mometasone furoateformoterol fumarate inhaler) - LMR 7587,Formoterol/mometasone,FREQ=BID; ROUTE=INH,2,,,200
+Dulera 100 mcg-5 mcg/Actuation Hfa Aerosol Inhaler,Formoterol/mometasone,,,100,100,100
+Dulera 100 mcg-5 mcg/Actuation Hfa Aerosol Inhaler,Formoterol/mometasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,100,400,400
+Dulera 200 mcg-5 mcg/Actuation Hfa Aerosol Inhaler,Formoterol/mometasone,,,200,200,200
+Dulera Inhl,Formoterol/mometasone,,,,,100
+Dulera Inhl,Formoterol/mometasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,,,200
+Dulera Inhl,Formoterol/mometasone,DOSE=200 MCG; FREQ=BID; ROUTE=Inhl,2,,400,400
+Dulera Inhl,Formoterol/mometasone,FREQ=PRN; ROUTE=Inhl,,,,100
+Dulera Inhl,Formoterol/mometasone,ROUTE=Inhl,,,,100
+Dulera-oncall,Formoterol/mometasone,,,,,100
+Mometasone-Formoterol Hfa 100 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,,,100,100,200
+Mometasone-Formoterol Hfa 100 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,100,200,200
+Mometasone-Formoterol Hfa 100 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,100,100,100
+Mometasone-Formoterol Hfa 100 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=1 PUFF; FREQ=PRN; ROUTE=Inhl,,100,100,100
+Mometasone-Formoterol Hfa 100 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,100,400,400
+Mometasone-Formoterol Hfa 100 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,100,200,200
+Mometasone-Formoterol Hfa 100 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=2 PUFF; ROUTE=Inhl,,100,200,200
+Mometasone-Formoterol Hfa 100 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,PUFF; FREQ=BID; ROUTE=Inhl,2,100,200,200
+Mometasone-Formoterol Hfa 200 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,,,200,200,400
+Mometasone-Formoterol Hfa 200 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,200,400,400
+Mometasone-Formoterol Hfa 200 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=1 PUFF; FREQ=QPM; ROUTE=Inhl,1,200,200,200
+Mometasone-Formoterol Hfa 200 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=1 PUFF; ROUTE=Inhl,,200,200,200
+Mometasone-Formoterol Hfa 200 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=2 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,200,800,800
+Mometasone-Formoterol Hfa 200 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=2 PUFF; FREQ=BID RESP; ROUTE=Inhl,2,200,800,800
+Mometasone-Formoterol Hfa 200 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,200,800,800
+Mometasone-Formoterol Hfa 200 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Oral,2,200,800,800
+Mometasone-Formoterol Hfa 200 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,200,400,400
+Mometasone-Formoterol Hfa 200 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=2 PUFF; FREQ=PRN; ROUTE=Inhl,,200,400,400
+Mometasone-Formoterol Hfa 200 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=2 PUFF; FREQ=QAM; ROUTE=Inhl,1,200,400,400
+Mometasone-Formoterol Hfa 200 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=2 PUFF; FREQ=TID; ROUTE=Inhl,3,200,1200,1200
+Mometasone-Formoterol Hfa 200 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,DOSE=2 PUFF; ROUTE=Inhl,,200,400,400
+Mometasone-Formoterol Hfa 200 mcg-5 mcg/Actuation Aerosol Inhaler,Formoterol/mometasone,PUFF; FREQ=BID; ROUTE=Inhl,2,200,400,400
+Asmanex Hfa Inhl,Mometasone,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,,,200
+Asmanex Hfa Inhl,Mometasone,FREQ=Daily; ROUTE=Inhl,1,,,200
+Asmanex twisthaler (mometasone furoate inhaler) - LMR 4982,Mometasone,,,,,220
+Asmanex twisthaler (mometasone furoate inhaler) - LMR 4982,Mometasone,DOSE=0.22 MG; FREQ=QPM; ROUTE=INH,1,,220,220
+Asmanex twisthaler (mometasone furoate inhaler) - LMR 4982,Mometasone,DOSE=1 INHALATION; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,,440
+Asmanex twisthaler (mometasone furoate inhaler) - LMR 4982,Mometasone,DOSE=1 INHALATION; DOSETYPE=R; FREQ=QD; ROUTE=INH,1,,,220
+Asmanex twisthaler (mometasone furoate inhaler) - LMR 4982,Mometasone,DOSE=1 INHALATION; DOSETYPE=R; FREQ=QPM; ROUTE=INH,1,,,220
+Asmanex twisthaler (mometasone furoate inhaler) - LMR 4982,Mometasone,DOSE=1 INHALATION; FREQ=BID; ROUTE=INH,2,,,440
+Asmanex twisthaler (mometasone furoate inhaler) - LMR 4982,Mometasone,DOSE=1 INHALATION; FREQ=QD; ROUTE=INH,1,,,220
+Asmanex twisthaler (mometasone furoate inhaler) - LMR 4982,Mometasone,DOSE=1 INHALATION; FREQ=QPM; ROUTE=INH,1,,,220
+Asmanex twisthaler (mometasone furoate inhaler) - LMR 4982,Mometasone,DOSE=1 PUFFS; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,,220
+Asmanex twisthaler (mometasone furoate inhaler) - LMR 4982,Mometasone,DOSE=1 PUFFS; DOSETYPE=R; FREQ=QD; ROUTE=NA,1,,,220
+Asmanex twisthaler (mometasone furoate inhaler) - LMR 4982,Mometasone,DOSE=2 INHALATION; DOSETYPE=R; FREQ=BID; ROUTE=INH,2,,,440
+Asmanex twisthaler (mometasone furoate inhaler) - LMR 4982,Mometasone,DOSETYPE=R; ROUTE=INH,,,,220
+Asmanex Twisthaler 220 mcg (30 Doses) Breath Activated,Mometasone,,,220,220,220
+Asmanex Twisthaler 220 mcg (60 Doses) Breath Activated,Mometasone,,,220,220,220
+Asmanex Twisthaler Inhl,Mometasone,,,,,220
+Asmanex twisthaler-oncall,Mometasone,,,,,110
+Mometasone 100 mcg/Actuation Hfa Aerosol Inhaler,Mometasone,DOSE=100 MCG; FREQ=Daily; ROUTE=Each Nare,1,100,100,100
+Mometasone 100 mcg/Actuation Hfa Aerosol Inhaler,Mometasone,DOSE=2 PUFF; ROUTE=Inhl,,100,200,200
+Mometasone 100 mcg/Actuation Hfa Aerosol Inhaler,Mometasone,DOSE=200 MCG; FREQ=BID; ROUTE=Inhl,2,100,400,400
+Mometasone 110 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,,,110,110,220
+Mometasone 110 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=1 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,110,220,220
+Mometasone 110 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,110,220,220
+Mometasone 110 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,110,110,110
+Mometasone 110 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=1 PUFF; FREQ=Nightly PRN; ROUTE=Inhl,1,110,110,110
+Mometasone 110 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=1 PUFF; FREQ=Nightly; ROUTE=Inhl,1,110,110,110
+Mometasone 110 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=1 PUFF; FREQ=QPM; ROUTE=Inhl,1,110,110,110
+Mometasone 110 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=2 PUFF;,,110,220,220
+Mometasone 110 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=2 PUFF; FREQ=BID;,2,110,440,440
+Mometasone 110 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,110,440,440
+Mometasone 110 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,110,220,220
+Mometasone 110 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=2 PUFF; FREQ=Nightly; ROUTE=Inhl,1,110,220,220
+Mometasone 110 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=2 PUFF; FREQ=QPM; ROUTE=Inhl,1,110,220,220
+Mometasone 110 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=220 MCG; FREQ=Nightly; ROUTE=Inhl,1,110,220,220
+Mometasone 220 mcg (120 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,220,440,440
+Mometasone 220 mcg (120 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=220 MCG; FREQ=Daily; ROUTE=Inhl,1,220,220,220
+Mometasone 220 mcg (14 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=1 PUFF; FREQ=Daily; ROUTE=Inhl,1,220,220,220
+Mometasone 220 mcg (14 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=1 PUFF; FREQ=QPM; ROUTE=Inhl,1,220,220,220
+Mometasone 220 mcg (14 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,220,880,880
+Mometasone 220 mcg (14 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=2 PUFF; FREQ=Daily; ROUTE=Inhl,1,220,440,440
+Mometasone 220 mcg (14 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=2 PUFF; FREQ=QPM; ROUTE=Inhl,1,220,440,440
+Mometasone 220 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,,,220,220,330
+Mometasone 220 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,220,440,440
+Mometasone 220 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=1 PUFF; FREQ=Nightly; ROUTE=Inhl,1,220,220,220
+Mometasone 220 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,220,880,880
+Mometasone 220 mcg (30 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=220 MCG; FREQ=Daily; ROUTE=Inhl,1,220,220,220
+Mometasone 220 mcg (60 Doses) Breath Activated Powder Inhaler,Mometasone,,,220,220,440
+Mometasone 220 mcg (60 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=1 PUFF; FREQ=BID PRN; ROUTE=Inhl,2,220,440,440
+Mometasone 220 mcg (60 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=1 PUFF; FREQ=BID; ROUTE=Inhl,2,220,440,440
+Mometasone 220 mcg (60 Doses) Breath Activated Powder Inhaler,Mometasone,DOSE=2 PUFF; FREQ=BID; ROUTE=Inhl,2,220,880,880
+Azmacort - LMR 2032,Triamcinolone,,,,,200
+Azmacort 100 mcg/inh aerosol with adapter,Triamcinolone,,,100,100,100

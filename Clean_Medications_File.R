@@ -1007,3 +1007,333 @@ process_medications_date_compare_cutoff <- function(DF_to_fill = ICS_Tested,
   }
   return(DF_to_fill)
 }
+
+process_medications_set_range <- function(DF_to_fill = All_merged,
+                                          input_file_header = config$rpdr_file_header,
+                                          input_file_ending = config$rpdr_file_ending,
+                                          path_med_abn = str_c(config$data_dir, "Medication_abnormalities/"),
+                                          Medications_Of_Interest,
+                                          Group_Column = config$medication_group,
+                                          Individual_Info = TRUE,
+                                          Group_Info = TRUE,
+                                          Daily_Dose_Info = FALSE,
+                                          write_files = config$create_intermediates,
+                                          output_file_header = config$intermediate_files_dir,
+                                          output_file_ending = config$general_file_ending,
+                                          merged_group_name,
+                                          nebs = FALSE,
+                                          min_dates,
+                                          max_dates,
+                                          restricted_ids = TRUE){
+  if (missing(Medications_Of_Interest)){
+    logerror("No list of Medications were specified. Process stopped.")
+    return(DF_to_fill)
+  }
+  loginfo("Processing medications file...")
+  Medications <- fread(str_c(input_file_header, "Med", input_file_ending))
+  if (!dir.exists(path_med_abn)) {dir.create(path_med_abn)}
+  logdebug(str_c("Note: All Medication abnormalites can be found at ", path_med_abn))
+  path_med_abn <- str_c(path_med_abn, "Med_", min_dates, "_to_", max_dates, "_")
+  if(write_files){
+    output_file_header <- str_c(output_file_header, "Med_", min_dates, "_to_", max_dates, "_")
+  }
+  
+  loginfo("Applying Med_Map...")
+  Med_Map_df <- read.xlsx(str_c(general_path, "/Medication_Mapping.xlsx"))
+  logdebug("Available folders and number of medication groups:")
+  logdebug(t(Med_Map_df %>% group_by(Medication_Biobank_Folder) %>%
+               summarise(Count = n(),
+                         .groups = 'drop')))
+  # Select relevant files
+  Relevant_Meds <- data.frame(Medication_Name = character(),
+                              Medication_Biobank_Folder = character(),
+                              Medication_GWAS_Group = character(),
+                              Medication_Pegasus_Group = character(),
+                              ICS_or_ICS_LABA = character(),
+                              Search_Term = character(),
+                              Ignore.case = logical(),
+                              Perl = logical())
+  for (Grouping_Name in names(Medications_Of_Interest)){
+    if (length(Medications_Of_Interest[[Grouping_Name]]) == 0){
+      Mini_Med_Map <- Med_Map_df %>% filter(!!(as.symbol(Group_Column)) %in% Grouping_Name)
+      Medications_Of_Interest[[Grouping_Name]] = Mini_Med_Map %>% pull(Medication_Name)
+    } else {
+      Mini_Med_Map <- Med_Map_df %>% filter(!!(as.symbol(Group_Column)) %in% Grouping_Name,
+                                            Medication_Name %in% Medications_Of_Interest[[Grouping_Name]])
+    }
+    if (nrow(Mini_Med_Map) == 0){
+      logerror("Med grouping does not exist. Please try again.")
+      return(DF_to_fill)
+    }
+    Relevant_Meds <- rbind(Relevant_Meds, Mini_Med_Map)
+  }
+  rm(Mini_Med_Map, Med_Map_df)
+  Med_Row_ids <- 1:nrow(Relevant_Meds)
+  Medications_condensed <- Medications %>% group_by(Medication) %>%
+    summarise(.groups = 'drop')
+  Med_all_subgroups <- data.frame(Medication = character(),
+                                  Medication_Name = character(),
+                                  Medication_Biobank_Folder = character(),
+                                  Medication_GWAS_Group = character(),
+                                  Medication_Pegasus_Group = character(),
+                                  ICS_or_ICS_LABA = character())
+  for (mri in Med_Row_ids){
+    Med_subgroup <- Medications_condensed %>% filter(grepl(Relevant_Meds[mri,]$Search_Term,
+                                                           Medication,
+                                                           ignore.case = Relevant_Meds[mri,]$Ignore.case,
+                                                           perl = Relevant_Meds[mri,]$Perl)) %>%
+      mutate(Medication_Name  = Relevant_Meds[mri,]$Medication_Name,
+             Medication_Biobank_Folder = Relevant_Meds[mri,]$Medication_Biobank_Folder,
+             Medication_GWAS_Group = Relevant_Meds[mri,]$Medication_GWAS_Group,
+             Medication_Pegasus_Group = Relevant_Meds[mri,]$Medication_Pegasus_Group,
+             ICS_or_ICS_LABA = Relevant_Meds[mri,]$ICS_or_ICS_LABA)
+    Med_all_subgroups <- rbind(Med_all_subgroups, Med_subgroup)
+    rm(Med_subgroup)
+  }
+  Medications <- right_join(Medications, Med_all_subgroups, by = "Medication")
+  rm(Med_all_subgroups, mri, Medications_condensed, Relevant_Meds, Med_Row_ids)
+  
+  Medications <- Medications %>%
+    mutate(Medication_Date = mdy(Medication_Date)) %>%
+    arrange(EMPI, Medication_Date)
+  
+  if (restricted_ids){
+    loginfo("Reducing information to restricted EMPIs...")
+    Medications <- Medications %>% filter(EMPI %in% DF_to_fill$EMPI)
+  }
+  
+  loginfo(str_c("Restricting Medications to specified date range... "))
+  Date_Range_DF <- DF_to_fill %>% select(EMPI, min_dates, max_dates)
+  Medications <- left_join(Medications, Date_Range_DF)
+  Original_row_length <- nrow(Medications)
+  Medications <- Medications %>%
+    filter(Medication_Date >= get(min_dates)) %>%
+    filter(Medication_Date <= get(max_dates))
+  New_row_length <- nrow(Medications)
+  logdebug(str_c(Original_row_length, " Medications reduced to ", New_row_length, " Medications"))
+  rm(Date_Range_DF, Original_row_length, New_row_length)
+  
+  if (Daily_Dose_Info){
+    Med_Dosage_file <- fread(config$ICS_dosage_file_name)
+    Medications <- full_join(Medications, Med_Dosage_file)
+  }
+  if ("Medication_Date_Detail" %in% names(Medications)){
+    Med_abn <- Medications %>% filter(Medication_Date_Detail == "Removed")
+    if (nrow(Med_abn) > 0){
+      logwarn(str_c(nrow(Med_abn), " row(s) out of ", nrow(Medications), " have been removed due having the flag 'Removed'."))
+      fwrite(Med_abn, str_c(path_med_abn, "Abnormality_1_Removed_Flag_All_Medications", output_file_ending))
+      Medications <- Medications %>% filter(Medication_Date_Detail != "Removed")
+    }
+  }
+  loginfo("Creating medication output columns...")
+  # Get the "Any exist" first to lower the search group/increase speed later
+  if (!missing(merged_group_name)){
+    Merged_Group_Header = str_c("Any_", gsub("_{1,}", "_", gsub(" |,|-", "_", merged_group_name)))
+    Output_Columns = Medications %>% group_by(EMPI) %>%
+      select(EMPI, Medication_Name) %>% unique() %>%
+      summarise(!!(as.symbol(Merged_Group_Header)) := "Yes",
+                .groups = 'drop')
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+    DF_to_fill <- DF_to_fill %>%
+      mutate(!!(as.symbol(Merged_Group_Header)) := ifelse(is.na(!!(as.symbol(Merged_Group_Header))),
+                                                          "No", "Yes"))
+    loginfo(str_c(nrow(Output_Columns), " subjects were prescribed any ", merged_group_name))
+  }
+  for (Grouping_Name in names(Medications_Of_Interest)){
+    Group_Header = str_c("Any_", gsub("_{1,}", "_", gsub(" |,|-", "_", Grouping_Name)))
+    Group <- Medications %>%
+      filter(grepl(Grouping_Name, !!(as.symbol(Group_Column))),
+             Medication_Name %in% Medications_Of_Interest[[Grouping_Name]])
+    if (Group_Info){
+      Output_Columns <- Group %>% group_by(EMPI) %>% select(EMPI, Medication_Name) %>% unique() %>%
+        summarise(!!(as.symbol(Group_Header)) := "Yes",
+                  .groups = 'drop')
+      DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+      DF_to_fill <- DF_to_fill %>%
+        mutate(!!(as.symbol(Group_Header)) := ifelse(is.na(!!(as.symbol(Group_Header))), "No", "Yes"))
+      loginfo(str_c(nrow(Output_Columns), " subjects were prescribed any ", Grouping_Name))
+      rm(Output_Columns)
+    }
+    if(Individual_Info){
+      # Look for the individual prescriptions
+      for (Med_Name in Medications_Of_Interest[[Grouping_Name]]){
+        Subgroup_Header <- str_c(gsub("_{1,}", "_", gsub(" |,|-", "_", Grouping_Name)),
+                                 "_", gsub("/| ", "_", Med_Name))
+        Subgroup <- Group %>% filter(Medication_Name == Med_Name) %>% group_by(EMPI)
+        Med_abn <- Subgroup[duplicated(Subgroup) | duplicated(Subgroup, fromLast = TRUE),]
+        if (nrow(Med_abn) > 0){
+          logwarn(str_c(nrow(Med_abn), " completely duplicated row(s) out of ", nrow(Subgroup), " found. Duplicates removed."))
+          fwrite(Med_abn, str_c(path_med_abn, "Abnormality_2_Duplicate_rows_", Subgroup_Header, output_file_ending))
+          Subgroup <- Subgroup %>% unique()
+        }
+        Subgroup2 <- Subgroup %>% select(EMPI, Medication_Date, Medication, Hospital)
+        Med_abn <- Subgroup[duplicated(Subgroup2) | duplicated(Subgroup2, fromLast = TRUE),]
+        if (nrow(Med_abn) > 0){
+          logwarn(str_c(nrow(Med_abn), " partially duplicated row(s) out of ", nrow(Subgroup), " found. ",
+                        sum(duplicated(Subgroup2, fromLast = TRUE)), " rows removed."))
+          fwrite(Med_abn, str_c(path_med_abn, "Abnormality_3_Duplicate_rows_", Subgroup_Header, output_file_ending))
+          Subgroup <- distinct(Subgroup, EMPI, Medication_Date, Medication, Hospital, .keep_all = TRUE)
+        }
+        rm(Subgroup2)
+        # Start writing output
+        Output_Columns <- Subgroup %>% group_by(EMPI) %>%
+          summarise(!!(as.symbol(Subgroup_Header)) := "Yes",
+                    .groups = 'drop')
+        DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+        DF_to_fill <- DF_to_fill %>%
+          mutate(!!(as.symbol(Subgroup_Header)) := ifelse(is.na(!!(as.symbol(Subgroup_Header))), "No", "Yes"))
+        Output_Columns <- Subgroup %>% arrange(Medication_Date) %>% group_by(EMPI) %>%
+          summarise(!!(as.symbol(str_c(Subgroup_Header, "_total_dates"))) := n(),
+                    !!(as.symbol(str_c(Subgroup_Header, "_first_date"))) := first(Medication_Date),
+                    !!(as.symbol(str_c(Subgroup_Header, "_last_date"))) := last(Medication_Date),
+                    !!(as.symbol(str_c(Subgroup_Header, "_dates"))) := paste(Medication_Date, collapse = ";"),
+                    .groups = 'drop')
+        DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+        Output_Columns <- Subgroup %>% group_by(EMPI, Medication) %>%
+          summarise(Medication_Occurances = n(),
+                    .groups = 'drop') %>%
+          group_by(EMPI) %>%
+          summarise(!!(as.symbol(str_c(Subgroup_Header, "_most_common_prescription_total"))) := max(Medication_Occurances),
+                    !!(as.symbol(str_c(Subgroup_Header, "_most_common_prescription"))) := paste(Medication[which(Medication_Occurances == max(Medication_Occurances))], collapse = ";"),
+                    .groups = 'drop')
+        DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+        loginfo(str_c(nrow(Output_Columns), " subjects were prescribed ", tolower(Med_Name), "."))
+        logdebug(str_c("nlines ", Subgroup_Header, " after completion: ", nrow(Subgroup)))
+        rm(Output_Columns, Med_abn)
+        if (Daily_Dose_Info){
+          dd_n_header <- str_c(Subgroup_Header, "_daily_dose_by_name_mcg")
+          Output_Columns <- Subgroup %>%
+            filter(!is.na(Dose_By_Name_MCG)) %>%
+            group_by(EMPI) %>% arrange(Dose_By_Name_MCG) %>%
+            summarise(!!as.symbol(dd_n_header) := "Yes",
+                      !!as.symbol(str_c(dd_n_header, "_total_dosages")) := n(),
+                      !!as.symbol(str_c(dd_n_header, "_min_dosage")) := min(Dose_By_Name_MCG),
+                      !!as.symbol(str_c(dd_n_header, "_max_dosage")) := max(Dose_By_Name_MCG),
+                      !!as.symbol(str_c(dd_n_header, "_median_dosage")) := median(Dose_By_Name_MCG),
+                      !!as.symbol(str_c(dd_n_header, "_mean_dosage")) := mean(Dose_By_Name_MCG),
+                      !!as.symbol(str_c(dd_n_header, "_all_dosages")) := paste(Dose_By_Name_MCG, collapse = ";"))
+          DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+          DF_to_fill %>% mutate(!!as.symbol(dd_n_header) := ifelse(is.na(!!(as.symbol(dd_n_header))), "No", "Yes"))
+          loginfo(str_c(nrow(Output_Columns), " subjects had ", tolower(Med_Name), " medications with dosages in the name."))
+          rm(dd_n_header, Output_Columns)
+          dd_p_header <- str_c(Subgroup_Header, "_daily_dose_by_puffs_mcg")
+          Output_Columns <- Subgroup %>%
+            filter(!is.na(Dose_By_Puff_MCG)) %>%
+            group_by(EMPI) %>% arrange(Dose_By_Puff_MCG) %>%
+            summarise(!!as.symbol(dd_p_header) := "Yes",
+                      !!as.symbol(str_c(dd_p_header, "_total_dosages")) := n(),
+                      !!as.symbol(str_c(dd_p_header, "_min_dosage")) := min(Dose_By_Puff_MCG),
+                      !!as.symbol(str_c(dd_p_header, "_max_dosage")) := max(Dose_By_Puff_MCG),
+                      !!as.symbol(str_c(dd_p_header, "_median_dosage")) := median(Dose_By_Puff_MCG),
+                      !!as.symbol(str_c(dd_p_header, "_mean_dosage")) := mean(Dose_By_Puff_MCG),
+                      !!as.symbol(str_c(dd_p_header, "_all_dosages")) := paste(Dose_By_Puff_MCG, collapse = ";"))
+          DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+          DF_to_fill %>% mutate(!!as.symbol(dd_p_header) := ifelse(is.na(!!(as.symbol(dd_p_header))), "No", "Yes"))
+          loginfo(str_c(nrow(Output_Columns), " subjects had ", tolower(Med_Name), " medications with usage information."))
+          rm(dd_p_header, Output_Columns)
+          dd_i_header <- str_c(Subgroup_Header, "_daily_dose_by_information_mcg")
+          Output_Columns <- Subgroup %>%
+            filter(!is.na(Dose_By_Information)) %>%
+            group_by(EMPI) %>% arrange(Dose_By_Information) %>%
+            summarise(!!as.symbol(dd_i_header) := "Yes",
+                      !!as.symbol(str_c(dd_i_header, "_total_dosages")) := n(),
+                      !!as.symbol(str_c(dd_i_header, "_min_dosage")) := min(Dose_By_Information),
+                      !!as.symbol(str_c(dd_i_header, "_max_dosage")) := max(Dose_By_Information),
+                      !!as.symbol(str_c(dd_i_header, "_median_dosage")) := median(Dose_By_Information),
+                      !!as.symbol(str_c(dd_i_header, "_mean_dosage")) := mean(Dose_By_Information),
+                      !!as.symbol(str_c(dd_i_header, "_all_dosages")) := paste(Dose_By_Information, collapse = ";"))
+          DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+          DF_to_fill %>% mutate(!!as.symbol(dd_i_header) := ifelse(is.na(!!(as.symbol(dd_i_header))), "No", "Yes"))
+          loginfo(str_c(nrow(Output_Columns), " subjects had ", tolower(Med_Name), " medications with dosage information given or derived from outside sources."))
+          rm(dd_i_header, Output_Columns)
+        }
+        if(write_files){
+          fwrite(Subgroup, str_c(output_file_header, Subgroup_Header, output_file_ending))
+        }
+        rm(Subgroup_Header)
+        rm(Subgroup)
+      }
+      rm(Med_Name)
+    }
+    if(Group_Info){
+      # Now that all the errors have been noted.. add more count/date columns
+      Group <- Group %>% distinct(EMPI, Medication_Date, Medication, Hospital, .keep_all = TRUE)
+      Output_Columns <- Group %>% arrange(Medication_Date) %>% group_by(EMPI) %>%
+        summarise(!!(as.symbol(str_c(Group_Header, "_total_dates"))) := n(),
+                  !!(as.symbol(str_c(Group_Header, "_first_date"))) := first(Medication_Date),
+                  !!(as.symbol(str_c(Group_Header, "_last_date"))) := last(Medication_Date),
+                  !!(as.symbol(str_c(Group_Header, "_dates"))) := paste(Medication_Date, collapse = ";"),
+                  .groups = 'drop')
+      DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+      Output_Columns <- Group %>% group_by(EMPI, Medication_Name) %>%
+        summarise(Medication_Occurances = n(),
+                  .groups = 'drop') %>%
+        group_by(EMPI) %>%
+        summarise(!!(as.symbol(str_c(Group_Header, "_most_common_prescription_type_total"))) := max(Medication_Occurances),
+                  !!(as.symbol(str_c(Group_Header, "_most_common_prescription_type"))) := paste(Medication_Name[which(Medication_Occurances == max(Medication_Occurances))], collapse = ";"),
+                  .groups = 'drop')
+      DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+      Output_Columns <- Group %>% group_by(EMPI, Medication) %>%
+        summarise(Medication_Occurances = n(),
+                  .groups = 'drop') %>%
+        group_by(EMPI) %>%
+        summarise(!!(as.symbol(str_c(Group_Header, "_most_common_prescription_total"))) := max(Medication_Occurances),
+                  !!(as.symbol(str_c(Group_Header, "_most_common_prescription"))) := paste(Medication[which(Medication_Occurances == max(Medication_Occurances))], collapse = ";"),
+                  .groups = 'drop')
+      DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+      # Rearrange so "Any" columns are together for easier viewing/understanding
+      DF_to_fill <- DF_to_fill %>% select(EMPI:Group_Header, starts_with(Group_Header), everything())
+      rm(Output_Columns)
+      if(write_files){
+        fwrite(Group, str_c(output_file_header, Group_Header, output_file_ending))
+      }
+    }
+    rm(Group_Header)
+    rm(Group)
+  }
+  if (!missing(merged_group_name)){
+    Medications_distinct <- Medications %>% distinct(EMPI, Medication_Date, Medication, Hospital, .keep_all = TRUE)
+    Merged_Group_Header = str_c("Any_", gsub("_{1,}", "_", gsub(" |,|-", "_", merged_group_name)))
+    Output_Columns <- Medications_distinct %>% arrange(Medication_Date) %>% group_by(EMPI) %>%
+      summarise(!!(as.symbol(str_c(Merged_Group_Header, "_total_dates"))) := n(),
+                !!(as.symbol(str_c(Merged_Group_Header, "_first_date"))) := first(Medication_Date),
+                !!(as.symbol(str_c(Merged_Group_Header, "_last_date"))) := last(Medication_Date),
+                !!(as.symbol(str_c(Merged_Group_Header, "_dates"))) := paste(Medication_Date, collapse = ";"),
+                .groups = 'drop')
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+    Output_Columns <- Medications_distinct %>% group_by(EMPI, Medication_Name) %>%
+      summarise(Medication_Occurances = n(),
+                .groups = 'drop') %>%
+      group_by(EMPI) %>%
+      summarise(!!(as.symbol(str_c(Merged_Group_Header, "_most_common_prescription_type_total"))) := max(Medication_Occurances),
+                !!(as.symbol(str_c(Merged_Group_Header, "_most_common_prescription_type"))) := paste(Medication_Name[which(Medication_Occurances == max(Medication_Occurances))], collapse = ";"),
+                .groups = 'drop')
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+    Output_Columns <- Medications_distinct %>% group_by(EMPI, Medication) %>%
+      summarise(Medication_Occurances = n(),
+                .groups = 'drop') %>%
+      group_by(EMPI) %>%
+      summarise(!!(as.symbol(str_c(Merged_Group_Header, "_most_common_prescription_total"))) := max(Medication_Occurances),
+                !!(as.symbol(str_c(Merged_Group_Header, "_most_common_prescription"))) := paste(Medication[which(Medication_Occurances == max(Medication_Occurances))], collapse = ";"),
+                .groups = 'drop')
+    DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+    if (nebs){
+      Output_Columns <- Medications_distinct %>% filter(grepl("[Nn]eb", Medication)) %>% group_by(EMPI) %>%
+        summarise(!!(as.symbol(str_c(Merged_Group_Header, "_Nebulizer"))) := "Yes",
+                  .groups = 'drop')
+      DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
+      DF_to_fill <- DF_to_fill %>%
+        mutate(!!(as.symbol(str_c(Merged_Group_Header, "_Nebulizer"))) :=
+                 ifelse(is.na(!!(as.symbol(str_c(Merged_Group_Header, "_Nebulizer")))),
+                        "No", "Yes"))
+    }
+    # Rearrange so "Any" columns are together for easier viewing/understanding
+    DF_to_fill <- DF_to_fill %>% select(EMPI:Merged_Group_Header, starts_with(Merged_Group_Header), everything())
+    rm(Output_Columns)
+    if(write_files){
+      fwrite(Medications_distinct, str_c(output_file_header, Merged_Group_Header, output_file_ending))
+    }
+    rm(Medications_distinct)
+  }
+  return(DF_to_fill)
+}
