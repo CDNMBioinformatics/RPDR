@@ -147,8 +147,9 @@ process_diagnoses <- function(DF_to_fill = All_merged,
                 !!(as.symbol(str_c(Merge_Header, "_specific_diagnoses"))) := paste(Diagnosis_Name, collapse = ";"),
                 .groups = 'drop')
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
-    DF_to_fill <- DF_to_fill %>% mutate(!!(as.symbol(str_c(Merge_Header))) := ifelse(is.na(!!(as.symbol(str_c(Merge_Header)))),
-                                                                                     "No", "Yes"))
+    DF_to_fill <- DF_to_fill %>%
+      mutate(!!(as.symbol(str_c(Merge_Header))) := ifelse(is.na(!!(as.symbol(str_c(Merge_Header)))),
+                                                          "No", "Yes"))
     loginfo(str_c(nrow(Output_Columns), " subjects have a(n) ", tolower(Merge_Group_Info_Name), " diagnosis"))
     DF_to_fill <- DF_to_fill %>% select(Original_Columns, starts_with(Merge_Header), everything())
     
@@ -218,7 +219,8 @@ process_diagnoses_date_cutoff <- function(DF_to_fill_cutoff,
       rename(Cutoff_Date_Time = date_variable_cutoff) %>%
       extract(Cutoff_Date_Time, c("Cutoff_Date", "Cutoff_Time"),
               regex = "(\\d{4}-\\d{2}-\\d{2}) (\\d{2}:\\d{2})", remove = FALSE) %>%
-      mutate(Cutoff_Date = ifelse(is.na(Cutoff_Time), Cutoff_Date_Time, Cutoff_Date)) %>% select(EMPI, Cutoff_Date)
+      mutate(Cutoff_Date = ifelse(is.na(Cutoff_Time), Cutoff_Date_Time, Cutoff_Date)) %>%
+      select(EMPI, Cutoff_Date)
   } else {
     EMPI_Date_Limit <- DF_to_fill_cutoff %>% select(EMPI, date_variable_cutoff) %>%
       rename(Cutoff_Date = date_variable_cutoff)
@@ -359,8 +361,9 @@ process_diagnoses_date_cutoff <- function(DF_to_fill_cutoff,
                 !!(as.symbol(str_c(Merge_Header, "_specific_diagnoses"))) := paste(Diagnosis_Name, collapse = ";"),
                 .groups = 'drop')
     DF_to_fill_cutoff <- left_join(DF_to_fill_cutoff, Output_Columns, by = "EMPI")
-    DF_to_fill_cutoff <- DF_to_fill_cutoff %>% mutate(!!(as.symbol(str_c(Merge_Header))) := ifelse(is.na(!!(as.symbol(str_c(Merge_Header)))),
-                                                                                     "No", "Yes"))
+    DF_to_fill_cutoff <- DF_to_fill_cutoff %>%
+      mutate(!!(as.symbol(str_c(Merge_Header))) := ifelse(is.na(!!(as.symbol(str_c(Merge_Header)))),
+                                                          "No", "Yes"))
     loginfo(str_c(nrow(Output_Columns), " subjects have a(n) ", tolower(Merge_Group_Info_Name_cutoff), " diagnosis",
                   ifelse(restrict_to_before_cutoff, " before ", " after "), "cutoff restriction"))
     DF_to_fill_cutoff <- DF_to_fill_cutoff %>% select(Original_Columns, starts_with(Merge_Header), everything())
@@ -423,14 +426,15 @@ process_diagnoses_date_compare_cutoff <- function(DF_to_fill = ICS_Tested,
     Pre_Header <- str_c(Pre_string, Merged_Group_Header)
     Post_Header <- str_c(Post_string, Merged_Group_Header)
     DF_to_fill <- DF_to_fill %>%
-      mutate(!!as.symbol(Compare_Header) := 
-               ifelse(!!as.symbol(Pre_Header) == "Yes",
-                      ifelse(!!as.symbol(Post_Header) == "Yes",
-                             "Yes - Both ranges",
-                             "Yes - Predates cutoff"),
-                      ifelse(!!as.symbol(Post_Header) == "Yes",
-                             "Yes - Postdates cutoff",
-                             "No")),
+      mutate(!!as.symbol(Compare_Header) :=
+               case_when(!!as.symbol(Pre_Header) == "Yes" &
+                           !!as.symbol(Post_Header) == "Yes" ~ "Yes - Both ranges",
+                         !!as.symbol(Pre_Header) == "Yes" &
+                           !!as.symbol(Post_Header) == "No" ~ "Yes - Predates cutuff",
+                         !!as.symbol(Pre_Header) == "No" &
+                           !!as.symbol(Post_Header) == "Yes" ~ "Yes - Postdates cutoff",
+                         !!as.symbol(Pre_Header) == "No" &
+                           !!as.symbol(Post_Header) == "No" ~ "No"),
              !!as.symbol(str_c(Compare_Header, "_total_diagnoses")) := 
                ifelse(is.na(!!as.symbol(str_c(Pre_Header, "_total_diagnoses"))),
                       ifelse(is.na(!!as.symbol(str_c(Post_Header, "_total_diagnoses"))),
@@ -719,8 +723,9 @@ process_diagnoses_set_range <- function(DF_to_fill = All_merged,
                 !!(as.symbol(str_c(Merge_Header, "_specific_diagnoses"))) := paste(Diagnosis_Name, collapse = ";"),
                 .groups = 'drop')
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
-    DF_to_fill <- DF_to_fill %>% mutate(!!(as.symbol(str_c(Merge_Header))) := ifelse(is.na(!!(as.symbol(str_c(Merge_Header)))),
-                                                                                     "No", "Yes"))
+    DF_to_fill <- DF_to_fill %>%
+      mutate(!!(as.symbol(str_c(Merge_Header))) := ifelse(is.na(!!(as.symbol(str_c(Merge_Header)))),
+                                                          "No", "Yes"))
     loginfo(str_c(nrow(Output_Columns), " subjects have a(n) ", tolower(Merge_Group_Info_Name), " diagnosis"))
     DF_to_fill <- DF_to_fill %>% select(Original_Columns, starts_with(Merge_Header), everything())
     
