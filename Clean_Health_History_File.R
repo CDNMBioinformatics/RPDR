@@ -4,6 +4,12 @@ require(stringr) # str_c
 require(tidyverse)
 require(logging)
 
+BP_N = "Normal"
+BP_E = "Elevated"
+BP_HBP1 = "High Blood Pressure: Stage 1"
+BP_HBP2 = "High Blood Pressure: Stage 2"
+BP_HC = "Hypertensive Crisis"
+
 process_physical <- function(DF_to_fill = All_merged,
                              input_file_header = config$rpdr_file_header,
                              input_file_ending = config$rpdr_file_ending,
@@ -54,17 +60,20 @@ process_physical <- function(DF_to_fill = All_merged,
                 BMI_median = median(Result, na.rm = TRUE),
                 BMI_all_values = paste(Result, collapse = ";"),
                 BMI_all_dates = paste(Date, collapse = ";"),
-                BMI_probable_category = ifelse(BMI_median < Underweight_Normal, "Underweight",
-                                               ifelse(BMI_median < Normal_Overweight, "Normal",
-                                                      ifelse(BMI_median < Overweight_Obese,
-                                                             "Overweight", "Obese"))),
+                BMI_probable_category = case_when(BMI_median < Underweight_Normal ~ "Underweight",
+                                                  BMI_median < Normal_Overweight ~ "Normal",
+                                                  BMI_median < Overweight_Obese ~ "Overweight",
+                                                  TRUE ~ "Obese"),
                 .groups = "drop")
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
-    DF_to_fill <- DF_to_fill %>% mutate(BMI = ifelse(is.na(BMI), "No", BMI),
-                                        BMI_number_recorded = ifelse(is.na(BMI_number_recorded),
-                                                                     0, BMI_number_recorded))
+    DF_to_fill <- DF_to_fill %>%
+      mutate(BMI = ifelse(is.na(BMI), "No", BMI),
+             BMI_number_recorded = ifelse(is.na(BMI_number_recorded),
+                                          0,
+                                          BMI_number_recorded))
     Underweight <- BMI %>% filter(Result < Underweight_Normal)
-    Output_Columns <- Underweight %>% group_by(EMPI) %>% arrange(Date) %>%
+    Output_Columns <- Underweight %>%
+      group_by(EMPI) %>% arrange(Date) %>%
       summarise(BMI_underweight = "Yes",
                 BMI_underweight_number_recorded = n(),
                 BMI_underweight_all_values = paste(Result, collapse = ";"),
@@ -74,9 +83,11 @@ process_physical <- function(DF_to_fill = All_merged,
     DF_to_fill <- DF_to_fill %>%
       mutate(BMI_underweight = ifelse(is.na(BMI_underweight), "No", BMI_underweight),
              BMI_underweight_number_recorded = ifelse(is.na(BMI_underweight_number_recorded),
-                                                      0, BMI_underweight_number_recorded))
+                                                      0,
+                                                      BMI_underweight_number_recorded))
     Normal <- BMI %>% filter(Result >= Underweight_Normal & Result < Normal_Overweight)
-    Output_Columns <- Normal %>% group_by(EMPI) %>% arrange(Date) %>%
+    Output_Columns <- Normal %>%
+      group_by(EMPI) %>% arrange(Date) %>%
       summarise(BMI_normal = "Yes",
                 BMI_normal_number_recorded = n(),
                 BMI_normal_all_values = paste(Result, collapse = ";"),
@@ -86,9 +97,11 @@ process_physical <- function(DF_to_fill = All_merged,
     DF_to_fill <- DF_to_fill %>%
       mutate(BMI_normal = ifelse(is.na(BMI_normal), "No", BMI_normal),
              BMI_normal_number_recorded = ifelse(is.na(BMI_normal_number_recorded),
-                                                 0, BMI_normal_number_recorded))
+                                                 0,
+                                                 BMI_normal_number_recorded))
     Overweight <- BMI %>% filter(Result >= Normal_Overweight & Result < Overweight_Obese)
-    Output_Columns <- Overweight %>% group_by(EMPI) %>% arrange(Date) %>%
+    Output_Columns <- Overweight %>%
+      group_by(EMPI) %>% arrange(Date) %>%
       summarise(BMI_overweight = "Yes",
                 BMI_overweight_number_recorded = n(),
                 BMI_overweight_all_values = paste(Result, collapse = ";"),
@@ -98,9 +111,11 @@ process_physical <- function(DF_to_fill = All_merged,
     DF_to_fill <- DF_to_fill %>%
       mutate(BMI_overweight = ifelse(is.na(BMI_overweight), "No", BMI_overweight),
              BMI_overweight_number_recorded = ifelse(is.na(BMI_overweight_number_recorded),
-                                                     0, BMI_overweight_number_recorded))
+                                                     0,
+                                                     BMI_overweight_number_recorded))
     Obese <- BMI %>% filter(Result >= Overweight_Obese)
-    Output_Columns <- Obese %>% group_by(EMPI) %>% arrange(Date) %>%
+    Output_Columns <- Obese %>%
+      group_by(EMPI) %>% arrange(Date) %>%
       summarise(BMI_obese = "Yes",
                 BMI_obese_number_recorded = n(),
                 BMI_obese_all_values = paste(Result, collapse = ";"),
@@ -110,7 +125,8 @@ process_physical <- function(DF_to_fill = All_merged,
     DF_to_fill <- DF_to_fill %>%
       mutate(BMI_obese = ifelse(is.na(BMI_obese), "No", BMI_obese),
              BMI_obese_number_recorded = ifelse(is.na(BMI_obese_number_recorded),
-                                                0, BMI_obese_number_recorded))
+                                                0,
+                                                BMI_obese_number_recorded))
     rm(Underweight, Normal, Overweight, Obese, BMI, Output_Columns)
   }
   if (Return_Influenza){
@@ -129,7 +145,8 @@ process_physical <- function(DF_to_fill = All_merged,
       Flu <- Flu %>% unique()
     }
     rm(Phy_abn)
-    Output_Columns <- Flu %>% group_by(EMPI) %>% arrange(Date) %>%
+    Output_Columns <- Flu %>%
+      group_by(EMPI) %>% arrange(Date) %>%
       summarise(Flu_vaccined = "Yes",
                 Flu_vaccine_count  = n(),
                 Flu_vaccine_most_recent = last(Date),
@@ -164,19 +181,25 @@ process_physical <- function(DF_to_fill = All_merged,
                 .groups = "drop")
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>%
-      mutate(Smoker_Former_or_Current = ifelse(is.na(Smoker_Former_or_Current), "No", Smoker_Former_or_Current))
+      mutate(Smoker_Former_or_Current = ifelse(is.na(Smoker_Former_or_Current),
+                                               "No",
+                                               Smoker_Former_or_Current))
     rm(Output_Columns, Smoker)
   }
   if (Return_Blood_Pressure){
     BP <- Phy %>% filter(grepl("Blood [Pp]", Concept_Name))
-    readings <- BP %>% group_by(EMPI, Date) %>% summarise(count = n(),
-                                                          results = paste(Result, collapse = ";"))
-    readings_pure <- BP %>% filter(grepl("^\\d", Result)) %>% group_by(EMPI, Date) %>% summarise(count = n(),
-                                                                                                 results = paste(Result, collapse = ";"))
+    readings <- BP %>%
+      group_by(EMPI, Date) %>%
+      summarise(count = n(), results = paste(Result, collapse = ";"))
+    readings_pure <- BP %>%
+      filter(grepl("^\\d", Result)) %>%
+      group_by(EMPI, Date) %>%
+      summarise(count = n(), results = paste(Result, collapse = ";"))
     BP %>% filter(grepl("^\\d+[^/]\\d+$", Result))
     Phy %>% filter(grepl("Dias|Syst", Concept_Name)) %>% group_by(Concept_Name, Code) %>% summarise(n())
-    BP <- Phy %>% filter(grepl("Blood [Pp]|Systolic/Diastolic", Concept_Name),
-                         grepl("^\\d+/\\d+$", Result)) %>%
+    BP <- Phy %>%
+      filter(grepl("Blood [Pp]|Systolic/Diastolic", Concept_Name),
+             grepl("^\\d+/\\d+$", Result)) %>%
       separate(Result, c("Systolic", "Diastolic"), sep = "/", remove = FALSE) %>%
       mutate(Systolic = as.numeric(Systolic),
              Diastolic = as.numeric(Diastolic)) %>%
@@ -208,77 +231,74 @@ process_physical <- function(DF_to_fill = All_merged,
              PP_Check = round(Pulse_Pressure/Systolic, 2)) %>% # This should be around 1/3
       # If at this point there's still values that have a negative Pulse_Pressure, it's an entry error that's not easily fixable
       filter(Pulse_Pressure > 0) %>%
-      mutate(Category = ifelse(Systolic < 120 & Diastolic < 80,
-                               "Normal",
-                               ifelse(Systolic < 130 & Diastolic < 80,
-                                      "Elevated",
-                                      ifelse ((Systolic >= 30 & Systolic < 140) | (Diastolic >= 80 & Diastolic < 90),
-                                              "High Blood Pressure: Stage 1",
-                                              ifelse((Systolic >= 140 & Systolic < 180) | (Diastolic >= 90 & Diastolic < 120),
-                                                     "High Blood Pressure: Stage 2",
-                                                     ifelse(Systolic >= 180 | Diastolic >= 120,
-                                                            "Hypertensive Crisis",
-                                                            "Other"))))))
-    Output_Columns <- BP %>% group_by(EMPI, Category) %>% arrange(Date) %>%
+      mutate(Category = case_when(Systolic < 120 & Diastolic < 80 ~ BP_N,
+                                  Systolic < 130 & Diastolic < 80 ~ BP_E,
+                                  (Systolic >= 30 & Systolic < 140) |
+                                    (Diastolic >= 80 & Diastolic < 90) ~ BP_HBP1,
+                                  (Systolic >= 140 & Systolic < 180) |
+                                    (Diastolic >= 90 & Diastolic < 120) ~ BP_HBP2,
+                                  Systolic >=180 | Diastolic >= 120 ~ BP_HC,
+                                  TRUE ~ "Other"))
+    Output_Columns <- BP %>%
+      group_by(EMPI, Category) %>% arrange(Date) %>%
       summarise(n())
-    Output_Columns <- BP %>% group_by(EMPI) %>% arrange(Date) %>%
+    Output_Columns <- BP %>%
+      group_by(EMPI) %>% arrange(Date) %>%
       summarise(BP = "Yes",
                 BP_number_recorded = n())
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
-    DF_to_fill <- DF_to_fill %>% mutate(BP = ifelse(is.na(BP), "No", BP),
-                                        BP_number_recorded = ifelse(is.na(BP_number_recorded),
-                                                                     0, BP_number_recorded))
-    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == "Normal") %>%
-      summarise(BP_Normal = "Yes",
-                BP_Normal_number_recorded = n())
+    DF_to_fill <- DF_to_fill %>%
+      mutate(BP = ifelse(is.na(BP), "No", BP),
+             BP_number_recorded = ifelse(is.na(BP_number_recorded), 0, BP_number_recorded))
+    Output_Columns <- BP %>%
+      group_by(EMPI) %>%
+      filter(Category == BP_N) %>%
+      summarise(BP_Normal = "Yes", BP_Normal_number_recorded = n())
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>% mutate(BP_Normal = ifelse(is.na(BP_Normal), "No", BP_Normal),
                                         BP_Normal_number_recorded = ifelse(is.na(BP_Normal_number_recorded),
-                                                                    0, BP_Normal_number_recorded))
-    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == "Elevated") %>%
+                                                                           0, BP_Normal_number_recorded))
+    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == BP_E) %>%
       summarise(BP_Elevated = "Yes",
                 BP_Elevated_number_recorded = n())
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>% mutate(BP_Elevated = ifelse(is.na(BP_Elevated), "No", BP_Elevated),
                                         BP_Elevated_number_recorded = ifelse(is.na(BP_Elevated_number_recorded),
-                                                                           0, BP_Elevated_number_recorded))
-    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == "High Blood Pressure: Stage 1") %>%
+                                                                             0, BP_Elevated_number_recorded))
+    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == BP_HBP1) %>%
       summarise(BP_High_Blood_Pressure_Stage_1 = "Yes",
                 BP_High_Blood_Pressure_Stage_1_number_recorded = n())
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>% mutate(BP_High_Blood_Pressure_Stage_1 = ifelse(is.na(BP_High_Blood_Pressure_Stage_1), "No", BP_High_Blood_Pressure_Stage_1),
                                         BP_High_Blood_Pressure_Stage_1_number_recorded = ifelse(is.na(BP_High_Blood_Pressure_Stage_1_number_recorded),
-                                                                           0, BP_High_Blood_Pressure_Stage_1_number_recorded))
-    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == "High Blood Pressure: Stage 2") %>%
+                                                                                                0, BP_High_Blood_Pressure_Stage_1_number_recorded))
+    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == BP_HBP2) %>%
       summarise(BP_High_Blood_Pressure_Stage_2 = "Yes",
                 BP_High_Blood_Pressure_Stage_2_number_recorded = n())
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>% mutate(BP_High_Blood_Pressure_Stage_2 = ifelse(is.na(BP_High_Blood_Pressure_Stage_2), "No", BP_High_Blood_Pressure_Stage_2),
                                         BP_High_Blood_Pressure_Stage_2_number_recorded = ifelse(is.na(BP_High_Blood_Pressure_Stage_2_number_recorded),
                                                                                                 0, BP_High_Blood_Pressure_Stage_2_number_recorded))
-    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == "Hypertensive Crisis") %>%
+    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == BP_HC) %>%
       summarise(BP_Hypertensive_Crisis = "Yes",
                 BP_Hypertensive_Crisis_number_recorded = n())
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>% mutate(BP_Hypertensive_Crisis = ifelse(is.na(BP_Hypertensive_Crisis), "No", BP_Hypertensive_Crisis),
                                         BP_Hypertensive_Crisis_number_recorded = ifelse(is.na(BP_Hypertensive_Crisis_number_recorded),
-                                                                                                0, BP_Hypertensive_Crisis_number_recorded))
-    Output_Columns <- DF_to_fill %>% filter(BP == "Yes") %>%
+                                                                                        0, BP_Hypertensive_Crisis_number_recorded))
+    Output_Columns <- DF_to_fill %>%
+      filter(BP == "Yes") %>%
       mutate(BP_largest_count = pmax(BP_Normal_number_recorded,
-                                    BP_Elevated_number_recorded,
-                                    BP_High_Blood_Pressure_Stage_1_number_recorded,
-                                    BP_High_Blood_Pressure_Stage_2_number_recorded,
-                                    BP_Hypertensive_Crisis_number_recorded,
-                                    na.rm = TRUE),
-             BP_probable_category = ifelse(BP_largest_count == BP_Normal_number_recorded,
-                                           "Normal",
-                                           ifelse(BP_largest_count == BP_Elevated_number_recorded,
-                                                  "Elevated",
-                                                  ifelse(BP_largest_count == BP_High_Blood_Pressure_Stage_1_number_recorded,
-                                                         "High Blood Pressure: Stage 1",
-                                                         ifelse(BP_largest_count == BP_High_Blood_Pressure_Stage_2_number_recorded,
-                                                                "High Blood Pressure: Stage 2",
-                                                                "Hypertensive Crisis")))))
+                                     BP_Elevated_number_recorded,
+                                     BP_High_Blood_Pressure_Stage_1_number_recorded,
+                                     BP_High_Blood_Pressure_Stage_2_number_recorded,
+                                     BP_Hypertensive_Crisis_number_recorded,
+                                     na.rm = TRUE),
+             BP_probable_category = case_when(BP_largest_count == BP_Normal_number_recorded ~ BP_N,
+                                              BP_largest_count == BP_Elevated_number_recorded ~ BP_E,
+                                              BP_largest_count == BP_High_Blood_Pressure_Stage_1_number_recorded ~ BP_HBP1,
+                                              BP_largest_count == BP_High_Blood_Pressure_Stage_2_number_recorded ~ BP_HBP2,
+                                              TRUE ~ BP_HC))
     DF_to_fill <- left_join(DF_to_fill, Output_Columns)
     rm(BP, Output_Columns)
   }
@@ -368,10 +388,10 @@ process_physical_date <- function(DF_to_fill = All_merged,
                 BMI_median = median(Result, na.rm = TRUE),
                 BMI_all_values = paste(Result, collapse = ";"),
                 BMI_all_dates = paste(Date, collapse = ";"),
-                BMI_probable_category = ifelse(BMI_median < Underweight_Normal, "Underweight",
-                                               ifelse(BMI_median < Normal_Overweight, "Normal",
-                                                      ifelse(BMI_median < Overweight_Obese,
-                                                             "Overweight", "Obese"))),
+                BMI_probable_category = case_when(BMI_median < Underweight_Normal ~ "Underweight",
+                                                  BMI_median < Normal_Overweight ~ "Normal",
+                                                  BMI_median < Overweight_Obese ~ "Overweight",
+                                                  TRUE ~ "Obese"),
                 .groups = "drop")
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>% mutate(BMI = ifelse(is.na(BMI), "No", BMI),
@@ -551,10 +571,10 @@ process_physical_set_range <- function(DF_to_fill = All_merged,
                 BMI_median = median(Result, na.rm = TRUE),
                 BMI_all_values = paste(Result, collapse = ";"),
                 BMI_all_dates = paste(Date, collapse = ";"),
-                BMI_probable_category = ifelse(BMI_median < Underweight_Normal, "Underweight",
-                                               ifelse(BMI_median < Normal_Overweight, "Normal",
-                                                      ifelse(BMI_median < Overweight_Obese,
-                                                             "Overweight", "Obese"))),
+                BMI_probable_category = case_when(BMI_median < Underweight_Normal ~ "Underweight",
+                                                  BMI_median < Normal_Overweight ~ "Normal",
+                                                  BMI_median < Overweight_Obese ~ "Overweight",
+                                                  TRUE ~ "Obese"),
                 .groups = "drop")
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>% mutate(BMI = ifelse(is.na(BMI), "No", BMI),
