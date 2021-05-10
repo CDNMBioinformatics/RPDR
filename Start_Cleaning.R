@@ -15,26 +15,17 @@ start_processing <- function(input_file_header = config$rpdr_file_header,
   Demographics <- fread(str_c(input_file_header, "Dem", input_file_ending))
   Demographics <- Demographics %>% select(EMPI, Gender, Race, Date_of_Birth, Age, Date_Of_Death, Vital_status) %>%
     mutate(Living = ifelse(grepl("Not reported as deceased", Vital_status), "Yes", "No"),
-           Age_Range = ifelse(Age < 10,
-                              "0-9",
-                              ifelse(Age < 20,
-                                     "10-19",
-                                     ifelse(Age < 30,
-                                            "20-29",
-                                            ifelse(Age < 40,
-                                                   "30-39",
-                                                   ifelse(Age < 50,
-                                                          "40-49",
-                                                          ifelse(Age < 60,
-                                                                 "50-59",
-                                                                 ifelse(Age < 70,
-                                                                        "60-69",
-                                                                        ifelse(Age < 80,
-                                                                               "70-79",
-                                                                               ifelse(Age < 90,
-                                                                                      "80-89",
-                                                                                      "90+"))))))))))
-  
+           Age_Range = case_when(Age < 10 ~ "0-9",
+                                 Age < 20 ~ "10-19",
+                                 Age < 30 ~ "20-29",
+                                 Age < 40 ~ "30-39",
+                                 Age < 50 ~ "40-49",
+                                 Age < 60 ~ "50-59",
+                                 Age < 70 ~ "60-69",
+                                 Age < 80 ~ "70-79",
+                                 Age < 90 ~ "80-89",
+                                 Age >= 90 ~ "90+"))
+
   loginfo(str_c(nrow(Demographics), " subjects processed"))
 
   loginfo("Processing biobank ids file... ")
@@ -51,16 +42,15 @@ start_processing <- function(input_file_header = config$rpdr_file_header,
   if(include.identifiable){
     loginfo("Processing identifiable information...")
     Identifiable <- fread(str_c(input_file_header, "Con", input_file_ending))
-    Identifiable <- Identifiable %>% mutate(Zip = as.character(Zip),
-                                            Zip = ifelse(grepl("CT|MA|ME|NH|NJ|RI|VT", State) &
-                                                           (str_count(Zip) == 4 |  str_count(Zip) == 8),
-                                                         str_c("0", Zip),
-                                                         ifelse(grepl("PR|VI", State) & 
-                                                                  (str_count(Zip) == 3 | str_count(Zip) == 7),
-                                                                str_c("00", Zip),
-                                                                Zip)),
-                                            Zip = substr(Zip, 1, 5),
-                                            Employee = ifelse(grepl("E", VIP), "YES", "NO"))
+    Identifiable <- Identifiable %>%
+      mutate(Zip = as.character(Zip),
+             Zip = case_when(grepl("CT|MA|ME|NH|NJ|RI|VT", State) &
+                               (str_count(Zip) == 4 |  str_count(Zip) == 8) ~ str("0", Zip),
+                             grepl("PR|VI", State) & 
+                               (str_count(Zip) == 3 | str_count(Zip) == 7) ~ str("00", Zip),
+                             TRUE ~ Zip),
+             Zip = substr(Zip, 1, 5),
+             Employee = ifelse(grepl("E", VIP), "YES", "NO"))
     Identifiable <- Identifiable %>% select(EMPI, Zip, Employee)
     loginfo(str_c(nrow(Identifiable), " subjects processed"))
     loginfo("Adding identified to merged output...")
