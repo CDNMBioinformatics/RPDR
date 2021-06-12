@@ -4,6 +4,8 @@ General code and functions for processing/cleaning RPDR data lives here as well 
 
 ## List of related Projects
 
+- A template version of how to use cleaned RPDR data with some examples: https://changit.bwh.harvard.edu/resta/RPDR_Template
+
 - How to run analysis that cleaned RPDR data for Priya's ICD and Cortisol study: https://changit.bwh.harvard.edu/resta/RPDR_ACTH
 
 - How to run analysis for General Asthma Longitudinal Study: https://changit.bwh.harvard.edu/resta/RPDR_Asthma_Longitudinal_Study
