@@ -4,6 +4,9 @@ require(stringr) # str_c
 require(tidyverse)
 require(logging)
 
+####################
+# Helper Functions #
+####################
 DiagnosesHelper_CoreFunctionality <- function(Diagnoses_DF,
                                               Main_DF,
                                               Static_Columns_Vector,
@@ -165,6 +168,7 @@ DiagnosesHelper_CoreFunctionality <- function(Diagnoses_DF,
     return(Main_DF)
   }
 }
+
 DiagnosesHelper_CompareOutput <- function(Header,
                                           Main_DF){
   Compare_Header <- str_c("Compare_", Header)
@@ -208,6 +212,30 @@ DiagnosesHelper_CompareOutput <- function(Header,
   return(Main_DF)
 }
 
+##################
+# Main Functions #
+##################
+#' Read in file with diagnosis information and add relevant columns to existing data frame
+#' 
+#' @param DF_to_fill The data frame you want to add columns to (default = All_merged)
+#' @param input_file_header The path + prefix of RPDR file to read (default = config$rpdr_file_header)
+#' @param input_file_ending The ending of the RPDR file (default = .txt)
+#' @param path_dia_abn The path where you want to record the abnormalities in the EMRs (default = {config$data_dir}/Diagnoses_abnormalities/)
+#' @param Diagnoses_of_interest A list of Diagnoses to select to be provided. Each Key is the Group (usually biobank folder) and Values are Individuals (usually subfolders or items).
+#' @param Exact Are you using exact search terms or regular expressions (Default = FALSE)
+#' @param Individual_Info Do you want information on the Values? (Default = TRUE)
+#' @param Group_Info Do you want information on the Keys? (Default = TRUE)
+#' @param Merge_Group_Info_Name If included, all Keys merged together into one group
+#' @param write_files Do you want to write intermediates to output? (Default = config$create_intermediates)
+#' @param output_file_header The path to intermediates outputs (Default = config$intermediate_files_dir)
+#' @param output_file The ending of output files (default = config$general_file_ending)
+#' 
+#' @return \code{DF_to_fill} modified with additional columns
+#' 
+#' @examples
+#' process_diagnoses(Diagnoses_Of_Interest = list("Adrenal insufficiency" = c("Corticoadrenal insufficiency", "Primary adrenocortical insufficiency", "Other adrenocortical insufficiency", "Unspecified adrenocortical insufficiency")))
+#' process_diagnoses(Individual_Info = FALSE, Diagnoses_Of_Interest = list("Adrenal insufficiency" = c("adren.* insufficiency$")))
+#' process_diagnoses(Merge_Group_Info_Name = Asthma, Individual_Info = FALSE, Group_Info = FALSE, Diagnoses_Of_Interest = list("Mild Asthma" = c("Mild Asthma"), "Severe Asthma" = c("Severe Asthma")))
 process_diagnoses <- function(DF_to_fill = All_merged,
                               input_file_header = config$rpdr_file_header,
                               input_file_ending = config$rpdr_file_ending,
@@ -286,6 +314,30 @@ process_diagnoses <- function(DF_to_fill = All_merged,
   return(DF_to_fill)
 }
 
+#' Read in file with diagnosis information and add relevant columns to existing data frame
+#' Information is limited to all before or all after
+#' 
+#' @param DF_to_fill The data frame you want to add columns to (default = All_merged)
+#' @param input_file_header The path + prefix of RPDR file to read (default = config$rpdr_file_header)
+#' @param input_file_ending The ending of the RPDR file (default = .txt)
+#' @param path_dia_abn The path where you want to record the abnormalities in the EMRs (default = {config$data_dir}/Diagnoses_abnormalities/)
+#' @param Diagnoses_of_interest A list of Diagnoses to select to be provided. Each Key is the Group (usually biobank folder) and Values are Individuals (usually subfolders or items).
+#' @param Exact Are you using exact search terms or regular expressions (Default = FALSE)
+#' @param Individual_Info Do you want information on the Values? (Default = TRUE)
+#' @param Group_Info Do you want information on the Keys? (Default = TRUE)
+#' @param Merge_Group_Info_Name If included, all Keys merged together into one group
+#' @param write_files Do you want to write intermediates to output? (Default = config$create_intermediates)
+#' @param output_file_header The path to intermediates outputs (Default = config$intermediate_files_dir)
+#' @param output_file The ending of output files (default = config$general_file_ending)
+#' @param cutoff_variable The character value representing an existing column with date information
+#' @param restrict_to_before_cutoff Do you want to restrict information to before [min - cutoff; TRUE] or after [cutoff - max; FALSE] (Default = TRUE)
+#' 
+#' @return \code{DF_to_fill} modified with additional columns
+#' 
+#' @examples
+#' process_diagnoses_date_cutoff(Diagnoses_Of_Interest = list("Adrenal insufficiency" = c("Corticoadrenal insufficiency", "Primary adrenocortical insufficiency", "Other adrenocortical insufficiency", "Unspecified adrenocortical insufficiency")), cutoff_variable = "Plasma_Date")
+#' process_diagnoses_date_cutoff(Individual_Info = FALSE, Diagnoses_Of_Interest = list("Adrenal insufficiency" = c("adren.* insufficiency$")), cutoff_variable = "Plasma_Date")
+#' process_diagnoses_date_cutoff(Merge_Group_Info_Name = Asthma, Individual_Info = FALSE, Group_Info = FALSE, Diagnoses_Of_Interest = list("Mild Asthma" = c("Mild Asthma"), "Severe Asthma" = c("Severe Asthma")), cutoff_variable = "Plasma_Date")
 process_diagnoses_date_cutoff <- function(DF_to_fill = All_merged,
                                           input_file_header = config$rpdr_file_header,
                                           input_file_ending = config$rpdr_file_ending,
@@ -403,6 +455,30 @@ process_diagnoses_date_cutoff <- function(DF_to_fill = All_merged,
   return(DF_to_fill)
 }
 
+#' Read in file with diagnosis information and add relevant columns to existing data frame
+#' Information is limited to a window [min - max]
+#' 
+#' @param DF_to_fill The data frame you want to add columns to (default = All_merged)
+#' @param input_file_header The path + prefix of RPDR file to read (default = config$rpdr_file_header)
+#' @param input_file_ending The ending of the RPDR file (default = .txt)
+#' @param path_dia_abn The path where you want to record the abnormalities in the EMRs (default = {config$data_dir}/Diagnoses_abnormalities/)
+#' @param Diagnoses_of_interest A list of Diagnoses to select to be provided. Each Key is the Group (usually biobank folder) and Values are Individuals (usually subfolders or items).
+#' @param Exact Are you using exact search terms or regular expressions (Default = FALSE)
+#' @param Individual_Info Do you want information on the Values? (Default = TRUE)
+#' @param Group_Info Do you want information on the Keys? (Default = TRUE)
+#' @param Merge_Group_Info_Name If included, all Keys merged together into one group
+#' @param write_files Do you want to write intermediates to output? (Default = config$create_intermediates)
+#' @param output_file_header The path to intermediates outputs (Default = config$intermediate_files_dir)
+#' @param output_file The ending of output files (default = config$general_file_ending)
+#' @param min_dates The character value representing an existing column with date information
+#' @param max_dates The character value representing an existing column with date information
+#' 
+#' @return \code{DF_to_fill} modified with additional columns
+#' 
+#' @examples
+#' process_diagnoses_set_range(Diagnoses_Of_Interest = list("Adrenal insufficiency" = c("Corticoadrenal insufficiency", "Primary adrenocortical insufficiency", "Other adrenocortical insufficiency", "Unspecified adrenocortical insufficiency")), min_dates = "Plasma_Date_First", max_dates = "Plasma_Date_Most_Recent")
+#' process_diagnoses_set_range(Individual_Info = FALSE, Diagnoses_Of_Interest = list("Adrenal insufficiency" = c("adren.* insufficiency$")), min_dates = "Plasma_Date_First", max_dates = "Plasma_Date_Most_Recent")
+#' process_diagnoses_set_range(Merge_Group_Info_Name = Asthma, Individual_Info = FALSE, Group_Info = FALSE, Diagnoses_Of_Interest = list("Mild Asthma" = c("Mild Asthma"), "Severe Asthma" = c("Severe Asthma")), min_dates = "Plasma_Date_First", max_dates = "Plasma_Date_Most_Recent")
 process_diagnoses_set_range <- function(DF_to_fill = All_merged,
                                         input_file_header = config$rpdr_file_header,
                                         input_file_ending = config$rpdr_file_ending,
@@ -504,6 +580,29 @@ process_diagnoses_set_range <- function(DF_to_fill = All_merged,
   return(DF_to_fill)
 }
 
+#' Read in file with diagnosis information and add relevant columns to existing data frame
+#' Adds in columns for [Before - cutoff], [cutoff - After], and columns comparing ranges
+#' 
+#' @param DF_to_fill The data frame you want to add columns to (default = All_merged)
+#' @param input_file_header The path + prefix of RPDR file to read (default = config$rpdr_file_header)
+#' @param input_file_ending The ending of the RPDR file (default = .txt)
+#' @param path_dia_abn The path where you want to record the abnormalities in the EMRs (default = {config$data_dir}/Diagnoses_abnormalities/)
+#' @param Diagnoses_of_interest A list of Diagnoses to select to be provided. Each Key is the Group (usually biobank folder) and Values are Individuals (usually subfolders or items).
+#' @param Exact Are you using exact search terms or regular expressions (Default = FALSE)
+#' @param Individual_Info Do you want information on the Values? (Default = TRUE)
+#' @param Group_Info Do you want information on the Keys? (Default = TRUE)
+#' @param Merge_Group_Info_Name If included, all Keys merged together into one group
+#' @param write_files Do you want to write intermediates to output? (Default = config$create_intermediates)
+#' @param output_file_header The path to intermediates outputs (Default = config$intermediate_files_dir)
+#' @param output_file The ending of output files (default = config$general_file_ending)
+#' @param cutoff_variable The character value representing an existing column with date information
+#' 
+#' @return \code{DF_to_fill} modified with additional columns
+#' 
+#' @examples
+#' process_diagnoses_date_cutoff(Diagnoses_Of_Interest = list("Adrenal insufficiency" = c("Corticoadrenal insufficiency", "Primary adrenocortical insufficiency", "Other adrenocortical insufficiency", "Unspecified adrenocortical insufficiency")), cutoff_variable = "Plasma_Date")
+#' process_diagnoses_date_cutoff(Individual_Info = FALSE, Diagnoses_Of_Interest = list("Adrenal insufficiency" = c("adren.* insufficiency$")), cutoff_variable = "Plasma_Date")
+#' process_diagnoses_date_cutoff(Merge_Group_Info_Name = Asthma, Individual_Info = FALSE, Group_Info = FALSE, Diagnoses_Of_Interest = list("Mild Asthma" = c("Mild Asthma"), "Severe Asthma" = c("Severe Asthma")), cutoff_variable = "Plasma_Date")
 process_diagnoses_date_compare_cutoff <- function(DF_to_fill = ICS_Tested,
                                                   input_file_header = config$rpdr_file_header,
                                                   input_file_ending = config$rpdr_file_ending,
@@ -607,6 +706,7 @@ process_diagnoses_date_compare_cutoff <- function(DF_to_fill = ICS_Tested,
     Name_Merge_Group = Merge_Group_Info_Name,
     is_Exact = Exact,
     is_All_Before_After = "Before")
+  Original_Columns <- names(DF_to_fill)
   DF_to_fill <- DiagnosesHelper_CoreFunctionality(
     Diagnoses_DF = Diagnoses_After,
     Main_DF = DF_to_fill,
