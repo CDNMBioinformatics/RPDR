@@ -292,7 +292,9 @@ process_diagnoses <- function(DF_to_fill = All_merged,
   # Actual Function Start #
   #########################
   Original_Columns <- names(DF_to_fill)
+  loginfo("Reading file...")
   Diagnoses <- fread(Diagnosis_file_name)
+  loginfo("Read complete")
   rm(Diagnosis_file_name)
   # Should already be formatted that way but adjust in case RPDR changes formatting on their end
   Diagnoses <- Diagnoses %>% mutate(Date = mdy(Date)) %>% arrange(EMPI, Date)
@@ -404,7 +406,9 @@ process_diagnoses_date_cutoff <- function(DF_to_fill = All_merged,
   # Actual Function Start #
   #########################
   Original_Columns <- names(DF_to_fill)
+  loginfo("Reading file...")
   Diagnoses <- fread(Diagnosis_file_name)
+  loginfo("Read complete")
   rm(Diagnosis_file_name)
   # Should already be formatted that way but adjust in case RPDR changes formatting on their end
   Diagnoses <- Diagnoses %>% mutate(Date = mdy(Date)) %>% arrange(EMPI, Date)
@@ -662,7 +666,9 @@ process_diagnoses_date_compare_cutoff <- function(DF_to_fill = ICS_Tested,
   # Actual Function Start #
   #########################
   Original_Columns <- names(DF_to_fill)
+  loginfo("Reading file...")
   Diagnoses <- fread(Diagnosis_file_name)
+  loginfo("Read complete")
   rm(Diagnosis_file_name)
   # Should already be formatted that way but adjust in case RPDR changes formatting on their end
   Diagnoses <- Diagnoses %>% mutate(Date = mdy(Date)) %>% arrange(EMPI, Date)
