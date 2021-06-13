@@ -4,11 +4,12 @@ require(stringr) # str_c
 require(tidyverse)
 require(logging)
 
-BP_N = "Normal"
-BP_E = "Elevated"
-BP_HBP1 = "High Blood Pressure: Stage 1"
-BP_HBP2 = "High Blood Pressure: Stage 2"
-BP_HC = "Hypertensive Crisis"
+Phy_Vars = list()
+Phy_Vars$BP_N = "Normal"
+Phy_Vars$BP_E = "Elevated"
+Phy_Vars$BP_HBP1 = "High Blood Pressure: Stage 1"
+Phy_Vars$BP_HBP2 = "High Blood Pressure: Stage 2"
+Phy_Vars$BP_HC = "Hypertensive Crisis"
 
 process_physical <- function(DF_to_fill = All_merged,
                              input_file_header = config$rpdr_file_header,
@@ -231,13 +232,13 @@ process_physical <- function(DF_to_fill = All_merged,
              PP_Check = round(Pulse_Pressure/Systolic, 2)) %>% # This should be around 1/3
       # If at this point there's still values that have a negative Pulse_Pressure, it's an entry error that's not easily fixable
       filter(Pulse_Pressure > 0) %>%
-      mutate(Category = case_when(Systolic < 120 & Diastolic < 80 ~ BP_N,
-                                  Systolic < 130 & Diastolic < 80 ~ BP_E,
+      mutate(Category = case_when(Systolic < 120 & Diastolic < 80 ~ Phy_Vars$BP_N,
+                                  Systolic < 130 & Diastolic < 80 ~ Phy_Vars$BP_E,
                                   (Systolic >= 30 & Systolic < 140) |
-                                    (Diastolic >= 80 & Diastolic < 90) ~ BP_HBP1,
+                                    (Diastolic >= 80 & Diastolic < 90) ~ Phy_Vars$BP_HBP1,
                                   (Systolic >= 140 & Systolic < 180) |
-                                    (Diastolic >= 90 & Diastolic < 120) ~ BP_HBP2,
-                                  Systolic >=180 | Diastolic >= 120 ~ BP_HC,
+                                    (Diastolic >= 90 & Diastolic < 120) ~ Phy_Vars$BP_HBP2,
+                                  Systolic >=180 | Diastolic >= 120 ~ Phy_Vars$BP_HC,
                                   TRUE ~ "Other"))
     Output_Columns <- BP %>%
       group_by(EMPI, Category) %>% arrange(Date) %>%
@@ -252,34 +253,34 @@ process_physical <- function(DF_to_fill = All_merged,
              BP_number_recorded = ifelse(is.na(BP_number_recorded), 0, BP_number_recorded))
     Output_Columns <- BP %>%
       group_by(EMPI) %>%
-      filter(Category == BP_N) %>%
+      filter(Category == Phy_Vars$BP_N) %>%
       summarise(BP_Normal = "Yes", BP_Normal_number_recorded = n())
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>% mutate(BP_Normal = ifelse(is.na(BP_Normal), "No", BP_Normal),
                                         BP_Normal_number_recorded = ifelse(is.na(BP_Normal_number_recorded),
                                                                            0, BP_Normal_number_recorded))
-    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == BP_E) %>%
+    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == Phy_Vars$BP_E) %>%
       summarise(BP_Elevated = "Yes",
                 BP_Elevated_number_recorded = n())
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>% mutate(BP_Elevated = ifelse(is.na(BP_Elevated), "No", BP_Elevated),
                                         BP_Elevated_number_recorded = ifelse(is.na(BP_Elevated_number_recorded),
                                                                              0, BP_Elevated_number_recorded))
-    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == BP_HBP1) %>%
+    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == Phy_Vars$BP_HBP1) %>%
       summarise(BP_High_Blood_Pressure_Stage_1 = "Yes",
                 BP_High_Blood_Pressure_Stage_1_number_recorded = n())
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>% mutate(BP_High_Blood_Pressure_Stage_1 = ifelse(is.na(BP_High_Blood_Pressure_Stage_1), "No", BP_High_Blood_Pressure_Stage_1),
                                         BP_High_Blood_Pressure_Stage_1_number_recorded = ifelse(is.na(BP_High_Blood_Pressure_Stage_1_number_recorded),
                                                                                                 0, BP_High_Blood_Pressure_Stage_1_number_recorded))
-    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == BP_HBP2) %>%
+    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == Phy_Vars$BP_HBP2) %>%
       summarise(BP_High_Blood_Pressure_Stage_2 = "Yes",
                 BP_High_Blood_Pressure_Stage_2_number_recorded = n())
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
     DF_to_fill <- DF_to_fill %>% mutate(BP_High_Blood_Pressure_Stage_2 = ifelse(is.na(BP_High_Blood_Pressure_Stage_2), "No", BP_High_Blood_Pressure_Stage_2),
                                         BP_High_Blood_Pressure_Stage_2_number_recorded = ifelse(is.na(BP_High_Blood_Pressure_Stage_2_number_recorded),
                                                                                                 0, BP_High_Blood_Pressure_Stage_2_number_recorded))
-    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == BP_HC) %>%
+    Output_Columns <- BP %>% group_by(EMPI) %>% filter(Category == Phy_Vars$BP_HC) %>%
       summarise(BP_Hypertensive_Crisis = "Yes",
                 BP_Hypertensive_Crisis_number_recorded = n())
     DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
@@ -294,11 +295,11 @@ process_physical <- function(DF_to_fill = All_merged,
                                      BP_High_Blood_Pressure_Stage_2_number_recorded,
                                      BP_Hypertensive_Crisis_number_recorded,
                                      na.rm = TRUE),
-             BP_probable_category = case_when(BP_largest_count == BP_Normal_number_recorded ~ BP_N,
-                                              BP_largest_count == BP_Elevated_number_recorded ~ BP_E,
-                                              BP_largest_count == BP_High_Blood_Pressure_Stage_1_number_recorded ~ BP_HBP1,
-                                              BP_largest_count == BP_High_Blood_Pressure_Stage_2_number_recorded ~ BP_HBP2,
-                                              TRUE ~ BP_HC))
+             BP_probable_category = case_when(BP_largest_count == BP_Normal_number_recorded ~ Phy_Vars$BP_N,
+                                              BP_largest_count == BP_Elevated_number_recorded ~ Phy_Vars$BP_E,
+                                              BP_largest_count == BP_High_Blood_Pressure_Stage_1_number_recorded ~ Phy_Vars$BP_HBP1,
+                                              BP_largest_count == BP_High_Blood_Pressure_Stage_2_number_recorded ~ Phy_Vars$BP_HBP2,
+                                              TRUE ~ Phy_Vars$BP_HC))
     DF_to_fill <- left_join(DF_to_fill, Output_Columns)
     rm(BP, Output_Columns)
   }
