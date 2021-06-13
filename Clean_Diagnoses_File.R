@@ -228,7 +228,7 @@ DiagnosesHelper_CompareOutput <- function(Header,
 #' @param Merge_Group_Info_Name If included, all Keys merged together into one group
 #' @param write_files Do you want to write intermediates to output? (Default = config$create_intermediates)
 #' @param output_file_header The path to intermediates outputs (Default = config$intermediate_files_dir)
-#' @param output_file The ending of output files (default = config$general_file_ending)
+#' @param output_file_ending The ending of output files (default = config$general_file_ending)
 #' 
 #' @return \code{DF_to_fill} modified with additional columns
 #' 
@@ -330,7 +330,7 @@ process_diagnoses <- function(DF_to_fill = All_merged,
 #' @param Merge_Group_Info_Name If included, all Keys merged together into one group
 #' @param write_files Do you want to write intermediates to output? (Default = config$create_intermediates)
 #' @param output_file_header The path to intermediates outputs (Default = config$intermediate_files_dir)
-#' @param output_file The ending of output files (default = config$general_file_ending)
+#' @param output_file_ending The ending of output files (default = config$general_file_ending)
 #' @param cutoff_variable The character value representing an existing column with date information
 #' @param restrict_to_before_cutoff Do you want to restrict information to before [min - cutoff; TRUE] or after [cutoff - max; FALSE] (Default = TRUE)
 #' 
@@ -473,7 +473,7 @@ process_diagnoses_date_cutoff <- function(DF_to_fill = All_merged,
 #' @param Merge_Group_Info_Name If included, all Keys merged together into one group
 #' @param write_files Do you want to write intermediates to output? (Default = config$create_intermediates)
 #' @param output_file_header The path to intermediates outputs (Default = config$intermediate_files_dir)
-#' @param output_file The ending of output files (default = config$general_file_ending)
+#' @param output_file_ending The ending of output files (default = config$general_file_ending)
 #' @param min_dates The character value representing an existing column with date information
 #' @param max_dates The character value representing an existing column with date information
 #' 
@@ -598,7 +598,7 @@ process_diagnoses_set_range <- function(DF_to_fill = All_merged,
 #' @param Merge_Group_Info_Name If included, all Keys merged together into one group
 #' @param write_files Do you want to write intermediates to output? (Default = config$create_intermediates)
 #' @param output_file_header The path to intermediates outputs (Default = config$intermediate_files_dir)
-#' @param output_file The ending of output files (default = config$general_file_ending)
+#' @param output_file_ending The ending of output files (default = config$general_file_ending)
 #' @param cutoff_variable The character value representing an existing column with date information
 #' 
 #' @return \code{DF_to_fill} modified with additional columns
