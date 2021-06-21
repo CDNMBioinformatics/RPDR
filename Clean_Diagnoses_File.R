@@ -19,14 +19,17 @@ DiagnosesHelper_CoreFunctionality <- function(Diagnoses_DF,
                                               Gen_Individual_Info,
                                               Name_Merge_Group,
                                               is_Exact,
-                                              is_All_Before_After){
+                                              is_All_Before_After,
+                                              Header_Replacement){
   Header_Prefix = case_when(is_All_Before_After == "All" ~    "",
                             is_All_Before_After == "Before" ~ "Dia_PreDate_",
                             is_All_Before_After == "After" ~  "Dia_PostDate_")
   Log_Suffix = case_when(is_All_Before_After == "All" ~    " diagnoses",
                          is_All_Before_After == "Before" ~ " diagnoses before cutoff restriction",
                          is_All_Before_After == "After" ~  " diagnoses after cutoff restriction")
-  
+  if (!missing(Header_Replacement)){
+    Header_Prefix = Header_Replacement
+  }
   if (!is.null(Name_Merge_Group)){
     Relevant_rows <- NULL
   }
@@ -146,7 +149,7 @@ DiagnosesHelper_CoreFunctionality <- function(Diagnoses_DF,
   }
   if (!is.null(Name_Merge_Group)){
     Merge_Header <- str_c(Header_Prefix, "Any_", gsub(" ", "_", Name_Merge_Group))
-    Output_Columns <- Diagnoses_DF %>%
+    Output_Columns <- Relevant_rows %>%
       arrange(Date) %>%
       group_by(EMPI) %>%
       summarise(!!(as.symbol(str_c(Merge_Header))) := "Yes",
@@ -165,8 +168,8 @@ DiagnosesHelper_CoreFunctionality <- function(Diagnoses_DF,
     if(Write_Output){
       fwrite(Diagnoses_DF, str_c(File_Prefix, Merge_Header, File_Suffix))
     }
-    return(Main_DF)
   }
+  return(Main_DF)
 }
 
 DiagnosesHelper_CompareOutput <- function(Header,
@@ -229,6 +232,7 @@ DiagnosesHelper_CompareOutput <- function(Header,
 #' @param write_files Do you want to write intermediates to output? (Default = config$create_intermediates)
 #' @param output_file_header The path to intermediates outputs (Default = config$intermediate_files_dir)
 #' @param output_file_ending The ending of output files (default = config$general_file_ending)
+#' @param reduce_subjects Do you want to reduce the list of subjects based on an already subject size? (Default = FALSE)
 #' 
 #' @return \code{DF_to_fill} modified with additional columns
 #' 
@@ -247,7 +251,8 @@ process_diagnoses <- function(DF_to_fill = All_merged,
                               Merge_Group_Info_Name,
                               write_files = config$create_intermediates,
                               output_file_header = config$intermediate_files_dir,
-                              output_file_ending = config$general_file_ending){
+                              output_file_ending = config$general_file_ending,
+                              reduce_subjects = FALSE){
   loginfo("Processing Diagnoses...")
   ###############################
   # Setup and Information Steps #
@@ -288,6 +293,8 @@ process_diagnoses <- function(DF_to_fill = All_merged,
     loginfo(str_c("Format of intermediate Files: ", output_file_header, "{intermediate_file_description}", output_file_ending))
   }
   
+  loginfo(str_c("Reduce subject pool based on incoming subject size: ", reduce_subjects))
+  
   #########################
   # Actual Function Start #
   #########################
@@ -296,6 +303,9 @@ process_diagnoses <- function(DF_to_fill = All_merged,
   Diagnoses <- fread(Diagnosis_file_name)
   loginfo("Read complete")
   rm(Diagnosis_file_name)
+  if (reduce_subjects){
+    Diagnoses <- Diagnoses %>% filter(EMPI %in% DF_to_fill$EMPI)
+  }
   # Should already be formatted that way but adjust in case RPDR changes formatting on their end
   Diagnoses <- Diagnoses %>% mutate(Date = mdy(Date)) %>% arrange(EMPI, Date)
   DF_to_fill <- DiagnosesHelper_CoreFunctionality(
@@ -476,12 +486,13 @@ process_diagnoses_date_cutoff <- function(DF_to_fill = All_merged,
 #' @param output_file_ending The ending of output files (default = config$general_file_ending)
 #' @param min_dates The character value representing an existing column with date information
 #' @param max_dates The character value representing an existing column with date information
+#' @param Range_Name Prefix added to columns describing range. If not included, Range_Name = \code{min_dates}_\code{max_dates}
 #' 
 #' @return \code{DF_to_fill} modified with additional columns
 #' 
 #' @examples
 #' process_diagnoses_set_range(Diagnoses_Of_Interest = list("Adrenal insufficiency" = c("Corticoadrenal insufficiency", "Primary adrenocortical insufficiency", "Other adrenocortical insufficiency", "Unspecified adrenocortical insufficiency")), min_dates = "Plasma_Date_First", max_dates = "Plasma_Date_Most_Recent")
-#' process_diagnoses_set_range(Individual_Info = FALSE, Diagnoses_Of_Interest = list("Adrenal insufficiency" = c("adren.* insufficiency$")), min_dates = "Plasma_Date_First", max_dates = "Plasma_Date_Most_Recent")
+#' process_diagnoses_set_range(Individual_Info = FALSE, Diagnoses_Of_Interest = list("Adrenal insufficiency" = c("adren.* insufficiency$")), min_dates = "Plasma_Date_First", max_dates = "Plasma_Date_Most_Recent", Range_Name = "Plasma_Window")
 #' process_diagnoses_set_range(Merge_Group_Info_Name = Asthma, Individual_Info = FALSE, Group_Info = FALSE, Diagnoses_Of_Interest = list("Mild Asthma" = c("Mild Asthma"), "Severe Asthma" = c("Severe Asthma")), min_dates = "Plasma_Date_First", max_dates = "Plasma_Date_Most_Recent")
 process_diagnoses_set_range <- function(DF_to_fill = All_merged,
                                         input_file_header = config$rpdr_file_header,
@@ -496,7 +507,8 @@ process_diagnoses_set_range <- function(DF_to_fill = All_merged,
                                         output_file_header = config$intermediate_files_dir,
                                         output_file_ending = config$general_file_ending,
                                         min_dates,
-                                        max_dates){
+                                        max_dates,
+                                        Range_Name){
   loginfo("Processing Diagnoses...")
   ###############################
   # Setup and Information Steps #
@@ -515,8 +527,6 @@ process_diagnoses_set_range <- function(DF_to_fill = All_merged,
   }
   Diagnosis_file_name <- str_c(input_file_header, "Dia", input_file_ending)
   loginfo(str_c("Name of file to read in: ", Diagnosis_file_name))
-  
-  loginfo(str_c("Reduce EMPIs in diagnoses file: ", restricted_ids))
   
   loginfo("List of Diagnoses of interest (formatted Group: Individual_1, ..., Individual_n")
   for (DN in names(Diagnoses_Of_Interest)){
@@ -546,6 +556,13 @@ process_diagnoses_set_range <- function(DF_to_fill = All_merged,
     output_file_header <- str_c(output_file_header, "Dia_", min_dates, "_to_", max_dates, "_")
     loginfo(str_c("Format of intermediate Files: ", output_file_header, "{intermediate_file_description}", output_file_ending))
   }
+  if(missing(Range_Name)){
+    Range_Name = str_c(min_dates, "_", max_dates)
+  }
+  if(!grepl("_$", Range_Name)){
+    Range_Name = str_c(Range_Name, "_")
+  }
+  loginfo(str_c("Range_Name: ", substr(Range_Name,1,nchar(Range_Name)-2)))
   
   #########################
   # Actual Function Start #
@@ -564,7 +581,7 @@ process_diagnoses_set_range <- function(DF_to_fill = All_merged,
   Diagnoses <- right_join(Diagnoses, Date_Range_DF, by = "EMPI")
   rm(Date_Range_DF)
   logdebug(str_c("Row length of diagnoses file after join to main EMPI list: ", nrow(Diagnoses)))
-  Diagnoses <- Diagnoses %>% filter(Date >= get(min_date)) %>% filter(Date <= get(max_dates))
+  Diagnoses <- Diagnoses %>% filter(Date >= get(min_dates)) %>% filter(Date <= get(max_dates))
   logdebug(str_c("Row length after restriction to date window: ", nrow(Diagnoses)))
   DF_to_fill <- DiagnosesHelper_CoreFunctionality(
     Diagnoses_DF = Diagnoses,
@@ -579,7 +596,8 @@ process_diagnoses_set_range <- function(DF_to_fill = All_merged,
     Gen_Individual_Info = Individual_Info,
     Name_Merge_Group = Merge_Group_Info_Name,
     is_Exact = Exact,
-    is_All_Before_After = "All")
+    is_All_Before_After = "All",
+    Header_Replacement = Range_Name)
   loginfo("Processing complete")
   return(DF_to_fill)
 }
