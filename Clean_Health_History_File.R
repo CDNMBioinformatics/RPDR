@@ -253,21 +253,20 @@ HealthHistoryHelper_CoreFunctionality <- function(Physical_DF,
                                                Result_DF = Main_DF,
                                                BP_cat_name = BP_cat)
     }
-    Output_Columns <- Main_DF %>%	
-      filter(BP == "Yes") %>%	
+    rm(BP)
+    Main_DF <- Main_DF %>%	
       mutate(BP_largest_count = pmax(BP_Normal_number_recorded,	
                                      BP_Elevated_number_recorded,	
                                      BP_High_Blood_Pressure_Stage_1_number_recorded,	
                                      BP_High_Blood_Pressure_Stage_2_number_recorded,	
                                      BP_Hypertensive_Crisis_number_recorded,	
-                                     na.rm = TRUE),	
-             BP_probable_category = case_when(BP_largest_count == BP_Normal_number_recorded ~ BP_List$N,	
+                                     na.rm = TRUE),
+             BP_probable_category = case_when(BP_largest_count == 0 ~ NA_character_,
+                                              BP_largest_count == BP_Normal_number_recorded ~ BP_List$N,	
                                               BP_largest_count == BP_Elevated_number_recorded ~ BP_List$E,	
                                               BP_largest_count == BP_High_Blood_Pressure_Stage_1_number_recorded ~ BP_List$HBP1,	
-                                              BP_largest_count == BP_High_Blood_Pressure_Stage_2_number_recorded ~ BP_List$HBP2,	
-                                              TRUE ~ BP_List$HC))	
-    Main_DF <- left_join(Main_DF, Output_Columns, by = "EMPI")	
-    rm(BP, Output_Columns)
+                                              BP_largest_count == BP_High_Blood_Pressure_Stage_2_number_recorded ~ BP_List$HBP2,
+                                              BP_largest_count == BP_Hypertensive_Crisis_number_recorded ~ BP_List$HBP2))	
   }
   return(Main_DF)
 }
