@@ -20,7 +20,8 @@ DiagnosesHelper_CoreFunctionality <- function(Diagnoses_DF,
                                               Name_Merge_Group,
                                               is_Exact,
                                               is_All_Before_After,
-                                              Header_Replacement){
+                                              Header_Replacement,
+                                              Gen_Hospital){
   Header_Prefix = case_when(is_All_Before_After == "All" ~    "",
                             is_All_Before_After == "Before" ~ "Dia_PreDate_",
                             is_All_Before_After == "After" ~  "Dia_PostDate_")
@@ -99,6 +100,24 @@ DiagnosesHelper_CoreFunctionality <- function(Diagnoses_DF,
         if(Write_Output){
           fwrite(Individual, str_c(File_Prefix, Individual_Header, File_Suffix))
         }
+        if (Gen_Hospital){
+          for (status in c("Inpatient", "Outpatient", "Outpatient-Emergency")){
+            Hos_Header <- str_c(Individual_Header, "_", gsub("Outpatient-", "", status))
+            Output_Columns <- Individual %>% group_by(EMPI) %>% arrange(Date) %>%
+              filter(Inpatient_Outpatient == status) %>%
+              summarise(!!as.symbol(Hos_Header) := "Yes",
+                        !!as.symbol(str_c(Hos_Header, "_total_diagnoses")) := n(),
+                        !!as.symbol(str_c(Hos_Header, "_first_date")) := first(Date),
+                        !!as.symbol(str_c(Hos_Header, "_most_recent_date")) := last(Date),
+                        !!as.symbol(str_c(Hos_Header, "_all_dates")) := paste(Date, collapse = ";"),
+                        .groups = 'drop')
+            Main_DF <- left_join(Main_DF, Output_Columns, by = "EMPI")
+            Main_DF <- Main_DF %>% 
+              mutate(!!(as.symbol(Hos_Header)) := ifelse(is.na(!!(as.symbol(Hos_Header))), "No", "Yes"))
+            rm(Output_Columns, Hos_Header)
+          }
+          rm(status)
+        }
         rm(Individual, Output_Columns, Individual_Header)
       }
       rm(Individual_Diagnoses)
@@ -141,6 +160,25 @@ DiagnosesHelper_CoreFunctionality <- function(Diagnoses_DF,
       Main_DF <- left_join(Main_DF, Output_Columns, by = "EMPI")
       Main_DF <- Main_DF %>% select(EMPI:!!(as.symbol(Group_Header)), contains(Group_Header), everything())
       rm(Output_Columns)
+      if (Gen_Hospital){
+        for (status in c("Inpatient", "Outpatient", "Outpatient-Emergency")){
+          Hos_Header <- str_c(Group_Header, "_", gsub("Outpatient-", "", status))
+          Output_Columns <- Group %>% group_by(EMPI) %>% arrange(Date) %>%
+            filter(Inpatient_Outpatient == status) %>%
+            summarise(!!as.symbol(Hos_Header) := "Yes",
+                      !!as.symbol(str_c(Hos_Header, "_total_diagnoses")) := n(),
+                      !!as.symbol(str_c(Hos_Header, "_first_date")) := first(Date),
+                      !!as.symbol(str_c(Hos_Header, "_most_recent_date")) := last(Date),
+                      !!as.symbol(str_c(Hos_Header, "_all_dates")) := paste(Date, collapse = ";"),
+                      .groups = 'drop')
+          Main_DF <- left_join(Main_DF, Output_Columns, by = "EMPI")
+          Main_DF <- Main_DF %>% 
+            mutate(!!(as.symbol(Hos_Header)) := ifelse(is.na(!!(as.symbol(Hos_Header))), "No", "Yes"))
+          rm(Output_Columns, Hos_Header)
+        }
+        rm(status)
+        Main_DF <- Main_DF %>% select(EMPI:!!(as.symbol(Group_Header)), contains(Group_Header), everything())
+      }
     }
     if (!is.null(Name_Merge_Group)){
       Relevant_rows <- rbind(Relevant_rows, Group)
@@ -163,6 +201,24 @@ DiagnosesHelper_CoreFunctionality <- function(Diagnoses_DF,
     Main_DF <- Main_DF %>%
       mutate(!!(as.symbol(str_c(Merge_Header))) := ifelse(is.na(!!(as.symbol(str_c(Merge_Header)))), "No", "Yes"))
     loginfo(str_c(nrow(Output_Columns), " subjects have a(n) ", tolower(Name_Merge_Group), Log_Suffix))
+    if (Gen_Hospital){
+      for (status in c("Inpatient", "Outpatient", "Outpatient-Emergency")){
+        Hos_Header <- str_c(Merge_Header, "_", gsub("Outpatient-", "", status))
+        Output_Columns <- Relevant_rows %>% group_by(EMPI) %>% arrange(Date) %>%
+          filter(Inpatient_Outpatient == status) %>%
+          summarise(!!as.symbol(Hos_Header) := "Yes",
+                    !!as.symbol(str_c(Hos_Header, "_total_diagnoses")) := n(),
+                    !!as.symbol(str_c(Hos_Header, "_first_date")) := first(Date),
+                    !!as.symbol(str_c(Hos_Header, "_most_recent_date")) := last(Date),
+                    !!as.symbol(str_c(Hos_Header, "_all_dates")) := paste(Date, collapse = ";"),
+                    .groups = 'drop')
+        Main_DF <- left_join(Main_DF, Output_Columns, by = "EMPI")
+        Main_DF <- Main_DF %>% 
+          mutate(!!(as.symbol(Hos_Header)) := ifelse(is.na(!!(as.symbol(Hos_Header))), "No", "Yes"))
+        rm(Output_Columns, Hos_Header)
+      }
+      rm(status)
+    }
     Main_DF <- Main_DF %>% select(Static_Columns_Vector, starts_with(Merge_Header), everything())
     
     if(Write_Output){
@@ -252,7 +308,8 @@ process_diagnoses <- function(DF_to_fill = All_merged,
                               write_files = config$create_intermediates,
                               output_file_header = config$intermediate_files_dir,
                               output_file_ending = config$general_file_ending,
-                              reduce_subjects = FALSE){
+                              reduce_subjects = FALSE,
+                              Hospital_Info = FALSE){
   loginfo("Processing Diagnoses...")
   ###############################
   # Setup and Information Steps #
@@ -321,7 +378,8 @@ process_diagnoses <- function(DF_to_fill = All_merged,
     Gen_Individual_Info = Individual_Info,
     Name_Merge_Group = Merge_Group_Info_Name,
     is_Exact = Exact,
-    is_All_Before_After = "All")
+    is_All_Before_After = "All",
+    Gen_Hospital = Hospital_Info)
   loginfo("Processing complete")
   return(DF_to_fill)
 }
@@ -363,7 +421,8 @@ process_diagnoses_date_cutoff <- function(DF_to_fill = All_merged,
                                           output_file_header = config$intermediate_files_dir,
                                           output_file_ending = config$general_file_ending,
                                           cutoff_variable,
-                                          restrict_to_before_cutoff = TRUE){
+                                          restrict_to_before_cutoff = TRUE,
+                                          Hospital_Info = FALSE){
   loginfo("Processing Diagnoses...")
   ###############################
   # Setup and Information Steps #
@@ -464,7 +523,8 @@ process_diagnoses_date_cutoff <- function(DF_to_fill = All_merged,
     Gen_Individual_Info = Individual_Info,
     Name_Merge_Group = Merge_Group_Info_Name,
     is_Exact = Exact,
-    is_All_Before_After = ifelse(restrict_to_before_cutoff, "Before", "After"))
+    is_All_Before_After = ifelse(restrict_to_before_cutoff, "Before", "After"),
+    Gen_Hospital = Hospital_Info)
   loginfo("Processing complete")
   return(DF_to_fill)
 }
@@ -508,7 +568,8 @@ process_diagnoses_set_range <- function(DF_to_fill = All_merged,
                                         output_file_ending = config$general_file_ending,
                                         min_dates,
                                         max_dates,
-                                        Range_Name){
+                                        Range_Name,
+                                        Hospital_Info = FALSE){
   loginfo("Processing Diagnoses...")
   ###############################
   # Setup and Information Steps #
@@ -597,7 +658,8 @@ process_diagnoses_set_range <- function(DF_to_fill = All_merged,
     Name_Merge_Group = Merge_Group_Info_Name,
     is_Exact = Exact,
     is_All_Before_After = "All",
-    Header_Replacement = Range_Name)
+    Header_Replacement = Range_Name,
+    Gen_Hospital = Hospital_Info)
   loginfo("Processing complete")
   return(DF_to_fill)
 }
@@ -637,7 +699,8 @@ process_diagnoses_date_compare_cutoff <- function(DF_to_fill = ICS_Tested,
                                                   write_files = config$create_intermediates,
                                                   output_file_header = config$intermediate_files_dir,
                                                   output_file_ending = config$general_file_ending,
-                                                  cutoff_variable){
+                                                  cutoff_variable,
+                                                  Hospital_Info = FALSE){
   loginfo("Processing Diagnoses...")
   ###############################
   # Setup and Information Steps #
@@ -729,7 +792,8 @@ process_diagnoses_date_compare_cutoff <- function(DF_to_fill = ICS_Tested,
     Gen_Individual_Info = Individual_Info,
     Name_Merge_Group = Merge_Group_Info_Name,
     is_Exact = Exact,
-    is_All_Before_After = "Before")
+    is_All_Before_After = "Before",
+    Gen_Hospital = Hospital_Info)
   Original_Columns <- names(DF_to_fill)
   DF_to_fill <- DiagnosesHelper_CoreFunctionality(
     Diagnoses_DF = Diagnoses_After,
@@ -744,7 +808,8 @@ process_diagnoses_date_compare_cutoff <- function(DF_to_fill = ICS_Tested,
     Gen_Individual_Info = Individual_Info,
     Name_Merge_Group = Merge_Group_Info_Name,
     is_Exact = Exact,
-    is_All_Before_After = "After")
+    is_All_Before_After = "After",
+    Gen_Hospital = Hospital_Info)
   loginfo("Processing complete")
   Pre_string <- "Dia_PreDate_"
   Post_string <- "Dia_PostDate_"
