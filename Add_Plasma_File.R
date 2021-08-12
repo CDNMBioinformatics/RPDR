@@ -5,6 +5,19 @@ require(stringr) # str_c
 require(tidyverse)
 require(logging)
 
+#' Read in the file with the plasma sample information retrieved from biobank and add it to the 
+#' 
+#' @param DF_to_fill The data frame you want to add columns to (default = All_merged).
+#' @param input_file_name The path to the plasma sample file (default = config$plasma_file_name).
+#' @param date_cutoff If this date variable is included, only include samples BEFORE given date
+#' @param reduce_to_plasma_only A logical value (default = TRUE), If TRUE, reduce the subject list to only subjects with samples available
+#' 
+#' @return \code{DF_to_fill} modified with additional columns.
+#' 
+#' @examples
+#' process_plasma()
+#' process_plasma(date_cutoff = "2020-01-01")
+#' process_plasma(reduce_to_plasma_only = FALSE)
 process_plasma <- function(DF_to_fill = All_merged,
                            input_file_name = config$plasma_file_name,
                            date_cutoff,
@@ -39,6 +52,21 @@ process_plasma <- function(DF_to_fill = All_merged,
   }
   return(DF_to_fill)
 }
+
+#' Read in the file with the plasma sample information retrieved from biobank and add it to the 
+#' 
+#' @param DF_to_fill The data frame you want to add columns to (default = All_merged).
+#' @param before_file_name The path to plasma samples before timepoint file (default = config$before_plasma_file_name).
+#' @param after_file_name The path to plasma samples after timepoint file (default = config$after_plasma_file_name).
+#' @param date_cutoff If this date variable is included, only include samples BEFORE given date
+#' @param reduce_to_plasma_only A logical value (default = TRUE), If TRUE, reduce the subject list to only subjects with samples available
+#' 
+#' @return \code{DF_to_fill} modified with additional columns.
+#' 
+#' @examples
+#' combine_and_process_plasma()
+#' combine_and_process_plasma(date_cutoff = "2020-01-01")
+#' combine_and_process_plasma(reduce_to_plasma_only = FALSE)
 combine_and_process_plasma <- function(DF_to_fill = All_merged,
                                        before_file_name = config$before_plasma_file_name,
                                        after_file_name = config$after_plasma_file_name,

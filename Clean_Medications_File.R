@@ -31,7 +31,7 @@ process_medications <- function(DF_to_fill = All_merged,
   }
   
   loginfo("Applying Med_Map...")
-  Med_Map_df <- read.xlsx(str_c(general_path, "/Medication_Mapping.xlsx"))
+  Med_Map_df <- read.xlsx(str_c(config$rpdr_src_dir, "Medication_Mapping.xlsx"))
   logdebug("Available folders and number of medication groups:")
   logdebug(t(Med_Map_df %>% group_by(Medication_Biobank_Folder) %>%
                summarise(Count = n(),
@@ -380,7 +380,7 @@ process_medications_date_cutoff <- function(DF_to_fill_cutoff,
   }
   
   loginfo("Applying Med_Map...")
-  Med_Map_df <- fread(str_c(general_path, "/Medication_Mapping.txt"))
+  Med_Map_df <- fread(str_c(config$rpdr_src_dir, "Medication_Mapping.txt"))
   logdebug("Available folders and number of medication groups:")
   logdebug(t(Med_Map_df %>% group_by(Medication_Biobank_Folder) %>%
                summarise(Count = n(),
@@ -1039,7 +1039,7 @@ process_medications_set_range <- function(DF_to_fill = All_merged,
   }
   
   loginfo("Applying Med_Map...")
-  Med_Map_df <- read.xlsx(str_c(general_path, "/Medication_Mapping.xlsx"))
+  Med_Map_df <- read.xlsx(str_c(config$rpdr_src_dir, "Medication_Mapping.xlsx"))
   logdebug("Available folders and number of medication groups:")
   logdebug(t(Med_Map_df %>% group_by(Medication_Biobank_Folder) %>%
                summarise(Count = n(),

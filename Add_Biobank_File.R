@@ -4,6 +4,25 @@ require(stringr) # str_c
 require(tidyverse)
 require(logging)
 
+#' Add deidentified columns from biobank file to dataset
+#' 
+#' @param DF_to_fill The data frame you want to add columns to (default = All_merged).
+#' @param input_file_name The path to the deidentified file (default = config$biobank_file_name).
+#' @param PPV.NPV.only A logical value (default = FALSE), If TRUE only add columns with PPV or NPV in the name
+#' @param Asthma.only A logical value (default = FALSE), If TRUE only add columns with Asthma in the name 
+#' @param Asthma.COPD.only A logical value (default = FALSE), If TRUE only add columns with Asthma or COPD in the name
+#' @param Asthma.Tobacco.only A logical value (default = FALSE), If TRUE only add columns with Asthma, Tobacco, Smoke, or Smoking in the name
+#' @param Plasma.only A logical value (default = FALSE), If TRUE only add columns with Plasma in the name
+#' @param replace.existence.T.F A logical value (default = FALSE), If TRUE replace Yes/No to 1/0
+#' @param clean.list A logical value (default = FALSE), If TRUE update list format from [x1] [x2] to x1;x2
+#' @param get.date.range A logical value (default = FALSE), If TRUE create year range columns based on pairs of columns with the same name but different dates
+#' @param subset_ids NULL or a vector of biobank ids
+#'
+#' @return \code{DF_to_fill} modified with additional columns.
+#' 
+#' @examples
+#' process_deidentified()
+#' process_deidentified(Asthma.COPD.only = TRUE, clean.list = TRUE)
 process_deidentified <- function(DF_to_fill = All_merged,
                                  input_file_name = config$biobank_file_name,
                                  PPV.NPV.only = FALSE,
@@ -37,7 +56,7 @@ process_deidentified <- function(DF_to_fill = All_merged,
     loginfo("Select variables with Asthma or COPD only")
     Deidentified <- Deidentified %>% select(Biobank_Subject_ID, contains("Asthma"), contains("COPD"))
   }
-  if (Asthma.COPD.only){
+  if (Asthma.Tobacco.only){
     loginfo("Select variables with Asthma or Tobacco use only")
     Deidentified <- Deidentified %>% select(Biobank_Subject_ID, contains("Asthma"),
                                             contains("Tobacco"), contains("Smok"))
@@ -77,4 +96,5 @@ process_deidentified <- function(DF_to_fill = All_merged,
     rm(Possible_Date_Columns, Possible_Pairs, Date_Pairs)
   }
   DF_to_fill <- left_join(DF_to_fill, Deidentified, by = "Biobank_Subject_ID")
+  return(DF_to_fill)
 }

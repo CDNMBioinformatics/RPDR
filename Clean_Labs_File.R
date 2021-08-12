@@ -36,6 +36,8 @@ Create_ACTH_Cortisol_DHEA_Output_Columns <- function(ACTH_Cortisol_DHEA_Group,
     summarise(!!as.symbol(str_c(Group_Header, "_nTotalDates")) := n(),
               !!as.symbol(str_c(Group_Header, "_nTotalDatesTimes")) := sum(nTimes_Per_Date),
               !!as.symbol(str_c(Group_Header, "_nTotalResults")) := sum(nResults_Per_Date),
+              !!as.symbol(str_c(Group_Header, "_Date_First")) := first(Seq_Date),
+              !!as.symbol(str_c(Group_Header, "_Date_Last")) := last(Seq_Date),
               !!as.symbol(str_c(Group_Header, "_All_Seq_Date_Times")) := paste(Seq_Date_Time, collapse = ";"),
               .groups = 'drop')
   DF_to_fill <- left_join(DF_to_fill, Output_Columns, by = "EMPI")
@@ -590,6 +592,400 @@ process_ACTH_labs_cutoff <- function(DF_to_fill = All_merged,
                                                    Abnormal_Flag == "", "H", Abnormal_Flag),
                           Abnormal_Flag = ifelse(grepl("Flag: *L(ow)* ", Result_Text, ignore.case = TRUE) &
                                                    Abnormal_Flag == "", "L", Abnormal_Flag))
+  
+  # Clean data (7)
+  #   If strict, remove NA times, remove AM if PM in name, remove PM if AM in name
+  if (strict){
+    Lab_abn <- Labs %>% filter(is.na(Seq_Time))
+    logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Labs),
+                  " rows removed because no Seq_Time specifed in Seq_Date_Time unit"))
+    fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_4a_Strict_NA_Times", output_file_ending))
+    Labs <- Labs %>% filter(!is.na(Seq_Time))
+    
+    Lab_abn <- Labs %>% filter(grepl("AM", Group_Id), FLAG_AM_PM != "AM")
+    logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Labs),
+                  " rows removed because AM test not performed in AM"))
+    fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_4b_Strict_AM_Times", output_file_ending))
+    Labs <- Labs %>% filter((grepl("AM", Group_Id) & FLAG_AM_PM == "AM") | !grepl("AM", Group_Id))
+    
+    Lab_abn <- Labs %>% filter(grepl("PM", Group_Id), FLAG_AM_PM != "PM")
+    logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Labs),
+                  " rows removed because PM test not performed in PM"))
+    fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_4c_Strict_PM_Times", output_file_ending))
+    Labs <- Labs %>% filter((grepl("PM", Group_Id) & FLAG_AM_PM == "PM") | !grepl("PM", Group_Id))
+    
+    Lab_abn <- Labs %>% filter(grepl("12.?am", Group_Id), Seq_Time != "00:00")
+    logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Labs),
+                  " rows removed because 12am test not performed in 12am"))
+    fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_4d_Strict_12am_Times", output_file_ending))
+    Labs <- Labs %>% filter((grepl("12.{0,1}am", Group_Id) & Seq_Time == "00:00") | !grepl("12.{0,1}am", Group_Id))
+  }
+  
+  Group_Id_list <- Labs %>% group_by(Group_Id) %>% summarise(.groups = 'drop') %>% pull(Group_Id)
+  unit_values <- c(dl = 1e-1, ml = 1e-3, ug = 1e-6, ng = 1e-9, pg = 1e-12)
+  if (skip_ACTH) {Group_Id_list <- grep("^(?!ACTH).*$", Group_Id_list, value = TRUE, perl = TRUE)}
+  # According to readings, cortisol levels in the 50-100 ug/dl correspond to cushings syndorm which is the max value we want to filter.
+  cushings_threshold <- c(ug_dl = 1e2, ng_dl = 1e5, ug_ml = 1, ng_ml = 1e3)
+  
+  if(create_cortisol_group){
+    if(skip_ACTH){
+      Cortisol_Group_Id_list <- grep("^Cortisol((?!ACTH).)*$", Group_Id_list, value = TRUE, perl = TRUE)
+    } else {
+      Cortisol_Group_Id_list <- grep("Cortisol", Group_Id_list, value = TRUE)
+    }
+    Original_Columns <- names(DF_to_fill)
+  }
+  
+  for (Id in Group_Id_list){
+    header <- gsub("\\)", "", gsub("_+", "_", gsub("( |\\(|/|,)", "_", Id)))
+    if (strict) { header <- str_c(header, "_Strict")}
+    Subgroup <- Labs %>% filter(Group_Id == Id) %>% group_by(EMPI)
+    logdebug(Id)
+    logdebug(Subgroup %>% group_by(Reference_Units) %>% summarise(n = n(), .groups = 'drop'))
+    
+    # Note any possible duplicates, but don't necessarily remove
+    nSubjects <- Subgroup %>% group_by(EMPI) %>% summarise(count = n(), .groups = 'drop') %>% pull(count) %>% length()
+    logdebug(str_c("Number of Subjects: ", nSubjects))
+    select_EMPIs <- Subgroup %>% arrange(EMPI) %>% group_by(EMPI, Seq_Date_Time) %>%
+      summarise(Count = n(), .groups = 'drop') %>% filter(Count > 1) %>% pull(EMPI) %>% unique()
+    if (length(select_EMPIs)){
+      path_duplicates <- str_c(path_lab_abn, "Duplicate_date_time_EMPIs/")
+      if(!dir.exists(path_duplicates)) {dir.create(path_duplicates)}
+      logwarn(str_c(length(select_EMPIs), " out of ", nSubjects, " subjects have exact date and time duplicates"))
+      Lab_abn <- Subgroup %>% filter(EMPI %in% select_EMPIs) %>% add_count(EMPI, Seq_Date_Time) %>% filter(n > 1)
+      fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_5_Duplicate_date_time_", header, output_file_ending))
+      for (empi in select_EMPIs){
+        fwrite(Lab_abn %>% filter(EMPI == empi), str_c(path_duplicates, header, "_", empi, output_file_ending))
+      }
+      rm(empi, path_duplicates)
+    }
+    rm(nSubjects, select_EMPIs)
+    
+    # Find the main reference
+    # - priority to reference unit included in name over the majority number if different
+    main_unit <- ifelse(grepl("^.*\\(([[:alpha:]]{2,3}/[[:alpha:]]{2})\\).*$", Id),
+                        tolower(gsub("^.*\\(([[:alpha:]]{2,3}/[[:alpha:]]{2})\\).*$", "\\1", Id)),
+                        Subgroup %>% group_by(Reference_Units) %>%
+                          summarise(count = n(), .groups = 'drop') %>%
+                          filter(count == max(count)) %>% pull(Reference_Units))
+    c(main_unit_num, main_unit_den) %<-% str_split_fixed(main_unit, "/", n = 2)
+    
+    # Figure out if any reference range information is given as next few steps require for cleaning
+    ref_ranges_summary <- Subgroup %>% group_by(Reference_Range) %>% summarise(.groups = 'drop') %>% pull()
+    if (length(ref_ranges_summary) == 1 && ref_ranges_summary == ""){
+      logwarn(str_c("GroupId ", Id, " does not list reference range information in all ", nrow(Subgroup), " entries"))
+      max_range = Subgroup %>% filter(Abnormal_Flag == "") %>% pull(Result) %>% max()
+    } else {
+      option1 <- "(.*( |-)((\\d|\\.)*)(\\(*a.+)*$)" # if a-b given, select b (note some mention a.m. after) [select \\3 of 1-5]
+      option2 <- "(^<((\\d|\\.)+)$)"                # if  <b given, select b [select \\2 of 1-3]
+      max_range <- max(as.numeric(gsub(str_c(option1, option2, sep = "|"), "\\3\\7",
+                                       Subgroup %>% filter(Reference_Units == main_unit) %>%
+                                         group_by(Reference_Range) %>%
+                                         summarise(.groups = 'drop') %>% pull())), na.rm = TRUE)
+      rm(option1, option2)
+    }
+    rm(ref_ranges_summary)
+    logdebug(str_c("max_range: ", max_range))
+    
+    # Clean data (8):
+    # (A) If units are missing and above the general scope, remove
+    # (B) If units are missing but in the general scope, add main_unit
+    Lab_abn <- Subgroup %>% filter(Reference_Units == "", Result > max_range & !(grepl("H", Abnormal_Flag)))
+    if (nrow(Lab_abn) > 0){
+      logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Subgroup), " rows with GroupId ", Id,
+                    " have been removed due to lacking reference units, falling out of the max range,",
+                    " and having no marker for being outside the range"))
+      fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_6_Missing_units_and_out_of_range_", header, output_file_ending))
+      Subgroup <- Subgroup %>% filter(Reference_Units != "" | Result <= max_range | grepl("H", Abnormal_Flag))
+    }
+    Subgroup <- Subgroup %>% mutate(Unit_Num = ifelse(Reference_Units == "", main_unit_num, Unit_Num),
+                                    Unit_Den = ifelse(Reference_Units == "", main_unit_den, Unit_Den),
+                                    Reference_Units = ifelse(Reference_Units == "", main_unit, Reference_Units))
+    
+    # Clean data (9):
+    # (A) Convert all units to the same unit
+    # (B) Remove if changed units are above range and have not been flagged high
+    # (C) Remove if main units are above range and have not been flagged high
+    # (D) Remove if values are above cushing threshold (if Cortisol test)
+    Subgroup <- Subgroup %>%
+      mutate(Result_update = Result,
+             Result_update = ifelse(Unit_Num != main_unit_num,
+                                    Result_update * unit_values[Unit_Num] / unit_values[main_unit_num],
+                                    Result_update),
+             Result_update = ifelse(Unit_Den != main_unit_den,
+                                    Result_update * unit_values[main_unit_den] / unit_values[Unit_Den],
+                                    Result_update),
+             Reference_Units_update = main_unit)
+    Lab_abn <- Subgroup %>% filter(Reference_Units != main_unit, Result_update > max_range, Abnormal_Flag == "")
+    if (nrow(Lab_abn) > 0){
+      logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Subgroup), " rows with GroupId ", Id,
+                    " removed due to possible incorrect reference units: original units not ", main_unit))
+      fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_7A_Possible_incorrect_units_", header, output_file_ending))
+      Subgroup <- Subgroup %>% filter(Reference_Units == main_unit | Result_update <= max_range | Abnormal_Flag != "")
+    }
+    Lab_abn <- Subgroup %>% filter(Reference_Units == main_unit, Result > max_range, Abnormal_Flag == "")
+    if (nrow(Lab_abn) > 0){
+      logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Subgroup), " rows with GroupId ", Id,
+                    " removed due to possible incorrect reference units: ", main_unit, " should have been a different unit"))
+      fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_7B_Possible_incorrect_units_", header, output_file_ending))
+      Subgroup <- Subgroup %>% filter(Reference_Units != main_unit | Result <= max_range | Abnormal_Flag != "")
+    }
+    if (grepl("Cortisol", Id)){
+      # According to readings, cortisol levels in the 50-100 ug/dl correspond to cushings syndorm which is the max value we want to filter.
+      Lab_abn <- Subgroup %>% filter(Result <= cushings_threshold[main_unit], Result_update > cushings_threshold[main_unit])
+      if (nrow(Lab_abn) > 0){
+        logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Subgroup), " rows with GroupId ", Id,
+                      " removed due to possible incorrect reference units: original result below cushing threshold but update is not"))
+        fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_7C_Possible_incorrect_units_", header, output_file_ending))
+        Subgroup <- Subgroup %>% filter(Result > cushings_threshold[main_unit] | Result_update <= cushings_threshold[main_unit])
+      }
+      # According to readings, cortisol levels in the 50-100 ug/dl correspond to cushings syndorm which is the max value we want to filter.
+      Lab_abn <- Subgroup %>% filter(Result_update > cushings_threshold[main_unit])
+      if (nrow(Lab_abn) > 0){
+        logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Subgroup), " rows with GroupId ", Id,
+                      " removed due to possible incorrect reference units: result is above cushing threshold"))
+        fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_7D_Possible_incorrect_units_", header, output_file_ending))
+        Subgroup <- Subgroup %>% filter(Result_update <= cushings_threshold[main_unit])
+      }
+    }
+    Subgroup <- Subgroup %>% mutate(Result = Result_update, Reference_Units = Reference_Units_update) %>%
+      select(-c(Result_update, Reference_Units_update))
+    rm(max_range, main_unit, main_unit_num, main_unit_den, Lab_abn)
+    
+    if(write_files){
+      fwrite(Subgroup, str_c(output_file_header, header, output_file_ending))
+    }
+    if (create_cortisol_group){
+      if (Id %in% Cortisol_Group_Id_list){
+        if (exists("Cortisol_group")){
+          Cortisol_group <- rbind(Cortisol_group, Subgroup)
+        } else {
+          Cortisol_group <- Subgroup
+        }
+      }
+    }
+    
+    DF_to_fill <- Create_ACTH_Cortisol_DHEA_Output_Columns(Subgroup, header, DF_to_fill)
+    rm(header, Subgroup)
+  }
+  rm(Id)
+  
+  if (create_cortisol_group){
+    header <- "All_Cortisol"
+    if (strict) { header <- str_c(header, "_Strict")}
+    logdebug(str_c("Number of Subjects: ", Cortisol_group %>% group_by(EMPI) %>%
+                     summarise(count = n(), .groups = 'drop') %>% pull(count) %>% length()))
+    # Cortisol should all be the same unit (usually ug/dl) but if that is not the case, change them to whichever unit is the most common
+    if (Cortisol_group %>% group_by(Reference_Units) %>%
+        summarise(.groups = 'drop') %>% pull(Reference_Units) %>% length() > 1){
+      logdebug(Cortisol_group %>% group_by(Reference_Units) %>% summarise(n = n(), .groups = 'drop'))
+      # Find the main reference
+      main_unit <- Cortisol_group %>% group_by(Reference_Units) %>%
+        summarise(count = n(), .groups = 'drop') %>%
+        filter(count == max(count)) %>% pull(Reference_Units)
+      c(main_unit_num, main_unit_den) %<-% str_split_fixed(main_unit, "/", n = 2)
+      # Figure out if any reference range information is given as next few steps require for cleaning
+      ref_ranges_summary <- Cortisol_group %>% group_by(Reference_Range) %>%
+        summarise(.groups = 'drop') %>% pull()
+      if (length(ref_ranges_summary) == 1 && ref_ranges_summary == ""){
+        logwarn(str_c("GroupId ", Id, " does not list reference range information in all ", nrow(Cortisol_group), " entries"))
+        max_range = Cortisol_group %>% filter(Abnormal_Flag == "") %>% pull(Result) %>% max()
+      } else {
+        option1 <- "(.*( |-)((\\d|\\.)*)(\\(*a.+)*$)" # if a-b given, select b (note some mention a.m. after) [select \\3 of 1-5]
+        option2 <- "(^<((\\d|\\.)+)$)"                # if  <b given, select b [select \\2 of 1-3]
+        max_range <- max(as.numeric(gsub(str_c(option1, option2, sep = "|"), "\\3\\7",
+                                         Cortisol_group %>% filter(Reference_Units == main_unit) %>%
+                                           group_by(Reference_Range) %>% summarise(.groups = 'drop') %>% pull())), na.rm = TRUE)
+        rm(option1, option2)
+      }
+      rm(ref_ranges_summary)
+      logdebug(str_c("max_range: ", max_range))
+      # Clean data (10):
+      # (A) Convert all units to the same unit
+      # (B) Remove if changed units are above range and have not been flagged high
+      # (C) Remove if main units are above range and have not been flagged high
+      # (D) Remove if values are above cushing threshold (if Cortisol test)
+      Cortisol_group <- Cortisol_group %>%
+        mutate(Result_update = Result,
+               Result_update = ifelse(Unit_Num != main_unit_num,
+                                      Result_update * unit_values[Unit_Num] / unit_values[main_unit_num],
+                                      Result_update),
+               Result_update = ifelse(Unit_Den != main_unit_den,
+                                      Result_update * unit_values[main_unit_den] / unit_values[Unit_Den],
+                                      Result_update),
+               Reference_Units_update = main_unit)
+      Lab_abn <- Cortisol_group %>% filter(Reference_Units != main_unit, Result_update > max_range, Abnormal_Flag == "")
+      if (nrow(Lab_abn) > 0){
+        logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Cortisol_group), " rows with GroupId ", Id,
+                      " removed due to possible incorrect reference units: original units not ", main_unit))
+        fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_8A_Possible_incorrect_units_", header, output_file_ending))
+        Cortisol_group <- Cortisol_group %>% filter(Reference_Units == main_unit | Result_update <= max_range | Abnormal_Flag != "")
+      }
+      Lab_abn <- Cortisol_group %>% filter(Reference_Units == main_unit, Result > max_range, Abnormal_Flag == "")
+      if (nrow(Lab_abn) > 0){
+        logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Cortisol_group), " rows with GroupId ", Id,
+                      " removed due to possible incorrect reference units: ", main_unit, " should have been a different unit"))
+        fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_8B_Possible_incorrect_units_", header, output_file_ending))
+        Cortisol_group <- Cortisol_group %>% filter(Reference_Units != main_unit | Result <= max_range | Abnormal_Flag != "")
+      }
+      # According to readings, cortisol levels in the 50-100 ug/dl correspond to cushings syndorm which is the max value we want to filter.
+      Lab_abn <- Cortisol_group %>% filter(Result <= cushings_threshold[main_unit], Result_update > cushings_threshold[main_unit])
+      if (nrow(Lab_abn) > 0){
+        logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Cortisol_group), " rows with GroupId ", Id,
+                      " removed due to possible incorrect reference units: original result below cushing threshold but update is not"))
+        fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_8C_Possible_incorrect_units_", header, output_file_ending))
+        Cortisol_group <- Cortisol_group %>% filter(Result > cushings_threshold[main_unit] | Result_update <= cushings_threshold[main_unit])
+      }
+      # According to readings, cortisol levels in the 50-100 ug/dl correspond to cushings syndorm which is the max value we want to filter.
+      Lab_abn <- Cortisol_group %>% filter(Result_update > cushings_threshold[main_unit])
+      if (nrow(Lab_abn) > 0){
+        logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Cortisol_group), " rows with GroupId ", Id,
+                      " removed due to possible incorrect reference units: result is above cushing threshold"))
+        fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_8D_Possible_incorrect_units_", header, output_file_ending))
+        Cortisol_group <- Cortisol_group %>% filter(Result_update <= cushings_threshold[main_unit])
+      }
+      Cortisol_group <- Cortisol_group %>% mutate(Result = Result_update, Reference_Units = Reference_Units_update) %>%
+        select(-c(Unit_Num, Unit_Den, Result_update, Reference_Units_update))
+      rm(max_range, main_unit, main_unit_num, main_unit_den, Lab_abn)
+    }
+    
+    if(write_files){
+      fwrite(Cortisol_group, str_c(output_file_header, header, output_file_ending))
+    }
+    DF_to_fill <- Create_ACTH_Cortisol_DHEA_Output_Columns(Cortisol_group, header, DF_to_fill)
+    DF_to_fill <- DF_to_fill %>% select(Original_Columns, starts_with(header), everything())
+    rm(Cortisol_group, header)
+  }
+  rm(Labs)
+  return(DF_to_fill)
+}
+
+# Test specific functions
+process_ACTH_labs_set_range <- function(DF_to_fill = All_merged,
+                                        input_file_header = config$rpdr_file_header,
+                                        input_file_ending = config$rpdr_file_ending,
+                                        path_lab_abn = str_c(config$data_dir, "Lab_abnormalities/"),
+                                        skip_ACTH = config$ACTH_params$skip_ACTH,
+                                        strict = config$ACTH_params$strict,
+                                        create_cortisol_group = config$ACTH_params$create_cortisol_group,
+                                        write_files = config$create_intermediates,
+                                        output_file_header = config$intermediate_files_dir,
+                                        output_file_ending = config$general_file_ending,
+                                        min_dates,
+                                        max_dates,
+                                        restricted_ids = TRUE){
+  loginfo("Processing labs file...")
+  Labs <- data.table(fread(str_c(input_file_header, "Lab", input_file_ending))) %>% arrange(EMPI, Seq_Date_Time)
+  if (!dir.exists(path_lab_abn)) {dir.create(path_lab_abn)}
+  logdebug(str_c("Note: All Lab abnormalites can be found at ", path_lab_abn))
+  path_lab_abn <- str_c(path_lab_abn, "Lab", min_dates, "_to_", max_dates, "_")
+  if(write_files){
+    output_file_header <- str_c(output_file_header, "Lab_", min_dates, "_to_", max_dates, "_")
+  }
+  if (!exists("strict")){
+    strict = FALSE
+  }
+  if (!exists("skip_ACTH")){
+    skip_ACTH = FALSE
+  }
+  if (!exists("create_cortisol_group")){
+    create_cortisol_group = FALSE
+  }
+  
+  if(restricted_ids){
+    loginfo("Reducing information to restricted EMPIs...")
+    Labs <- Labs %>% filter(EMPI %in% DF_to_fill$EMPI)
+  }
+  
+  loginfo(str_c("Restricting Labs to specified date range..."))
+  # First separate out date from Seq_Date_Time
+  Labs <- Labs %>%
+    extract(Seq_Date_Time, c("Seq_Date", "Seq_Time"),
+            regex = "(\\d{2}/\\d{2}/\\d{4}) (\\d{2}:\\d{2})", remove = FALSE) %>%
+    separate(Seq_Time, c("Seq_Hour", "Seq_Min", sep = ":"), remove = FALSE) %>% select(-":") %>%
+    mutate(Seq_Date = ifelse(is.na(Seq_Time), Seq_Date_Time, Seq_Date),
+           Seq_Date = mdy(Seq_Date),
+           Seq_Hour = as.numeric(Seq_Hour),
+           Seq_Min = as.numeric(Seq_Min),
+           FLAG_AM_PM = ifelse(is.na(Seq_Time), NA, ifelse(Seq_Hour < 12, "AM", "PM")))
+  # Next grab date ranges from partially filled DF
+  Date_Range_DF <- DF_to_fill %>% select(EMPI, min_dates, max_dates)
+  Labs <- left_join(Labs, Date_Range_DF)
+  Original_row_length <- nrow(Labs)
+  Labs <- Labs %>% filter(Seq_Date >= get(min_dates)) %>% filter(Seq_Date <= get(max_dates))
+  New_row_length <- nrow(Labs)
+  logdebug(str_c(Original_row_length, " Labs reduced to ", New_row_length, " Labs"))
+  rm(Date_Range_DF, Original_row_length, New_row_length)
+  
+  # Only care about ACTH, Cortisol, and/or DHEA(s) in this function
+  Labs <- Labs %>% filter(grepl("ACTH|Cortisol($| |, P)|CRH|DHEA", Group_Id))
+  
+  # Clean data (1):
+  # (A): Change "Less than x" to "< x" and "Greater than x" to "> x"; Get rid of an extra spacing
+  # (B): Only include values that are digits, decimal starts, < x, > x
+  Lab_abn <- Labs %>% filter(!grepl("^ *(<|>|LESS THAN|GREATER THAN)* *(\\d|\\.)", toupper(Result)))
+  logwarn(str_c(nrow(Lab_abn), " entries out of ", nrow(Labs), " removed due to missingness or corrupt result entries"))
+  fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_1_Missingness_or_corrupt_result", output_file_ending))
+  Labs <- Labs %>%
+    mutate(Result = gsub("Less than", "<", Result, ignore.case = TRUE),
+           Result = gsub("Greater than", ">", Result, ignore.case = TRUE),
+           Result = gsub(" ", "", Result)) %>%
+    filter(grepl("^(<|>)*(\\d|\\.)", Result))
+  
+  # Clean data (2)
+  #   Change <0 to 0; Change all <x to x-min(x)/10; Change all >x to x + 0.11111
+  #   Remove the outliers that match the first criteria but are actually not valid
+  Labs <- Labs %>%
+    mutate(Result = gsub("<0((\\.|0)*)$", "0", Result),
+           Result = gsub("(.*(\\d|\\.)+).*", "\\1", Result),
+           LessThanX = as.numeric(ifelse(grepl("<", Result), gsub("<((\\d|\\.)+)", "\\1", Result), NA)),
+           GreaterThanX = as.numeric(ifelse(grepl(">", Result), gsub(">((\\d|\\.)+)", "\\1", Result), NA)),
+           Result = as.numeric(Result),
+           Result = ifelse(is.na(LessThanX), Result, LessThanX - min(LessThanX, na.rm = TRUE) / 10),
+           Result = ifelse(is.na(GreaterThanX), Result, GreaterThanX + 1/9)) %>%
+    select(-c(LessThanX, GreaterThanX)) %>% filter(!is.na(Result))
+  
+  # Clean data (3)
+  #   Remove duplicates
+  Lab_abn <- Labs[(duplicated(Labs)),]
+  logwarn(str_c(nrow(Lab_abn), " completely duplicated row(s) out of ", nrow(Labs), " removed"))
+  fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_2_Duplicate_rows", output_file_ending))
+  Labs <- Labs %>% unique()
+  
+  # Clean data (4)
+  # (A): Change all reference units to lower case; Change mcg (micrograms) to ug (micrograms);
+  #      Find units listed in result text
+  # (B): Remove mismatches between units in result text and reference units
+  Labs <- Labs %>%
+    mutate(Reference_Units = tolower(Reference_Units),
+           Reference_Units = gsub("mc", "u", Reference_Units),
+           Result_Text = gsub("mcg/", "ug/", Result_Text, ignore.case = TRUE),
+           Result_Text_Units = ifelse(grepl(".*([unp]g/[dm]l).*", Result_Text, ignore.case = TRUE),
+                                      gsub(".*([unp]g */ *[dm]l).*", "\\1", Result_Text, ignore.case = TRUE),
+                                      ""),
+           Result_Text_Units = tolower(Result_Text_Units))
+  Lab_abn <- Labs %>% filter(Result_Text_Units != "" & Result_Text_Units != Reference_Units)
+  logwarn(str_c(nrow(Lab_abn), " out of ", nrow(Labs),
+                " rows removed due to units listed in the Result Text varying from Reference Units"))
+  fwrite(Lab_abn, str_c(path_lab_abn, "Abnormality_3_Mismatch_units", output_file_ending))
+  Labs <- Labs %>%
+    filter(Result_Text_Units == "" | Result_Text_Units == Reference_Units) %>% select(-Result_Text_Units)
+  
+  # Clean data (5)
+  #   Get rid of # in Abnormal Flag because it tells you nothing (* on the otherhand means out of range);
+  #   Replace LL with L and HH with H; Find "flags" in text and add to Abnormal_Flag column if missing
+  Labs <- Labs %>% mutate(Abnormal_Flag = gsub("#", "", Abnormal_Flag),
+                          Abnormal_Flag = gsub("(L{1,})", "L", Abnormal_Flag),
+                          Abnormal_Flag = gsub("(H{1,})", "H", Abnormal_Flag),
+                          Abnormal_Flag = ifelse(grepl("Flag: *H(igh)* ", Result_Text, ignore.case = TRUE) &
+                                                   Abnormal_Flag == "", "H", Abnormal_Flag),
+                          Abnormal_Flag = ifelse(grepl("Flag: *L(ow)* ", Result_Text, ignore.case = TRUE) &
+                                                   Abnormal_Flag == "", "L", Abnormal_Flag))
+  
+  # Clean data (6)
+  #   Split units
+  Labs <- Labs %>%
+    separate(Reference_Units, c("Unit_Num", "Unit_Den", sep = "/"), remove = FALSE) %>% select(-"/")
   
   # Clean data (7)
   #   If strict, remove NA times, remove AM if PM in name, remove PM if AM in name
